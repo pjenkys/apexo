@@ -1,4 +1,9 @@
 
+### ____0.5.1____
+
+-   added payments summary on the appointments calendar page
+
+
 ### ____0.5.0____
 
 -   when applying a filter made it more clear
