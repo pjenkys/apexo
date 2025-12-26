@@ -1,13 +1,20 @@
 
+### ____0.6.0____
+
+-   Payment summary as you enter payment and cost at the appointment panel
+-   Labworks are now part of the appointment but their information is aggregated at a speicific page
+-   Re-designed show more button with scrollability
+
+
 ### ____0.5.1____
 
--   added payments summary on the appointments calendar page
+-   Added payments summary on the appointments calendar page
 
 
 ### ____0.5.0____
 
--   when applying a filter made it more clear
--   adbility to set notes on a dental chart from the appointment panel (i.e. specific to an appointment)
+-   When applying a filter made it more clear
+-   Adbility to set notes on a dental chart from the appointment panel (i.e. specific to an appointment)
 
 ### ____0.4.3____
 
