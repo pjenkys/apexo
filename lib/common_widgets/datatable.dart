@@ -28,7 +28,8 @@ class DataTableAction {
   IconData icon;
   String? title;
   Widget? child;
-  DataTableAction({required this.callback, required this.icon, this.title, this.child});
+  DataTableAction(
+      {required this.callback, required this.icon, this.title, this.child});
 }
 
 class DataTable<Item extends Model> extends StatefulWidget {
@@ -69,8 +70,8 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
   /// occur too many times on every rebuild
   List<String>? _labels;
   List<String> get labels {
-    return _labels ??= widget.items
-        .fold(<String>{}, (labels, item) => labels..addAll((item.labels.keys.toList()))).toList()
+    return _labels ??= widget.items.fold(<String>{},
+        (labels, item) => labels..addAll((item.labels.keys.toList()))).toList()
       ..sort((a, b) => a.compareTo(b));
     //..removeWhere((label) => label.isEmpty);
   }
@@ -80,13 +81,18 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
   }
 
   List<Item> get filteredItems {
-    final words = _searchValue.toLowerCase().replaceAll(RegExp("أ|إ"), "ا").split(" ");
+    final words =
+        _searchValue.toLowerCase().replaceAll(RegExp("أ|إ"), "ا").split(" ");
     final List<Item> candidates = [];
     for (var item in widget.items) {
-      final searchIn =
-          (item.title + jsonEncode(item.labels.values.toList())).toLowerCase().replaceAll(RegExp("أ|إ"), "ا");
-      final bool allTermsFound =
-          words.map((word) => searchIn.contains(word)).where((x) => x == true).length == words.length;
+      final searchIn = (item.title + jsonEncode(item.labels.values.toList()))
+          .toLowerCase()
+          .replaceAll(RegExp("أ|إ"), "ا");
+      final bool allTermsFound = words
+              .map((word) => searchIn.contains(word))
+              .where((x) => x == true)
+              .length ==
+          words.length;
       if (allTermsFound) candidates.add(item);
     }
     return candidates;
@@ -106,16 +112,21 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
     List<Item> result = List<Item>.from(filteredItems);
     if (sortBy < 0) {
       result.sort((a, b) {
-        return a.title.toLowerCase().compareTo(b.title.toLowerCase()) * sortDirection;
+        return a.title.toLowerCase().compareTo(b.title.toLowerCase()) *
+            sortDirection;
       });
     } else {
-      final sorted = List<_SortableItem<Item>>.from(result.map((e) => _SortableItem(e.labels[labels[sortBy]] ?? "", e)))
+      final sorted = List<_SortableItem<Item>>.from(
+          result.map((e) => _SortableItem(e.labels[labels[sortBy]] ?? "", e)))
         ..sort((a, b) {
-          if (double.tryParse(a.value) != null && double.tryParse(b.value) != null) {
-            return double.parse(a.value).compareTo(double.parse(b.value)) * sortDirection;
+          if (double.tryParse(a.value) != null &&
+              double.tryParse(b.value) != null) {
+            return double.parse(a.value).compareTo(double.parse(b.value)) *
+                sortDirection;
           } else if (double.tryParse(removeNonNumbers(a.value)) != null &&
               double.tryParse(removeNonNumbers(b.value)) != null) {
-            return double.parse(removeNonNumbers(a.value)).compareTo(double.parse(removeNonNumbers(b.value))) *
+            return double.parse(removeNonNumbers(a.value))
+                    .compareTo(double.parse(removeNonNumbers(b.value))) *
                 sortDirection;
           } else {
             return a.value.compareTo(b.value) * sortDirection;
@@ -127,9 +138,20 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
     return result.sublist(0, min(result.length, slice));
   }
 
+  void scrollToBottom() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOut,
+    );
+  }
+
   showMore() {
     setState(() {
       slice = slice + 10;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollToBottom();
+      });
     });
   }
 
@@ -177,11 +199,13 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
         _buildCommandBar(),
         _buildListController(),
         _buildItemsList(context),
+        _buildShowMore(context)
       ],
     );
   }
 
   final contextMenuControllers = <String, FlyoutController>{};
+  final ScrollController _scrollController = ScrollController();
 
   Expanded _buildItemsList(BuildContext context) {
     final sorted = [...sortedItems]; // caching those two for easier computation
@@ -199,11 +223,11 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
             if (filtered.isEmpty) _buildNoItemsFound(),
             Expanded(
               child: ListView.builder(
+                controller: _scrollController,
                 key: WK.dataTableListView,
-                itemCount: filtered.length > sorted.length ? sorted.length + 1 : sorted.length,
-                itemBuilder: (context, index) => filtered.length > sorted.length && index == sorted.length
-                    ? _buildShowMore(context)
-                    : _buildSingleItem(sorted[index], checkedIds.contains(sorted[index].id)),
+                itemCount: sorted.length,
+                itemBuilder: (context, index) => _buildSingleItem(
+                    sorted[index], checkedIds.contains(sorted[index].id)),
               ),
             ),
           ],
@@ -212,32 +236,55 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
     );
   }
 
-  Center _buildShowMore(BuildContext context) {
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        width: 100,
-        height: 60,
-        child: FilledButton(
-          style: ButtonStyle(
-              elevation: const WidgetStatePropertyAll(10),
-              backgroundColor: WidgetStatePropertyAll(FluentTheme.of(context).accentColor),
-              foregroundColor: const WidgetStatePropertyAll(Colors.white),
-              shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(200)))),
-          onPressed: showMore,
-          child: const Icon(FluentIcons.double_chevron_down),
+  Widget _buildShowMore(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: FluentTheme.of(context).resources.cardStrokeColorDefault,
+          ),
         ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Txt(
+            "${txt("showing")} ${sortedItems.length}/${filteredItems.length}",
+            style: FluentTheme.of(context).typography.body,
+          ),
+          Row(
+            children: [
+              if (filteredItems.length > sortedItems.length)
+                FilledButton(
+                  onPressed: showMore,
+                  child: Row(
+                    children: [
+                      const Icon(FluentIcons.double_chevron_down),
+                      const SizedBox(width: 8),
+                      Txt(txt("showMore")),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
   _buildSingleItem(Item item, bool isChecked) {
     return Container(
-      padding: widget.compact ? EdgeInsets.zero : const EdgeInsets.symmetric(vertical: 1.5),
+      padding: widget.compact
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(vertical: 1.5),
       decoration: BoxDecoration(
-        color: isChecked ? FluentTheme.of(context).selectionColor.withValues(alpha: 0.05) : null,
+        color: isChecked
+            ? FluentTheme.of(context).selectionColor.withValues(alpha: 0.05)
+            : null,
         border: Border(
-          bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.2), width: 0.5),
+          bottom:
+              BorderSide(color: Colors.grey.withValues(alpha: 0.2), width: 0.5),
         ),
       ),
       child: ListTile(
@@ -278,7 +325,8 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
                           onPressed: () => widget.onSelect(item),
                           closeAfterClick: true,
                         ),
-                        if (widget.itemActions.isNotEmpty) const MenuFlyoutSeparator(),
+                        if (widget.itemActions.isNotEmpty)
+                          const MenuFlyoutSeparator(),
                         for (var action in widget.itemActions)
                           MenuFlyoutItem(
                             leading: Icon(action.icon),
@@ -286,12 +334,19 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
                             onPressed: () => action.callback(item.id),
                             closeAfterClick: true,
                           ),
-                        if (routes.panels().where((p) => p.item.id == item.id).isEmpty)
+                        if (routes
+                            .panels()
+                            .where((p) => p.item.id == item.id)
+                            .isEmpty)
                           MenuFlyoutItem(
-                            leading: Icon(item.archived == true ? FluentIcons.archive_undo : FluentIcons.archive),
-                            text: Txt(txt(item.archived == true ? "restore" : "archive")),
-                            onPressed: () =>
-                                item.archived == true ? widget.store.unarchive(item.id) : widget.store.archive(item.id),
+                            leading: Icon(item.archived == true
+                                ? FluentIcons.archive_undo
+                                : FluentIcons.archive),
+                            text: Txt(txt(
+                                item.archived == true ? "restore" : "archive")),
+                            onPressed: () => item.archived == true
+                                ? widget.store.unarchive(item.id)
+                                : widget.store.archive(item.id),
                             closeAfterClick: true,
                           )
                       ]);
@@ -314,13 +369,21 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Padding(
-          padding: widget.compact ? const EdgeInsets.all(0) : const EdgeInsets.all(8.0),
+          padding: widget.compact
+              ? const EdgeInsets.all(0)
+              : const EdgeInsets.all(8.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ItemTitle(key: Key(item.id), radius: widget.compact ? 1 : 20, item: item),
+              ItemTitle(
+                  key: Key(item.id),
+                  radius: widget.compact ? 1 : 20,
+                  item: item),
               ...nonEmptyLabels.map((labelTitle) => _buildLabelPill(
-                  labelTitle, item, colorsWithoutYellow[getCycledNumber(nonEmptyLabels.indexOf(labelTitle))]))
+                  labelTitle,
+                  item,
+                  colorsWithoutYellow[
+                      getCycledNumber(nonEmptyLabels.indexOf(labelTitle))]))
             ],
           ),
         ),
@@ -351,14 +414,20 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
 
   Row _buildSorters() {
     return Row(
-      children: [_buildSortBy(), const SizedBox(width: 3), _buildSortDirectionToggle()],
+      children: [
+        _buildSortBy(),
+        const SizedBox(width: 3),
+        _buildSortDirectionToggle()
+      ],
     );
   }
 
   IconButton _buildSortDirectionToggle() {
     return IconButton(
       key: WK.toggleSortDirection,
-      icon: sortDirection > 0 ? const Icon(FluentIcons.sort_up) : const Icon(FluentIcons.sort_down),
+      icon: sortDirection > 0
+          ? const Icon(FluentIcons.sort_up)
+          : const Icon(FluentIcons.sort_down),
       onPressed: toggleSortDirection,
     );
   }
@@ -367,9 +436,11 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
     return ComboBox<int>(
       key: WK.dataTableSortBy,
       items: [
-        ComboBoxItem<int>(value: -1, child: Txt(txt(widget.defaultSortingName))),
-        ...nonNullLabels
-            .map((l) => ComboBoxItem<int>(value: nonNullLabels.indexOf(l), child: Txt("${txt("by")} ${txt(l)}")))
+        ComboBoxItem<int>(
+            value: -1, child: Txt(txt(widget.defaultSortingName))),
+        ...nonNullLabels.map((l) => ComboBoxItem<int>(
+            value: nonNullLabels.indexOf(l),
+            child: Txt("${txt("by")} ${txt(l)}")))
       ],
       value: sortBy,
       onChanged: setSortBy,
@@ -382,7 +453,10 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
       children: [
         Txt(
           "${txt("showing")} ${sortedItems.length}/${filtered.length}",
-          style: TextStyle(color: Colors.grey.toAccentColor().lightest, fontSize: 11, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.grey.toAccentColor().lightest,
+              fontSize: 11,
+              fontWeight: FontWeight.bold),
         ),
         if (filtered.isNotEmpty) ..._buildToggleSorters(context),
       ],
@@ -391,7 +465,9 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
 
   List<Widget> _buildToggleSorters(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    if (routes.panels().isNotEmpty || width < 865 || (width > 1000 && width < 1150)) {
+    if (routes.panels().isNotEmpty ||
+        width < 865 ||
+        (width > 1000 && width < 1150)) {
       return [];
     }
     return [
@@ -399,7 +475,8 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
       ...([widget.defaultSortingName, ...nonNullLabels])
           .map((e) => [
                 Acrylic(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(3)),
                   elevation: sortBy == nonNullLabels.indexOf(e) ? 12 : 0,
                   child: ToggleButton(
                     checked: sortBy == nonNullLabels.indexOf(e),
@@ -412,14 +489,17 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
                     },
                     style: const ToggleButtonThemeData(
                         uncheckedButtonStyle: ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                      backgroundColor:
+                          WidgetStatePropertyAll(Colors.transparent),
                     )),
                     child: Row(
                       children: [
                         Txt(txt(e)),
                         const SizedBox(width: 5),
                         if (sortBy == nonNullLabels.indexOf(e))
-                          Icon(sortDirection > 0 ? FluentIcons.sort_up : FluentIcons.sort_down)
+                          Icon(sortDirection > 0
+                              ? FluentIcons.sort_up
+                              : FluentIcons.sort_down)
                       ],
                     ),
                   ),
@@ -452,7 +532,8 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
                         }
                         action.callback(checkedIds.toList());
                       },
-                      label: action.child ?? (action.title != null ? Txt(action.title!) : null),
+                      label: action.child ??
+                          (action.title != null ? Txt(action.title!) : null),
                       icon: Icon(action.icon),
                     );
                   }),
@@ -485,7 +566,10 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
 
   Widget _buildLabelPill(String l, Item item, [Color? color]) {
     var selected = _searchValue.toLowerCase() == item.labels[l]?.toLowerCase();
-    color = color ?? colorsWithoutYellow[((labels.indexOf(l) / labels.length) * colorsWithoutYellow.length).floor()];
+    color = color ??
+        colorsWithoutYellow[
+            ((labels.indexOf(l) / labels.length) * colorsWithoutYellow.length)
+                .floor()];
     return Padding(
       padding: const EdgeInsets.all(2),
       child: GestureDetector(
@@ -529,7 +613,11 @@ class DataTablePill extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [color.withValues(alpha: 0.15), color.withValues(alpha: 0.07), color.withValues(alpha: 0.15)],
+              colors: [
+                color.withValues(alpha: 0.15),
+                color.withValues(alpha: 0.07),
+                color.withValues(alpha: 0.15)
+              ],
             ),
             border: Border.all(color: color.withValues(alpha: 0.3), width: 0.3),
             borderRadius: BorderRadius.circular(5),
@@ -539,8 +627,11 @@ class DataTablePill extends StatelessWidget {
             children: [
               Txt(
                 (txt(title)),
-                style:
-                    TextStyle(fontStyle: FontStyle.italic, fontWeight: FontWeight.bold, fontSize: 11.5, color: color),
+                style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11.5,
+                    color: color),
               ),
               const SizedBox(width: 5),
               const Divider(direction: Axis.vertical, size: 10),
@@ -554,7 +645,9 @@ class DataTablePill extends StatelessWidget {
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
               color: color.withValues(alpha: .7),
-              borderRadius: const BorderRadius.only(topRight: Radius.circular(5), bottomRight: Radius.circular(5)),
+              borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(5),
+                  bottomRight: Radius.circular(5)),
             ),
             child: const Icon(
               FluentIcons.filter,
@@ -599,8 +692,9 @@ class _DataTableSearchFieldState extends State<DataTableSearchField> {
                   },
                 ),
           key: WK.dataTableSearch,
-          placeholder:
-              widget.placeholder.isEmpty ? "🔍 ${txt("searchPlaceholder")}" : "${txt("filter")}: ${widget.placeholder}",
+          placeholder: widget.placeholder.isEmpty
+              ? "🔍 ${txt("searchPlaceholder")}"
+              : "${txt("filter")}: ${widget.placeholder}",
           onChanged: widget.onChanged,
           controller: _controller,
           decoration: BoxDecoration(

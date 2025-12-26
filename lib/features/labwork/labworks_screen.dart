@@ -22,7 +22,10 @@ class LabworksScreen extends StatelessWidget {
         children: [
           Expanded(
             child: MStreamBuilder(
-                streams: [appointments.observableMap.stream, showArchived.stream],
+                streams: [
+                  appointments.observableMap.stream,
+                  showArchived.stream
+                ],
                 builder: (context, snapshot) {
                   return LabworksTable(
                       labworks:
@@ -57,9 +60,10 @@ class LabworksTable extends StatefulWidget {
 class _LabworksTableState extends State<LabworksTable> {
   bool showReceived = false;
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   int _maxShowingItems = 20;
-  String _sortColumn = 'patient';
-  bool _sortAscending = true;
+  String _sortColumn = 'date';
+  bool _sortAscending = false;
   TextEditingController searchController = TextEditingController();
 
   List<LabworkItem> get filteredAndSorted {
@@ -137,7 +141,9 @@ class _LabworksTableState extends State<LabworksTable> {
           children: [
             _buildCommandBar(),
             _buildGrayBar(),
-            filteredAndSorted.isEmpty ? _buildNoItemsFound() : _buildInnerTable(context),
+            filteredAndSorted.isEmpty
+                ? _buildNoItemsFound()
+                : _buildInnerTable(context),
           ],
         ),
       ),
@@ -197,6 +203,13 @@ class _LabworksTableState extends State<LabworksTable> {
                   onPressed: () {
                     setState(() {
                       _maxShowingItems = _maxShowingItems + 10;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _scrollController.animateTo(
+                          _scrollController.position.maxScrollExtent,
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOut,
+                        );
+                      });
                     });
                   },
                 ),
@@ -209,29 +222,28 @@ class _LabworksTableState extends State<LabworksTable> {
 
   Expanded _buildTable(BuildContext context) {
     return Expanded(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Container(
-              constraints: BoxConstraints(
-                  maxWidth: max(constraints.maxWidth, 800)),
-              child: Column(
-                children: [
-                  _buildTableHeader(context),
-                  _buildTableItems(),
-                ],
-              ),
+      child: LayoutBuilder(builder: (context, constraints) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Container(
+            constraints:
+                BoxConstraints(maxWidth: max(constraints.maxWidth, 800)),
+            child: Column(
+              children: [
+                _buildTableHeader(context),
+                _buildTableItems(),
+              ],
             ),
-          );
-        }
-      ),
+          ),
+        );
+      }),
     );
   }
 
   Expanded _buildTableItems() {
     return Expanded(
       child: ListView.builder(
+        controller: _scrollController,
         itemCount: truncated.length,
         itemBuilder: (context, index) {
           final lab = truncated[index];
