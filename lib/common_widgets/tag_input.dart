@@ -1,5 +1,6 @@
 import 'package:apexo/services/localization/locale.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/services.dart';
 
 class TagInputItem extends AutoSuggestBoxItem<String> {
   TagInputItem({required super.value, required super.label});
@@ -13,147 +14,301 @@ class TagInputWidget extends StatefulWidget {
   final void Function(List<TagInputItem>) onChanged;
   final void Function(TagInputItem)? onItemTap;
   final String placeholder;
+  final bool multiline;
 
-  const TagInputWidget(
-      {super.key,
-      required this.suggestions,
-      required this.onChanged,
-      required this.initialValue,
-      required this.strict,
-      required this.limit,
-      this.placeholder = "",
-      this.onItemTap});
+  const TagInputWidget({
+    super.key,
+    required this.suggestions,
+    required this.onChanged,
+    required this.initialValue,
+    required this.strict,
+    required this.limit,
+    this.placeholder = "",
+    this.onItemTap,
+    this.multiline = false,
+  });
 
   @override
-  TagInputWidgetState createState() => TagInputWidgetState();
+  State<TagInputWidget> createState() =>
+      _TagInputWidgetState();
 }
 
-class TagInputWidgetState extends State<TagInputWidget> {
+class _TagInputWidgetState extends State<TagInputWidget> {
   final TextEditingController _controller = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
+  final _hiddenTappedFlyoutController = FlyoutController();
+  final autoSuggestBoxRef = GlobalKey<AutoSuggestBoxState>();
+  late FocusNode _focusNode;
   late List<TagInputItem> _tags;
-  late List<TagInputItem> _filteredSuggestions;
-  final key = GlobalKey<AutoSuggestBoxState>();
-
-  @override
-  void initState() {
-    super.initState();
-    _filteredSuggestions = widget.suggestions;
-    _tags = widget.initialValue;
-  }
-
-  void _onTextChanged(String inputVal, _) {
-    // this CAN be triggered while the widget has been unmounted/rebuilt
-    // that's why we're keeping the "mounted" condition
-    if (!mounted) return;
-
-    setState(() {
-      if (inputVal.isEmpty) {
-        _filteredSuggestions = widget.suggestions;
-      } else {
-        _filteredSuggestions = widget.suggestions
-            .where((suggestion) =>
-                _tags.map((e) => e.label.toLowerCase()).contains(suggestion.label.toLowerCase()) == false)
-            .toList();
-
-        // Always add the current input value to the suggestions
-        if (widget.strict == false && _filteredSuggestions.map((e) => e.label).contains(inputVal) == false) {
-          _filteredSuggestions.insert(0, TagInputItem(value: inputVal.replaceAll(" ", "-"), label: inputVal));
-        }
-      }
-    });
-
-    // Refresh the AutoSuggestBox suggestions by slightly altering the input value
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_controller.text.isNotEmpty) {
-        final currentPosition = _controller.selection;
-        _controller.text = _controller.text;
-        _controller.selection = currentPosition;
-        _focusNode.requestFocus();
-      }
-    });
-  }
+  late List<TagInputItem> _suggestions;
 
   void _onSuggestionSelected(AutoSuggestBoxItem<String> suggestion) {
     setState(() {
       _tags.add(TagInputItem(value: suggestion.value, label: suggestion.label));
       _controller.clear();
-      _filteredSuggestions = widget.suggestions;
     });
 
     // Force the text field to clear by updating the text field directly
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _controller.text = '';
-      _onTextChanged('', null); // Refresh suggestions
     });
 
     widget.onChanged(_tags);
+    if (_tags.length < widget.limit) {
+      _focusNode.requestFocus();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tags = widget.initialValue;
+    if (widget.strict == false) {
+      _suggestions = [
+        TagInputItem(value: "", label: ""),
+        ...widget.suggestions
+      ];
+    } else {
+      _suggestions = widget.suggestions;
+    }
+
+    _focusNode = FocusNode(onKeyEvent: (node, event) {
+      if (event is KeyDownEvent &&
+          _controller.text.isEmpty &&
+          event.logicalKey == LogicalKeyboardKey.backspace) {
+        backspaceRemove();
+      }
+      return KeyEventResult.ignored;
+    });
+  }
+
+  List<TagInputItem> get _filteredSuggestions {
+    return _suggestions.where(
+      (s) {
+        return !_tags
+                .map((e) => e.label.toLowerCase())
+                .contains(s.label.toLowerCase()) &&
+            s.label.isNotEmpty;
+      },
+    ).toList();
   }
 
   void _removeTag(TagInputItem tag) {
     setState(() {
       _tags.removeWhere((e) => e.value == tag.value);
     });
+    if (_hiddenTappedFlyoutController.isOpen &&
+        _hiddenTappedFlyoutController.isAttached) {
+      _hiddenTappedFlyoutController.close();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showAllTags();
+      });
+    }
     widget.onChanged(_tags);
+  }
+
+  void backspaceRemove() {
+    if (_tags.isEmpty) return;
+    setState(() {
+      _tags.removeLast();
+    });
+    widget.onChanged(_tags);
+  }
+
+  void showAllTags() {
+    if (_tags.isEmpty) return;
+    _hiddenTappedFlyoutController.showFlyout(
+        builder: (context) {
+          return FlyoutContent(
+              useAcrylic: true,
+              key: Key(_tags.map((e) => e.value).join("")),
+              child: Wrap(children: _tags.map((e) => _buildTag(e)).toList()));
+        },
+        dismissWithEsc: true);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: _tags.isEmpty ? null : Border.all(color: const Color.fromARGB(255, 221, 221, 221)),
-        borderRadius: _tags.isEmpty ? null : BorderRadius.circular(4),
-        color: _tags.isEmpty ? null : FluentTheme.of(context).menuColor,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(_tags.isEmpty ? 0 : 3),
-            child: Wrap(
-              spacing: 3,
-              runSpacing: 3,
-              children: _tags.map((tag) {
-                return _buildTag(tag);
-              }).toList(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const tokenPadding = EdgeInsets.symmetric(horizontal: 8);
+        const tokenSpacing = 4.0;
+        const collapseWidth = 36.0;
+
+        double usedWidth = 0;
+        final visibleTags = <TagInputItem>[];
+        final hiddenTags = <TagInputItem>[];
+
+        for (final tag in _tags.reversed) {
+          final textPainter = TextPainter(
+            text: TextSpan(text: tag.label),
+            maxLines: 1,
+            textDirection: TextDirection.ltr,
+          )..layout();
+
+          final tokenWidth = textPainter.width + tokenPadding.horizontal + 24;
+
+          if (widget.multiline == false &&
+              visibleTags.isNotEmpty &&
+              (usedWidth + tokenWidth + collapseWidth >
+                  constraints.maxWidth - 80)) {
+            hiddenTags.add(tag);
+          } else {
+            usedWidth += tokenWidth + tokenSpacing;
+            visibleTags.add(tag);
+          }
+        }
+
+        return FlyoutTarget(
+          controller: _hiddenTappedFlyoutController,
+          child: Container(
+            height: widget.multiline ? visibleTags.length * 35 + 40 : 40,
+            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
+            decoration: BoxDecoration(
+              border: Border.all(
+                  color: FluentTheme.of(context).inactiveColor.withAlpha(30)),
+              borderRadius: BorderRadius.circular(5),
             ),
+            child: widget.multiline
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                        if (_tags.isNotEmpty)
+                          _buildVisibleTags(visibleTags, tokenSpacing),
+                        if (_tags.length < widget.limit)
+                          _buildAutoSuggestInputTextBox(),
+                      ])
+                : Row(
+                    children: [
+                      if (_tags.isNotEmpty)
+                        _buildVisibleTags(visibleTags, tokenSpacing),
+                      if (hiddenTags.isNotEmpty)
+                        _buildHiddenTagsIndicator(tokenSpacing, hiddenTags),
+                      if (_tags.length < widget.limit)
+                        _buildAutoSuggestInputTextBox(),
+                    ],
+                  ),
           ),
-          if (widget.limit > _tags.length)
-            AutoSuggestBox<String>(
-                key: key,
-                controller: _controller,
-                textInputAction: TextInputAction.none,
-                decoration: WidgetStatePropertyAll(BoxDecoration(
-                  border:
-                      Border.all(color: const Color.fromARGB(255, 220, 220, 220), width: _tags.isEmpty ? 1.25 : 0.01),
-                )),
-                focusNode: _focusNode, // Attach the FocusNode to preserve focus
-                items: _filteredSuggestions
-                    .where((suggestion) => _tags.where((selected) => selected.value == suggestion.value).isEmpty)
-                    .toList(),
-                onSelected: _onSuggestionSelected,
-                onChanged: _onTextChanged,
-                placeholder: widget.placeholder,
-                noResultsFoundBuilder: (context) =>
-                    Padding(padding: const EdgeInsets.all(10), child: Txt(txt("noResultsFound"))),
-                trailingIcon: GestureDetector(
-                  child: const Icon(FluentIcons.grouped_descending),
-                  onTap: () {
-                    if (key.currentState != null) {
-                      var state = key.currentState!;
-                      if (state.isOverlayVisible) {
-                        state.dismissOverlay();
-                        _focusNode.unfocus();
-                      } else {
-                        state.showOverlay();
-                        _focusNode.requestFocus();
-                      }
+        );
+      },
+    );
+  }
+
+  Expanded _buildAutoSuggestInputTextBox() {
+    return Expanded(
+      child: AutoSuggestBox(
+        clearButtonEnabled: _tags.isEmpty ? true : false,
+        decoration: _tags.isNotEmpty
+            ? null
+            : WidgetStatePropertyAll(BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(color: Colors.transparent))),
+        unfocusedColor: _tags.isNotEmpty ? null : Colors.transparent,
+        highlightColor: _tags.isNotEmpty ? null : Colors.transparent,
+        noResultsFoundBuilder: (context) => Padding(
+          padding: const EdgeInsets.all(10),
+          child: widget.strict
+              ? Txt(
+                  txt("noResultsFound"),
+                  style: TextStyle(
+                    color: FluentTheme.of(context).shadowColor,
+                    fontStyle: FontStyle.italic,
+                  ),
+                )
+              : Text(
+                  txt("startTyping"),
+                  style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      fontSize: 12,
+                      color:
+                          FluentTheme.of(context).inactiveColor.withAlpha(155)),
+                ),
+        ),
+        controller: _controller,
+        focusNode: _focusNode,
+        placeholder: widget.placeholder,
+        key: autoSuggestBoxRef,
+        trailingIcon: (_tags.length < 2 || widget.multiline)
+            ? (IconButton(
+                icon: autoSuggestBoxRef.currentState == null
+                    ? const Icon(FluentIcons.chevron_down)
+                    : autoSuggestBoxRef.currentState!.isOverlayVisible
+                        ? const Icon(FluentIcons.chevron_up)
+                        : const Icon(FluentIcons.chevron_down),
+                iconButtonMode: IconButtonMode.large,
+                style: const ButtonStyle(iconSize: WidgetStatePropertyAll(14)),
+                onPressed: () {
+                  setState(() {
+                    if (autoSuggestBoxRef.currentState == null) return;
+                    if (autoSuggestBoxRef.currentState!.isOverlayVisible ==
+                        false) {
+                      autoSuggestBoxRef.currentState!.showOverlay();
+                    } else {
+                      autoSuggestBoxRef.currentState!.dismissOverlay();
                     }
-                  },
-                ))
-        ],
+                  });
+                }))
+            : null,
+        items: _filteredSuggestions
+            .map(
+              (s) => AutoSuggestBoxItem(
+                value: s.value,
+                label: s.label,
+              ),
+            )
+            .toList(),
+        onSelected: _onSuggestionSelected,
+        onChanged: (text, reason) {
+          if (widget.strict) return;
+          setState(() {
+            _suggestions.setAll(0, [TagInputItem(value: text, label: text)]);
+          });
+        },
       ),
     );
+  }
+
+  Padding _buildHiddenTagsIndicator(
+      double tokenSpacing, List<TagInputItem> hiddenTags) {
+    return Padding(
+      padding: EdgeInsets.only(right: tokenSpacing),
+      child: Tooltip(
+        message: hiddenTags.map((e) => e.label).join(", "),
+        child: IconButton(
+          onPressed: showAllTags,
+          style: ButtonStyle(
+              elevation: const WidgetStatePropertyAll(1),
+              backgroundColor: WidgetStatePropertyAll(
+                  FluentTheme.of(context).cardColor.toAccentColor().dark)),
+          icon: SizedBox(
+            height: 26,
+            child: Text(
+              '+${hiddenTags.length}',
+              style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontStyle: FontStyle.italic,
+                  fontSize: 12),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVisibleTags(
+      List<TagInputItem> visibleTags, double tokenSpacing) {
+    final childrenToBuild = [
+      ...visibleTags.reversed.map((tag) => Padding(
+            padding: EdgeInsets.only(right: tokenSpacing),
+            child: _buildTag(tag),
+          ))
+    ];
+    return widget.multiline
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 3,
+            children: childrenToBuild,
+          )
+        : Row(children: childrenToBuild);
   }
 
   Padding _buildTag(TagInputItem tag) {
@@ -163,9 +318,15 @@ class TagInputWidgetState extends State<TagInputWidget> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         elevation: 1,
         child: IconButton(
-          onPressed: () => widget.onItemTap == null ? null : widget.onItemTap!(tag),
+          onPressed: () {
+            if (_hiddenTappedFlyoutController.isOpen) {
+              _hiddenTappedFlyoutController.close();
+            }
+            widget.onItemTap == null ? null : widget.onItemTap!(tag);
+          },
           style: const ButtonStyle(
-            padding: WidgetStatePropertyAll(EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5)),
+            padding: WidgetStatePropertyAll(
+                EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5)),
           ),
           icon: Row(
             mainAxisSize: MainAxisSize.min,
@@ -176,7 +337,9 @@ class TagInputWidgetState extends State<TagInputWidget> {
                 key: Key("${tag.label}_clear"),
                 icon: const Icon(FluentIcons.clear, size: 10),
                 onPressed: () => _removeTag(tag),
-                style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.black.withValues(alpha: 0.05))),
+                style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(
+                        Colors.black.withValues(alpha: 0.05))),
               ),
             ],
           ),

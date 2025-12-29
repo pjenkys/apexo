@@ -438,6 +438,7 @@ class _OperativeDetailsState extends State<_OperativeDetails> {
             strict: false,
             limit: 999,
             placeholder: "${txt("prescription")}...",
+            multiline: true,
           ),
         ),
         if (widget.appointment.prescriptions.isNotEmpty)

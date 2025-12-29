@@ -23,6 +23,7 @@ class Es implements En {
     "restore": "Restaurar",
     "logout": "Cerrar sesión",
     "noResultsFound": "No se encontraron resultados",
+    "startTyping": "Empieza a escribir",
     "home": "Inicio",
     "calendar": "Calendario",
     "gettingImages": "Obteniendo imágenes",

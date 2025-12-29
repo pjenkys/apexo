@@ -81,6 +81,7 @@ class _DoctorDetails extends StatelessWidget {
             initialValue: [...doctor.dutyDays.map((e) => TagInputItem(value: e, label: txt(e)))],
             strict: true,
             limit: 7,
+            placeholder: txt("dutyDays"),
           ),
         ),
         if (login.isAdmin && network.isOnline())
@@ -98,6 +99,8 @@ class _DoctorDetails extends StatelessWidget {
               ],
               strict: true,
               limit: 9999,
+              placeholder: txt("users"),
+              multiline: true,
             ),
           ),
       ].map((e) => [e, const SizedBox(height: 10)]).expand((e) => e).toList(),

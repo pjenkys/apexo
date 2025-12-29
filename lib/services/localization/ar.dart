@@ -21,6 +21,7 @@ class Ar implements En {
     "restore": "استعادة",
     "logout": "خروج",
     "noResultsFound": "لم يتم العثور على نتائج",
+    "startTyping": "اكتب هنا",
     "home": "الرئيسية",
     "calendar": "الرزنامة",
     "gettingImages": "يتم تحميل الصور",

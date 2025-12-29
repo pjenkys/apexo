@@ -22,6 +22,7 @@ class En {
     "restore": "Restore",
     "logout": "Logout",
     "noResultsFound": "No results found",
+    "startTyping": "Start typing",
     "home": "Home",
     "calendar": "Calendar",
     "gettingImages": "Getting images",
