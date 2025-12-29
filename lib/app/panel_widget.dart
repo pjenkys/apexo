@@ -42,7 +42,8 @@ class _PanelScreenState extends State<PanelScreen> {
   void dispose() {
     saveButtonCheckTimer.cancel();
     if (widget.panel.item is Appointment) {
-      widget.panel.store.observableMap.unObserve(observeAppointmentForImgUpdate);
+      widget.panel.store.observableMap
+          .unObserve(observeAppointmentForImgUpdate);
     }
     super.dispose();
   }
@@ -51,11 +52,13 @@ class _PanelScreenState extends State<PanelScreen> {
   void initState() {
     super.initState();
     isNew = widget.panel.store.get(widget.panel.item.id) == null;
-    saveButtonCheckTimer = Timer.periodic(const Duration(milliseconds: 750), (_) {
+    saveButtonCheckTimer =
+        Timer.periodic(const Duration(milliseconds: 750), (_) {
       if (jsonEncode(widget.panel.item.toJson()) != widget.panel.savedJson &&
           widget.panel.hasUnsavedChanges() != true) {
         widget.panel.hasUnsavedChanges(true);
-      } else if (jsonEncode(widget.panel.item.toJson()) == widget.panel.savedJson &&
+      } else if (jsonEncode(widget.panel.item.toJson()) ==
+              widget.panel.savedJson &&
           widget.panel.hasUnsavedChanges() != false) {
         widget.panel.hasUnsavedChanges(false);
       }
@@ -71,8 +74,10 @@ class _PanelScreenState extends State<PanelScreen> {
     final itemID = (widget.panel.item).id;
     for (var event in events) {
       if (event.type == DictEventType.modify &&
-          (widget.panel.item as Appointment).imgs.length != appointments.get(itemID)!.imgs.length) {
-        (widget.panel.item as Appointment).imgs = appointments.get(itemID)!.imgs;
+          (widget.panel.item as Appointment).imgs.length !=
+              appointments.get(itemID)!.imgs.length) {
+        (widget.panel.item as Appointment).imgs =
+            appointments.get(itemID)!.imgs;
         widget.panel.selectedTab(widget.panel.selectedTab()); // notify
       }
     }
@@ -104,7 +109,9 @@ class _PanelScreenState extends State<PanelScreen> {
             }
           }
 
-          if (value is KeyDownEvent && value.logicalKey == LogicalKeyboardKey.tab && ctrlPressed) {
+          if (value is KeyDownEvent &&
+              value.logicalKey == LogicalKeyboardKey.tab &&
+              ctrlPressed) {
             if (widget.panel.selectedTab() == widget.panel.tabs.length - 1) {
               widget.panel.selectedTab(0);
             } else {
@@ -132,10 +139,13 @@ class _PanelScreenState extends State<PanelScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _buildPanelHeader(),
-                      if (routes.minimizePanels() == false || widget.layoutWidth >= 710) ...[
+                      if (routes.minimizePanels() == false ||
+                          widget.layoutWidth >= 710) ...[
                         _buildTabsControllers(),
                         _buildTabBody(),
-                        if (widget.panel.tabs[widget.panel.selectedTab()].footer != null)
+                        if (widget.panel.tabs[widget.panel.selectedTab()]
+                                .footer !=
+                            null)
                           widget.panel.tabs[widget.panel.selectedTab()].footer!,
                         _buildBottomControls(),
                       ],
@@ -164,11 +174,14 @@ class _PanelScreenState extends State<PanelScreen> {
           },
           child: Container(
             color: FluentTheme.of(context).scaffoldBackgroundColor,
-            padding: EdgeInsets.all(widget.panel.tabs[widget.panel.selectedTab()].padding.toDouble()),
+            padding: EdgeInsets.all(widget
+                .panel.tabs[widget.panel.selectedTab()].padding
+                .toDouble()),
             constraints: BoxConstraints(
-                minHeight: widget.panel.tabs[widget.panel.selectedTab()].footer == null
-                    ? widget.layoutHeight - 161
-                    : widget.layoutHeight - 206),
+                minHeight:
+                    widget.panel.tabs[widget.panel.selectedTab()].footer == null
+                        ? widget.layoutHeight - 161
+                        : widget.layoutHeight - 206),
             child: widget.panel.tabs[widget.panel.selectedTab()].body,
           ),
         ),
@@ -187,16 +200,23 @@ class _PanelScreenState extends State<PanelScreen> {
             builder: (context, snapshot) {
               return Container(
                 decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.withValues(alpha: 0.1))),
+                  border: Border(
+                      top: BorderSide(
+                          color: Colors.grey.withValues(alpha: 0.1))),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
                 child: widget.panel.inProgress()
                     ? const Center(child: ProgressBar())
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          if (isNew == false && widget.panel.item.archived == true) _buildRestoreButton(),
-                          if (isNew == false && widget.panel.item.archived != true) _buildArchiveButton(),
+                          if (isNew == false &&
+                              widget.panel.item.archived == true)
+                            _buildRestoreButton(),
+                          if (isNew == false &&
+                              widget.panel.item.archived != true)
+                            _buildArchiveButton(),
                           _buildSaveButton(),
                           _buildCancelButton(),
                         ],
@@ -216,7 +236,8 @@ class _PanelScreenState extends State<PanelScreen> {
             return FilledButton(
               onPressed: closeOrConfirmCancel,
               style: greyButtonStyle.copyWith(
-                textStyle: const WidgetStatePropertyAll(TextStyle(fontSize: 13)),
+                textStyle:
+                    const WidgetStatePropertyAll(TextStyle(fontSize: 13)),
                 backgroundColor: widget.panel.hasUnsavedChanges()
                     ? WidgetStatePropertyAll(Colors.orange)
                     : const WidgetStatePropertyAll(Colors.grey),
@@ -225,7 +246,9 @@ class _PanelScreenState extends State<PanelScreen> {
                 children: [
                   const Icon(FluentIcons.cancel),
                   const SizedBox(width: 5),
-                  Txt(widget.panel.hasUnsavedChanges() ? txt("cancel") : txt("close"))
+                  Txt(widget.panel.hasUnsavedChanges()
+                      ? txt("cancel")
+                      : txt("close"))
                 ],
               ),
             );
@@ -255,10 +278,16 @@ class _PanelScreenState extends State<PanelScreen> {
             style: greyButtonStyle.copyWith(
               textStyle: const WidgetStatePropertyAll(TextStyle(fontSize: 13)),
               backgroundColor: WidgetStatePropertyAll(
-                  widget.panel.hasUnsavedChanges() ? Colors.blue : Colors.grey.withValues(alpha: 0.25)),
+                  widget.panel.hasUnsavedChanges()
+                      ? Colors.blue
+                      : Colors.grey.withValues(alpha: 0.25)),
             ),
             child: Row(
-              children: [const Icon(FluentIcons.save), const SizedBox(width: 5), Txt(txt("save"))],
+              children: [
+                const Icon(FluentIcons.save),
+                const SizedBox(width: 5),
+                Txt(txt("save"))
+              ],
             ),
           );
         });
@@ -326,16 +355,21 @@ class _PanelScreenState extends State<PanelScreen> {
             header: widget.panel.selectedTab() != 0
                 ? IconButton(
                     icon: const Icon(FluentIcons.chevron_left),
-                    onPressed: () => widget.panel.selectedTab(widget.panel.selectedTab() - 1),
+                    onPressed: () => widget.panel
+                        .selectedTab(widget.panel.selectedTab() - 1),
                   )
                 : const SizedBox(width: 25),
-            footer:
-                widget.panel.selectedTab() < widget.panel.tabs.where((t) => t.onlyIfSaved ? (!isNew) : true).length - 1
-                    ? IconButton(
-                        icon: const Icon(FluentIcons.chevron_right),
-                        onPressed: () => widget.panel.selectedTab(widget.panel.selectedTab() + 1),
-                      )
-                    : const SizedBox(width: 25),
+            footer: widget.panel.selectedTab() <
+                    widget.panel.tabs
+                            .where((t) => t.onlyIfSaved ? (!isNew) : true)
+                            .length -
+                        1
+                ? IconButton(
+                    icon: const Icon(FluentIcons.chevron_right),
+                    onPressed: () => widget.panel
+                        .selectedTab(widget.panel.selectedTab() + 1),
+                  )
+                : const SizedBox(width: 25),
             tabs: widget.panel.tabs
                 .map((e) => Tab(
                       text: Txt(txt(e.title)),
@@ -364,13 +398,17 @@ class _PanelScreenState extends State<PanelScreen> {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(children: [_buildPanelHeaderItemName(), _buildPanelHeaderStoreName()]),
+                  Row(children: [
+                    _buildPanelHeaderItemName(),
+                    _buildPanelHeaderStoreName()
+                  ]),
                   Row(children: [
                     if (routes.panels().length > 1) _buildPanelSwitcher(),
                     // minimization is useless is prevented in big screens
                     if (widget.layoutWidth < 710) _buildPanelMinimizeButton(),
                     widget.panel.inProgress()
-                        ? const SizedBox(height: 20, width: 20, child: ProgressRing())
+                        ? const SizedBox(
+                            height: 20, width: 20, child: ProgressRing())
                         : _buildPanelCloseButton()
                   ])
                 ],
@@ -392,7 +430,9 @@ class _PanelScreenState extends State<PanelScreen> {
 
   IconButton _buildPanelMinimizeButton() {
     return IconButton(
-      icon: Icon(routes.minimizePanels() ? FluentIcons.chevron_up : FluentIcons.chevron_down),
+      icon: Icon(routes.minimizePanels()
+          ? FluentIcons.chevron_up
+          : FluentIcons.chevron_down),
       onPressed: () => routes.minimizePanels(!routes.minimizePanels()),
     );
   }
@@ -417,10 +457,33 @@ class _PanelScreenState extends State<PanelScreen> {
   }
 
   Widget _buildPanelHeaderStoreName() {
-    return Txt(
-      txt(widget.panel.storeSingularName),
-      style: TextStyle(fontSize: 10.5, color: Colors.grey.withValues(alpha: 0.7)),
-      overflow: TextOverflow.fade,
+    String emoji = "";
+
+    switch (widget.panel.storeSingularName) {
+      case "appointment":
+        emoji = "📅";
+        break;
+      case "doctor":
+        emoji = "🥼";
+        break;
+      case "patient":
+        emoji = "🤒";
+        break;
+    }
+
+    return SizedBox(
+      width: 105,
+      child: Row(
+        children: [
+          Txt(emoji, style: TextStyle(fontSize: 20),),
+          Txt(
+            txt(widget.panel.storeSingularName),
+            style:
+                TextStyle(fontSize: 12, color: Colors.grey.withValues(alpha: 0.7), fontWeight: FontWeight.w500),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 
@@ -488,16 +551,24 @@ class _PanelScreenState extends State<PanelScreen> {
       dismissWithEsc: true,
       dismissOnPointerMoveAway: true,
       builder: (context) => MenuFlyout(items: [
-        ...([...routes.panels()]..sort((a, b) => b.creationDate - a.creationDate)).map((panel) {
+        ...([...routes.panels()]
+              ..sort((a, b) => b.creationDate - a.creationDate))
+            .map((panel) {
           return MenuFlyoutItem(
             selected: panel == widget.panel,
             leading: Icon(panel.icon),
             trailing: panel.inProgress()
                 ? const SizedBox(height: 20, width: 20, child: ProgressRing())
-                : Icon(panel.store.get(panel.item.id) == null ? FluentIcons.add : FluentIcons.edit),
-            text: Txt("${txt(panel.storeSingularName)}: ${panel.title ?? panel.item.title}",
-                style: TextStyle(fontWeight: panel == widget.panel ? FontWeight.w500 : null)),
-            onPressed: () => routes.bringPanelToFront(routes.panels().indexOf(panel)),
+                : Icon(panel.store.get(panel.item.id) == null
+                    ? FluentIcons.add
+                    : FluentIcons.edit),
+            text: Txt(
+                "${txt(panel.storeSingularName)}: ${panel.title ?? panel.item.title}",
+                style: TextStyle(
+                    fontWeight:
+                        panel == widget.panel ? FontWeight.w500 : null)),
+            onPressed: () =>
+                routes.bringPanelToFront(routes.panels().indexOf(panel)),
             closeAfterClick: true,
           );
         })
