@@ -1,13 +1,10 @@
 import 'package:apexo/core/model.dart';
-import 'package:apexo/features/settings/settings_stores.dart';
 import 'package:apexo/services/launch.dart';
 import 'package:apexo/services/login.dart';
 import 'package:apexo/features/patients/patient_model.dart';
 import 'package:apexo/features/patients/patients_store.dart';
 import 'package:apexo/features/doctors/doctor_model.dart';
 import 'package:apexo/features/doctors/doctors_store.dart';
-import 'package:intl/intl.dart' as intl;
-
 
 class Appointment extends Model {
   @override
@@ -24,16 +21,16 @@ class Appointment extends Model {
     } else if (patient!.title.isEmpty) {
       return "  ";
     } else {
-      return "${patient!.title} - ${intl.DateFormat(localSettings.dateFormat.startsWith("d") == true ? "d/MM/yyyy" : "MM/d/yyyy").format(date)}";
+      return patient!.title;
     }
   }
 
   Patient? get patient {
-    if (patientID != null && patientID!.isNotEmpty && patients.get(patientID!) == null && patientID!.length == 15) {
-      return Patient.fromJson({
-        id: patientID,
-        title: "${patientID}temp"
-      });
+    if (patientID != null &&
+        patientID!.isNotEmpty &&
+        patients.get(patientID!) == null &&
+        patientID!.length == 15) {
+      return Patient.fromJson({id: patientID, title: "${patientID}temp"});
     }
     return patients.get(patientID ?? "return null when null");
   }
@@ -57,7 +54,11 @@ class Appointment extends Model {
   }
 
   Set<int> get availableWeekDays {
-    return operators.expand((element) => element.dutyDays).toSet().map((day) => allDays.indexOf(day) + 1).toSet();
+    return operators
+        .expand((element) => element.dutyDays)
+        .toSet()
+        .map((day) => allDays.indexOf(day) + 1)
+        .toSet();
   }
 
   String get subtitleLine1 {
@@ -149,7 +150,6 @@ class Appointment extends Model {
     /* 13 */ if (labName != d.labName) json['labName'] = labName;
     /* 14 */ if (labworkNotes != d.labworkNotes) json['labworkNotes'] = labworkNotes;
     /* 15 */ if (labworkReceived != d.labworkReceived) json['labworkReceived'] = labworkReceived;
-
 
     json.remove("title"); // remove since it is a computed value in this case
 
