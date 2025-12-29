@@ -93,7 +93,7 @@ class _ItemTitleState extends State<ItemTitle> {
               padding: const EdgeInsets.fromLTRB(12, 5, 12, 5),
               child: Txt(
                 widget.item.title,
-                overflow: TextOverflow.ellipsis,
+                overflow: TextOverflow.visible,
                 style: TextStyle(fontSize: widget.fontSize ?? 14),
               ),
             ),
