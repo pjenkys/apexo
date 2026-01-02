@@ -13,17 +13,18 @@ class GridGallery extends StatefulWidget {
   final double? size;
   final int clipCount;
   final bool progress;
-  const GridGallery({
-    super.key,
-    required this.rowId,
-    required this.imgs,
-    required this.progress,
-    this.onPressDelete,
-    this.countPerLine = 3,
-    this.rowWidth = 350,
-    this.size,
-    this.clipCount = 0,
-  });
+  final bool showPlayIcon;
+  const GridGallery(
+      {super.key,
+      required this.rowId,
+      required this.imgs,
+      required this.progress,
+      this.onPressDelete,
+      this.countPerLine = 3,
+      this.rowWidth = 350,
+      this.size,
+      this.clipCount = 0,
+      this.showPlayIcon = true});
 
   @override
   State<GridGallery> createState() => _GridGalleryState();
@@ -43,7 +44,9 @@ class _GridGalleryState extends State<GridGallery> {
   @override
   Widget build(BuildContext context) {
     const double spacing = 4;
-    final double calculatedSized = ((widget.rowWidth - (spacing * (widget.countPerLine * 4))) / widget.countPerLine);
+    final double calculatedSized =
+        ((widget.rowWidth - (spacing * (widget.countPerLine * 4))) /
+            widget.countPerLine);
     return SizedBox(
       width: widget.rowWidth,
       child: Padding(
@@ -56,25 +59,31 @@ class _GridGalleryState extends State<GridGallery> {
           runSpacing: spacing,
           children: [
             ...List<Widget>.from(List.generate(widget.imgs.length, (index) {
-              if (widget.clipCount > 0 && index >= widget.clipCount) return null;
+              if (widget.clipCount > 0 && index >= widget.clipCount) {
+                return null;
+              }
               return SizedBox(
-                width: widget.size ?? calculatedSized, // Adjust for desired column count
+                width: widget.size ??
+                    calculatedSized, // Adjust for desired column count
                 height: widget.size ?? calculatedSized,
                 child: _buildSingleImage(context, index),
               );
             }).where((e) => e != null)),
-            if (widget.imgs.length > 1)
+            if (widget.imgs.length > 1 && widget.showPlayIcon)
               SizedBox(
-                width: widget.size ?? calculatedSized, // Adjust for desired column count
+                width: widget.size ??
+                    calculatedSized, // Adjust for desired column count
                 height: widget.size ?? calculatedSized,
                 child: FilledButton(
                   style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(Colors.grey.withValues(alpha: 0.8)),
+                    backgroundColor: WidgetStatePropertyAll(
+                        Colors.grey.withValues(alpha: 0.8)),
                     foregroundColor: const WidgetStatePropertyAll(Colors.white),
                     elevation: const WidgetStatePropertyAll(5),
                   ),
-                  onPressed: () => openSlideShow(context, widget.imgs.first),
-                  child: Icon(FluentIcons.play_resume, size: calculatedSized / 2),
+                  onPressed: () => openSlideShow(context, 0),
+                  child:
+                      Icon(FluentIcons.play_resume, size: calculatedSized / 2),
                 ),
               )
           ],
@@ -94,11 +103,13 @@ class _GridGalleryState extends State<GridGallery> {
             if (snapshot.data != null) {
               _imageProviders.add(snapshot.data!);
             }
-            if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+            if (snapshot.connectionState == ConnectionState.done &&
+                snapshot.hasData) {
               return GestureDetector(
                 onTap: () => openSingleImage(context, img),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0), // Optional rounded corners
+                  borderRadius:
+                      BorderRadius.circular(8.0), // Optional rounded corners
                   child: Image(
                     image: snapshot.data!,
                     fit: BoxFit.cover, // Crops the image to fit the space
@@ -112,23 +123,27 @@ class _GridGalleryState extends State<GridGallery> {
             }
           },
         ),
-        if (widget.onPressDelete != null && widget.progress == false)
+        if (widget.onPressDelete != null && (widget.rowWidth > 70) && widget.progress == false)
           Positioned(
             top: 4,
             right: 4,
             child: Acrylic(
               elevation: 20,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.0)),
               child: IconButton(
                 icon: const Icon(FluentIcons.delete),
                 onPressed: () => widget.onPressDelete?.call(img),
               ),
             ),
           ),
-        if (index == widget.clipCount - 1 && widget.imgs.length > widget.clipCount)
+        if ((index == widget.clipCount - 1 &&
+            widget.imgs.length > widget.clipCount))
           SizedBox.expand(
             child: GestureDetector(
-              onTap: () => openSingleImage(context, widget.imgs[index]),
+              onTap: () => widget.showPlayIcon
+                  ? openSingleImage(context, widget.imgs[index])
+                  : openSlideShow(context, 0),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.3),
@@ -137,8 +152,10 @@ class _GridGalleryState extends State<GridGallery> {
                   border: Border.all(color: Colors.white, width: 0.4),
                 ),
                 child: Center(
-                  child: Text("+${(widget.imgs.length - widget.clipCount + 1).toString()}",
-                      style: const TextStyle(color: Colors.white, fontSize: 18)),
+                  child: Text(
+                      "+${(widget.imgs.length - widget.clipCount).toString()}",
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 18)),
                 ),
               ),
             ),
@@ -151,7 +168,8 @@ class _GridGalleryState extends State<GridGallery> {
     showLoadingBlockingDialog(context, txt("gettingImages"));
     final ImageProvider provider;
     try {
-      provider = await getImage(widget.rowId, img, false) ?? const AssetImage("assets/images/missing.png");
+      provider = await getImage(widget.rowId, img, false) ??
+          const AssetImage("assets/images/missing.png");
     } finally {
       if (context.mounted) Navigator.of(context).pop();
     }
@@ -165,20 +183,25 @@ class _GridGalleryState extends State<GridGallery> {
         immersive: false,
         swipeDismissible: true,
         closeButtonColor: Colors.white,
+        onPressDelete: (_) {
+          if (widget.onPressDelete != null) {
+            widget.onPressDelete!(img);
+          }
+        },
       );
     }
   }
 
-  void openSlideShow(BuildContext context, String firstImg) async {
+  void openSlideShow(BuildContext context, int initialIndex) async {
     showLoadingBlockingDialog(context, txt("gettingImages"));
     MultiImageProvider multiImageProvider;
     try {
-      final List<ImageProvider<Object>> list = (await Future.wait([firstImg, ...widget.imgs.where((x) => x != firstImg)]
+      final List<ImageProvider<Object>> list = (await Future.wait(widget.imgs
               .map((img) => getImage(widget.rowId, img, false))
               .toList()))
           .map((el) => el ?? const AssetImage("assets/images/missing.png"))
           .toList();
-      multiImageProvider = MultiImageProvider(list);
+      multiImageProvider = MultiImageProvider(list, initialIndex: initialIndex);
     } finally {
       if (context.mounted) Navigator.of(context).pop();
     }
@@ -194,6 +217,11 @@ class _GridGalleryState extends State<GridGallery> {
         swipeDismissible: true,
         closeButtonColor: Colors.white,
         infinitelyScrollable: true,
+        onPressDelete: (int index) {
+          if (widget.onPressDelete != null) {
+            widget.onPressDelete!(widget.imgs[index]);
+          }
+        },
       );
     }
   }
