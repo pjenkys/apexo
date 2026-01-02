@@ -1,6 +1,6 @@
+import 'package:apexo/services/localization/locale.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
-
 import 'easy_image_provider.dart';
 import 'easy_image_view_pager.dart';
 
@@ -11,6 +11,7 @@ import 'easy_image_view_pager.dart';
 class EasyImageViewerDismissibleDialog extends StatefulWidget {
   final EasyImageProvider imageProvider;
   final bool immersive;
+  final void Function(int) onPressDelete;
   final void Function(int)? onPageChanged;
   final void Function(int)? onViewerDismissed;
   final bool swipeDismissible;
@@ -29,15 +30,18 @@ class EasyImageViewerDismissibleDialog extends StatefulWidget {
       this.swipeDismissible = false,
       this.doubleTapZoomable = false,
       this.infinitelyScrollable = false,
+      required this.onPressDelete,
       required this.backgroundColor,
       required this.closeButtonTooltip,
       required this.closeButtonColor});
 
   @override
-  State<EasyImageViewerDismissibleDialog> createState() => _EasyImageViewerDismissibleDialogState();
+  State<EasyImageViewerDismissibleDialog> createState() =>
+      _EasyImageViewerDismissibleDialogState();
 }
 
-class _EasyImageViewerDismissibleDialogState extends State<EasyImageViewerDismissibleDialog> {
+class _EasyImageViewerDismissibleDialogState
+    extends State<EasyImageViewerDismissibleDialog> {
   /// This is used to either activate or deactivate the ability to swipe-to-dismissed, based on
   /// whether the current image is zoomed in (scale > 0) or not.
   DismissDirection _dismissDirection = DismissDirection.down;
@@ -53,7 +57,8 @@ class _EasyImageViewerDismissibleDialogState extends State<EasyImageViewerDismis
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: widget.imageProvider.initialIndex);
+    _pageController =
+        PageController(initialPage: widget.imageProvider.initialIndex);
     if (widget.onPageChanged != null) {
       _internalPageChangeListener = () {
         widget.onPageChanged!(_getCurrentPage());
@@ -79,41 +84,66 @@ class _EasyImageViewerDismissibleDialogState extends State<EasyImageViewerDismis
           _handleDismissal();
         },
         key: _popScopeKey,
-        child: Stack(clipBehavior: Clip.none, alignment: Alignment.center, children: <Widget>[
-          GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: EasyImageViewPager(
-                easyImageProvider: widget.imageProvider,
-                pageController: _pageController,
-                doubleTapZoomable: widget.doubleTapZoomable,
-                infinitelyScrollable: widget.infinitelyScrollable,
-                onScaleChanged: (scale) {
-                  setState(() {
-                    _dismissDirection = scale <= 1.0 ? DismissDirection.down : DismissDirection.none;
-                  });
-                }),
-          ),
-          Positioned(
-              top: 5,
-              right: 5,
-              child: Acrylic(
-                elevation: 10,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                child: IconButton(
-                  icon: const Icon(
-                    FluentIcons.clear,
-                    color: Colors.white,
-                    size: 20,
+        child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: <Widget>[
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: EasyImageViewPager(
+                    easyImageProvider: widget.imageProvider,
+                    pageController: _pageController,
+                    doubleTapZoomable: widget.doubleTapZoomable,
+                    infinitelyScrollable: widget.infinitelyScrollable,
+                    onScaleChanged: (scale) {
+                      setState(() {
+                        _dismissDirection = scale <= 1.0
+                            ? DismissDirection.down
+                            : DismissDirection.none;
+                      });
+                    }),
+              ),
+              Positioned(
+                bottom: 5,
+                right: 5,
+                child: Button(
+                  child: Row(
+                    children: [
+                      const Icon(FluentIcons.delete, size: 17,),
+                      const SizedBox(width: 5),
+                      Txt(txt("delete"), style: const TextStyle(fontSize: 17),)
+                    ],
                   ),
                   onPressed: () {
-                    Navigator.of(context).pop();
-                    _handleDismissal();
+                    if(_pageController.page != null) {
+                      final currentIndex = _pageController.page!.toInt();
+                      widget.onPressDelete(currentIndex % widget.imageProvider.imageCount);
+                    }
                   },
                 ),
-              ))
-        ]));
+              ),
+              Positioned(
+                  top: 5,
+                  right: 5,
+                  child: Acrylic(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5)),
+                    child: IconButton(
+                      icon: const Icon(
+                        FluentIcons.clear,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _handleDismissal();
+                      },
+                    ),
+                  ))
+            ]));
 
     if (widget.swipeDismissible) {
       return Dismissible(

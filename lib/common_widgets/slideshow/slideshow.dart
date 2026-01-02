@@ -28,26 +28,35 @@ const _defaultCloseButtonTooltip = 'Close';
 /// The [closeButtonTooltip] text is displayed when the user long-presses on the
 /// close button and is used for accessibility.
 /// The [closeButtonColor] defaults to white, but can be set to any other color.
-showImageViewer(BuildContext context, ImageProvider imageProvider,
-    {bool immersive = true,
-    void Function()? onViewerDismissed,
-    bool useSafeArea = false,
-    bool swipeDismissible = false,
-    bool doubleTapZoomable = false,
-    Color backgroundColor = _defaultBackgroundColor,
-    Color? barrierColor,
-    String closeButtonTooltip = _defaultCloseButtonTooltip,
-    Color closeButtonColor = _defaultCloseButtonColor}) {
-  return showImageViewerPager(context, SingleImageProvider(imageProvider),
-      immersive: immersive,
-      onViewerDismissed: onViewerDismissed != null ? (_) => onViewerDismissed() : null,
-      useSafeArea: useSafeArea,
-      swipeDismissible: swipeDismissible,
-      doubleTapZoomable: doubleTapZoomable,
-      backgroundColor: backgroundColor,
-      barrierColor: barrierColor,
-      closeButtonTooltip: closeButtonTooltip,
-      closeButtonColor: closeButtonColor);
+showImageViewer(
+  BuildContext context,
+  ImageProvider imageProvider, {
+  bool immersive = true,
+  void Function()? onViewerDismissed,
+  required void Function(int) onPressDelete,
+  bool useSafeArea = false,
+  bool swipeDismissible = false,
+  bool doubleTapZoomable = false,
+  Color backgroundColor = _defaultBackgroundColor,
+  Color? barrierColor,
+  String closeButtonTooltip = _defaultCloseButtonTooltip,
+  Color closeButtonColor = _defaultCloseButtonColor,
+}) {
+  return showImageViewerPager(
+    context,
+    SingleImageProvider(imageProvider),
+    immersive: immersive,
+    onViewerDismissed:
+        onViewerDismissed != null ? (_) => onViewerDismissed() : null,
+    useSafeArea: useSafeArea,
+    swipeDismissible: swipeDismissible,
+    doubleTapZoomable: doubleTapZoomable,
+    onPressDelete: onPressDelete,
+    backgroundColor: backgroundColor,
+    barrierColor: barrierColor,
+    closeButtonTooltip: closeButtonTooltip,
+    closeButtonColor: closeButtonColor,
+  );
 }
 
 /// Shows the images provided by the [imageProvider] in a full-screen PageView [Dialog].
@@ -69,6 +78,7 @@ showImageViewerPager(BuildContext context, EasyImageProvider imageProvider,
     {bool immersive = true,
     void Function(int)? onPageChanged,
     void Function(int)? onViewerDismissed,
+    required void Function(int) onPressDelete,
     bool useSafeArea = false,
     bool swipeDismissible = false,
     bool doubleTapZoomable = false,
@@ -87,15 +97,18 @@ showImageViewerPager(BuildContext context, EasyImageProvider imageProvider,
       barrierDismissible: true,
       barrierColor: barrierColor ?? backgroundColor,
       builder: (context) {
-        return EasyImageViewerDismissibleDialog(imageProvider,
-            immersive: immersive,
-            onPageChanged: onPageChanged,
-            onViewerDismissed: onViewerDismissed,
-            swipeDismissible: swipeDismissible,
-            doubleTapZoomable: doubleTapZoomable,
-            infinitelyScrollable: infinitelyScrollable,
-            backgroundColor: backgroundColor,
-            closeButtonColor: closeButtonColor,
-            closeButtonTooltip: closeButtonTooltip);
+        return EasyImageViewerDismissibleDialog(
+          imageProvider,
+          immersive: immersive,
+          onPageChanged: onPageChanged,
+          onViewerDismissed: onViewerDismissed,
+          onPressDelete: onPressDelete,
+          swipeDismissible: swipeDismissible,
+          doubleTapZoomable: doubleTapZoomable,
+          infinitelyScrollable: infinitelyScrollable,
+          backgroundColor: backgroundColor,
+          closeButtonColor: closeButtonColor,
+          closeButtonTooltip: closeButtonTooltip,
+        );
       });
 }
