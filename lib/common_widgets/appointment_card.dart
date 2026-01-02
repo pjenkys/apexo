@@ -12,6 +12,7 @@ import 'package:apexo/features/doctors/open_doctor_panel.dart';
 import 'package:apexo/features/appointments/appointment_model.dart';
 import 'package:apexo/features/appointments/appointments_store.dart';
 import 'package:apexo/features/settings/settings_stores.dart';
+import 'package:apexo/utils/logger.dart';
 import 'package:apexo/widget_keys.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:intl/intl.dart' as intl;
@@ -34,13 +35,14 @@ class AppointmentCard extends StatelessWidget {
   final String? difference;
   final int number;
   final bool readOnly;
-  const AppointmentCard(
-      {super.key,
-      required this.appointment,
-      this.difference,
-      this.readOnly = false,
-      required this.number,
-      this.hide = const []});
+  const AppointmentCard({
+    super.key,
+    required this.appointment,
+    this.difference,
+    this.readOnly = false,
+    required this.number,
+    this.hide = const [],
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +134,20 @@ class AppointmentCard extends StatelessWidget {
                               rowWidth: 200,
                               size: 43,
                               progress: false,
+                              onPressDelete: (img) async {
+                                Navigator.of(context).pop();
+                                try {
+                                  await appointments.deleteImg(
+                                    appointment.id,
+                                    img,
+                                  );
+                                  appointments
+                                      .set(appointment..imgs.remove(img));
+                                } catch (e, s) {
+                                  logger("Error during deleting image: $e", s);
+                                }
+                              },
+                              showDeleteMiniButton: false,
                             ),
                             FluentIcons.camera,
                             color,
