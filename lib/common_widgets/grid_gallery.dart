@@ -7,24 +7,27 @@ import 'package:fluent_ui/fluent_ui.dart';
 class GridGallery extends StatefulWidget {
   final String rowId;
   final List<String> imgs;
-  final void Function(String img)? onPressDelete;
+  final void Function(String img) onPressDelete;
   final int countPerLine;
   final double rowWidth;
   final double? size;
   final int clipCount;
   final bool progress;
   final bool showPlayIcon;
-  const GridGallery(
-      {super.key,
-      required this.rowId,
-      required this.imgs,
-      required this.progress,
-      this.onPressDelete,
-      this.countPerLine = 3,
-      this.rowWidth = 350,
-      this.size,
-      this.clipCount = 0,
-      this.showPlayIcon = true});
+  final bool showDeleteMiniButton;
+  const GridGallery({
+    super.key,
+    required this.rowId,
+    required this.imgs,
+    required this.progress,
+    required this.onPressDelete,
+    required this.showDeleteMiniButton,
+    this.countPerLine = 3,
+    this.rowWidth = 350,
+    this.size,
+    this.clipCount = 0,
+    this.showPlayIcon = true,
+  });
 
   @override
   State<GridGallery> createState() => _GridGalleryState();
@@ -123,7 +126,7 @@ class _GridGalleryState extends State<GridGallery> {
             }
           },
         ),
-        if (widget.onPressDelete != null && (widget.rowWidth > 70) && widget.progress == false)
+        if (widget.showDeleteMiniButton && widget.progress == false)
           Positioned(
             top: 4,
             right: 4,
@@ -133,7 +136,7 @@ class _GridGalleryState extends State<GridGallery> {
                   borderRadius: BorderRadius.circular(4.0)),
               child: IconButton(
                 icon: const Icon(FluentIcons.delete),
-                onPressed: () => widget.onPressDelete?.call(img),
+                onPressed: () => widget.onPressDelete.call(img),
               ),
             ),
           ),
@@ -184,9 +187,7 @@ class _GridGalleryState extends State<GridGallery> {
         swipeDismissible: true,
         closeButtonColor: Colors.white,
         onPressDelete: (_) {
-          if (widget.onPressDelete != null) {
-            widget.onPressDelete!(img);
-          }
+          widget.onPressDelete(img);
         },
       );
     }
@@ -218,9 +219,7 @@ class _GridGalleryState extends State<GridGallery> {
         closeButtonColor: Colors.white,
         infinitelyScrollable: true,
         onPressDelete: (int index) {
-          if (widget.onPressDelete != null) {
-            widget.onPressDelete!(widget.imgs[index]);
-          }
+          widget.onPressDelete(widget.imgs[index]);
         },
       );
     }
