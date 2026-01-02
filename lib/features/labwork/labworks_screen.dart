@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:apexo/common_widgets/no_items_found.dart';
 import 'package:apexo/core/multi_stream_builder.dart';
 import 'package:apexo/features/appointments/appointments_store.dart';
 import 'package:apexo/features/appointments/open_appointment_panel.dart';
@@ -142,7 +143,7 @@ class _LabworksTableState extends State<LabworksTable> {
             _buildCommandBar(),
             _buildGrayBar(),
             filteredAndSorted.isEmpty
-                ? _buildNoItemsFound()
+                ? const NoItemsFound()
                 : _buildInnerTable(context),
           ],
         ),
@@ -314,19 +315,6 @@ class _LabworksTableState extends State<LabworksTable> {
           _buildHeaderCell(txt("notes"), 'notes'),
           _buildHeaderCell(txt("status"), "status")
         ],
-      ),
-    );
-  }
-
-  Widget _buildNoItemsFound() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: InfoBar(
-          isIconVisible: true,
-          severity: InfoBarSeverity.warning,
-          title: Txt(txt("noItemsFound")),
-        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:apexo/app/routes.dart';
+import 'package:apexo/common_widgets/no_items_found.dart';
 import 'package:apexo/core/store.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:apexo/widget_keys.dart';
@@ -220,7 +221,7 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
         padding: const EdgeInsets.only(top: 10),
         child: Column(
           children: [
-            if (filtered.isEmpty) _buildNoItemsFound(),
+            if (filtered.isEmpty) const NoItemsFound(),
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
@@ -549,17 +550,6 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
             ...widget.furtherActions.map((a) => a)
           ],
         ),
-      ),
-    );
-  }
-
-  _buildNoItemsFound() {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: InfoBar(
-        isIconVisible: true,
-        severity: InfoBarSeverity.warning,
-        title: Txt(txt("noItemsFound")),
       ),
     );
   }
