@@ -7,10 +7,12 @@ import 'package:intl/intl.dart';
 class DateTimePicker extends StatefulWidget {
   final DateTime initValue;
   final bool pickTime;
+  final bool showButton;
   final String format;
   final String buttonText;
   final IconData buttonIcon;
-  final Function(DateTime value) onChange;
+  final void Function(DateTime value) onChange;
+  final bool enabled;
   const DateTimePicker({
     super.key,
     required this.initValue,
@@ -19,6 +21,8 @@ class DateTimePicker extends StatefulWidget {
     this.format = "dd/MM/yyyy",
     this.buttonIcon = FluentIcons.time_entry,
     this.buttonText = "Change date",
+    this.showButton = true,
+    this.enabled = true
   });
 
   @override
@@ -36,19 +40,20 @@ class DateTimePickerState extends State<DateTimePicker> {
 
   @override
   Widget build(BuildContext context) {
+    final color = FluentTheme.of(context).menuColor;
     return GestureDetector(
       onTap: pick,
       child: Container(
-        padding: const EdgeInsets.all(5),
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
         decoration: BoxDecoration(
-            color: FluentTheme.of(context).menuColor,
+            color: widget.enabled ? color : color.toAccentColor().darkest,
             border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
             borderRadius: BorderRadius.circular(5)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Txt(DateFormat(widget.format, locale.s.$code).format(value)),
-            AcrylicButton(icon: widget.buttonIcon, text: widget.buttonText, onPressed: pick)
+            SizedBox(height: 34, child: Center(child: Txt(DateFormat(widget.format, locale.s.$code).format(value)))),
+            if(widget.showButton) AcrylicButton(icon: widget.buttonIcon, text: widget.buttonText, onPressed: pick)
           ],
         ),
       ),
@@ -56,6 +61,7 @@ class DateTimePickerState extends State<DateTimePicker> {
   }
 
   pick() async {
+    if(!widget.enabled) return;
     DateTime selected = value;
 
     if (widget.pickTime) {
