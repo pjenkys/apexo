@@ -8,6 +8,7 @@ import 'package:apexo/features/appointments/appointments_store.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
@@ -40,42 +41,74 @@ String _urlToThumbUrl(String url) {
 }
 
 // copies a given image to local folder and upload it to the server
-Future<String> handleNewImage({required String rowID, required String targetPath, bool updateModel = true}) async {
-  final bool fromLink = targetPath.startsWith("http");
-
+Future<String> handleNewImage({
+  required String rowID,
+  required String sourcePath,
+  XFile? sourceFile,
+}) async {
+  final bool fromLink = sourcePath.startsWith("http");
   String extension;
-  File imgFile;
 
+  // this if for web importing on web
+  sourceFile ??= XFile(sourcePath);
+
+  // getting extension
   if (fromLink) {
-    extension = await getImageExtensionFromURL(targetPath) ?? ".jpg";
+    extension = await getImageExtensionFromURL(sourcePath) ?? ".jpg";
+  } else if (sourcePath.startsWith("blob:")) {
+    if (sourceFile.mimeType != null &&
+        sourceFile.mimeType!.split("/").length > 1) {
+      extension = ".${sourceFile.mimeType!.split("/").last}";
+    } else {
+      extension = ".${sourceFile.name.split(".").last}";
+    }
   } else {
-    extension = path.extension(targetPath);
+    extension = path.extension(sourcePath);
   }
 
-  final imgName = simpleHash(targetPath) + extension;
 
-  if (fromLink) {
-    imgFile = await saveImageFromUrl(targetPath, imgName);
-  } else {
-    imgFile = await savePickedImage(File(targetPath), imgName);
+  // hashing the path to get a filename
+  final imgName = simpleHash(sourcePath) + extension;
+
+  File? savedFile;
+  if (!kIsWeb) {
+    // saving the image to desk (saving to a specific folder)
+    if (fromLink) {
+      savedFile = await saveImageFromUrl(sourcePath, imgName);
+    } else {
+      savedFile = await savePickedImage(File(sourcePath), imgName);
+    }
+
+    // resizing it to a thumb
+    final cmd = img.Command()
+      ..decodeImageFile(savedFile.path)
+      ..copyResize(width: 100)
+      ..writeToFile(_nameToThumbName(savedFile.path));
+    await cmd.executeThread();
   }
+  
+  // uploading
+  await appointments.uploadImg(
+    rowID: rowID,
+    filename: imgName,
+    path: savedFile?.path,
+    file: sourceFile
+  );
 
-  final cmd = img.Command()
-    ..decodeImageFile(imgFile.path)
-    ..copyResize(width: 100)
-    ..writeToFile(_nameToThumbName(imgFile.path));
-  await cmd.executeThread();
-
-  await appointments.uploadImg(rowID, imgFile.path);
-
+  // returning the imgName which is the hashed name + extension
+  // to be saved in the row
   return imgName;
 }
 
 final imgMemoryCache = <String, ImageProvider?>{};
-final _imageHttpReqQue = TaskQueue(delayBetweenTasks: const Duration(milliseconds: 100));
+final _imageHttpReqQue =
+    TaskQueue(delayBetweenTasks: const Duration(milliseconds: 100));
 
-Future<ImageProvider?> getImage(String rowID, String name, [bool thumb = true]) async {
-  if (thumb && imgMemoryCache.containsKey(name) && imgMemoryCache[name] != null) {
+Future<ImageProvider?> getImage(String rowID, String name,
+    [bool thumb = true]) async {
+  if (thumb &&
+      imgMemoryCache.containsKey(name) &&
+      imgMemoryCache[name] != null) {
     return imgMemoryCache[name];
   } else if (name == "https://person.alisaleem.workers.dev/") {
     final link = "$name?no-cache=$rowID";
@@ -98,7 +131,9 @@ Future<ImageProvider?> _getImage(String rowID, String name, bool thumb) async {
   // Web platform doesn't support local files
   if (kIsWeb) {
     final imgUrl = await appointments.remote!.getImageLink(rowID, name);
-    return imgUrl == null ? null : NetworkImage(thumb ? _urlToThumbUrl(imgUrl) : imgUrl);
+    return imgUrl == null
+        ? null
+        : NetworkImage(thumb ? _urlToThumbUrl(imgUrl) : imgUrl);
   }
 
   // if the file exists locally, return it
@@ -108,10 +143,12 @@ Future<ImageProvider?> _getImage(String rowID, String name, bool thumb) async {
   }
 
   // if the file doesn't exist locally, download it from the server
-  final imgUrl = await _imageHttpReqQue.add(() => appointments.remote!.getImageLink(rowID, name));
+  final imgUrl = await _imageHttpReqQue
+      .add(() => appointments.remote!.getImageLink(rowID, name));
   if (imgUrl == null) return null;
-  final download = await _imageHttpReqQue
-      .add(() => saveImageFromUrl(thumb ? _urlToThumbUrl(imgUrl) : imgUrl, thumb ? _nameToThumbName(name) : name));
+  final download = await _imageHttpReqQue.add(() => saveImageFromUrl(
+      thumb ? _urlToThumbUrl(imgUrl) : imgUrl,
+      thumb ? _nameToThumbName(name) : name));
   return Image.file(download).image;
 }
 

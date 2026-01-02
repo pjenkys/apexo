@@ -22,7 +22,6 @@ import 'package:apexo/utils/uuid.dart';
 import 'package:apexo/widget_keys.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -54,10 +53,7 @@ void openAppointment([Appointment? appointment]) {
       icon: FluentIcons.camera,
       body: _AppointmentGallery(panel),
       onlyIfSaved: true,
-      footer: kIsWeb
-          ? null
-          : _AppointmentGalleryFooter(
-              panel), // TODO: image upload isn't supported on web
+      footer: _AppointmentGalleryFooter(panel),
       padding: 0,
     ),
   ];
@@ -114,9 +110,13 @@ class _AppointmentGalleryFooterState extends State<_AppointmentGalleryFooter> {
                       await ImagePicker().pickImage(source: ImageSource.camera);
                   if (res == null) return;
                   widget.panel.inProgress(true);
+
                   try {
                     final imgName = await handleNewImage(
-                        rowID: widget.panel.item.id, targetPath: res.path);
+                      rowID: widget.panel.item.id,
+                      sourcePath: res.path,
+                      sourceFile: res,
+                    );
                     if (widget.panel.item.imgs.contains(imgName) == false) {
                       widget.panel.item.imgs.add(imgName);
                       appointments.set(widget.panel.item);
@@ -145,7 +145,10 @@ class _AppointmentGalleryFooterState extends State<_AppointmentGalleryFooter> {
                 try {
                   for (var img in res) {
                     final imgName = await handleNewImage(
-                        rowID: widget.panel.item.id, targetPath: img.path);
+                      rowID: widget.panel.item.id,
+                      sourcePath: img.path,
+                      sourceFile: img,
+                    );
                     if (widget.panel.item.imgs.contains(imgName) == false) {
                       widget.panel.item.imgs.add(imgName);
                       appointments.set(widget.panel.item);
@@ -209,6 +212,7 @@ class _AppointmentGalleryState extends State<_AppointmentGallery> {
                         widget.panel.inProgress(false);
                         widget.panel.selectedTab(widget.panel.selectedTab());
                       },
+                      showDeleteMiniButton: true,
                     );
                   });
         });
@@ -532,7 +536,6 @@ class _OperativeDetailsState extends State<_OperativeDetails> {
         widget.appointment.hasLabwork
             ? _buildLabworkSection()
             : HyperlinkButton(
-              
                 style: ButtonStyle(
                     textStyle: WidgetStatePropertyAll(
                         FluentTheme.of(context).typography.caption)),
@@ -548,7 +551,9 @@ class _OperativeDetailsState extends State<_OperativeDetails> {
                   children: [
                     const Icon(FluentIcons.manufacturing),
                     const SizedBox(width: 15),
-                    SizedBox(width: 200, child: Txt(txt("addLabwork"), softWrap: true))
+                    SizedBox(
+                        width: 200,
+                        child: Txt(txt("addLabwork"), softWrap: true))
                   ],
                 ),
               ),
@@ -644,8 +649,8 @@ class _OperativeDetailsState extends State<_OperativeDetails> {
                     onChanged: (text, reason) {
                       widget.appointment.labName = text;
                     },
-                    controller: TextEditingController(
-                        text: widget.appointment.labName),
+                    controller:
+                        TextEditingController(text: widget.appointment.labName),
                     items: appointments.labs
                         .map((name) => AutoSuggestBoxItem<String>(
                             value: name, label: name))

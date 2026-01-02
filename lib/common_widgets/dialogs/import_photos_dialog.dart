@@ -44,7 +44,9 @@ class ImportDialog extends StatelessWidget {
                 const SizedBox(height: 10),
                 InfoLabel(
                   label: txt("link"),
-                  child: CupertinoTextField(controller: importPhotosFromLinkController, placeholder: txt("enterLink")),
+                  child: CupertinoTextField(
+                      controller: importPhotosFromLinkController,
+                      placeholder: txt("enterLink")),
                 ),
               ],
             ),
@@ -52,10 +54,15 @@ class ImportDialog extends StatelessWidget {
               if (importResult().length == 1) const ProgressBar(),
               const CloseButtonInDialog(),
               FilledButton(
-                style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.blue)),
+                style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(Colors.blue)),
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [const Icon(FluentIcons.save), const SizedBox(width: 5), Txt(txt("import"))]),
+                    children: [
+                      const Icon(FluentIcons.save),
+                      const SizedBox(width: 5),
+                      Txt(txt("import"))
+                    ]),
                 onPressed: () async {
                   // cache the id so that if the user opens another appointment
                   // the photos would go to the correct appointment
@@ -64,8 +71,9 @@ class ImportDialog extends StatelessWidget {
                   panel.selectedTab(panel.selectedTab());
                   List<String> res;
                   try {
-                    final response = await get(Uri.parse(
-                        'https://imgs.apexo.app/?url=${Uri.encodeComponent(importPhotosFromLinkController.text)}'));
+                    final url = Uri.parse(
+                        'https://imgs.apexo.app/?url=${Uri.encodeComponent(importPhotosFromLinkController.text)}');
+                    final response = await get(url);
                     if (response.statusCode != 200) {
                       throw Exception(response.body);
                     } else {
@@ -81,7 +89,8 @@ class ImportDialog extends StatelessWidget {
                   panel.inProgress(true);
                   try {
                     for (var imgLink in res) {
-                      final imgName = await handleNewImage(rowID: id, targetPath: imgLink);
+                      final imgName =
+                          await handleNewImage(rowID: id, sourcePath: imgLink);
                       if (panel.item.imgs.contains(imgName) == false) {
                         panel.item.imgs.add(imgName);
                         appointments.set(panel.item);

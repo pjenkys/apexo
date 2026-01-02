@@ -4,7 +4,8 @@ import 'package:apexo/utils/constants.dart';
 import 'package:apexo/utils/logger.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:http/http.dart';
-import 'package:path/path.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 import 'model.dart';
 import 'observable.dart';
@@ -68,7 +69,8 @@ class Store<G extends Model> {
 
     // setting up observers
     observableMap.observe((events) {
-      if (events[0].type == DictEventType.modify && events[0].id == "__ignore_view__") {
+      if (events[0].type == DictEventType.modify &&
+          events[0].id == "__ignore_view__") {
         // this is a view change not a storage change
         return;
       }
@@ -143,7 +145,9 @@ class Store<G extends Model> {
 
     if (remote!.isOnline && lastDeferred.isEmpty) {
       try {
-        await remote!.put(toWrite.entries.map((e) => RowToWriteRemotely(id: e.key, data: e.value)).toList());
+        await remote!.put(toWrite.entries
+            .map((e) => RowToWriteRemotely(id: e.key, data: e.value))
+            .toList());
         changes.clear();
         onSyncEnd?.call();
         // while we have the connection lets synchronize
@@ -175,12 +179,17 @@ class Store<G extends Model> {
   }
 
   Future<SyncResult> _syncTry() async {
-    if (isDemo == true) return SyncResult(exception: "sync is disabled in demo mode");
+    if (isDemo == true) {
+      return SyncResult(exception: "sync is disabled in demo mode");
+    }
     if (local == null || remote == null) {
-      return SyncResult(exception: "local/remote persistence layers are not defined");
+      return SyncResult(
+          exception: "local/remote persistence layers are not defined");
     }
 
-    if (remote!.isOnline == false) return SyncResult(exception: "remote server is offline");
+    if (remote!.isOnline == false) {
+      return SyncResult(exception: "remote server is offline");
+    }
     try {
       int localVersion = await local!.getVersion();
       int remoteVersion = await remote!.getVersion();
@@ -193,13 +202,15 @@ class Store<G extends Model> {
       }
 
       // fetch updates since our local version
-      VersionedResult remoteUpdates = await remote!.getSince(version: localVersion);
+      VersionedResult remoteUpdates =
+          await remote!.getSince(version: localVersion);
 
       List<int> remoteLosersIndices = [];
 
       // check conflicts: last write wins
       deferred.removeWhere((dfID, deferredTimeStamp) {
-        int remoteConflictIndex = remoteUpdates.rows.indexWhere((r) => r.id == dfID);
+        int remoteConflictIndex =
+            remoteUpdates.rows.indexWhere((r) => r.id == dfID);
         if (remoteConflictIndex == -1) {
           // no conflict
           return false;
@@ -225,7 +236,8 @@ class Store<G extends Model> {
         remoteUpdates.rows.removeAt(index);
       }
 
-      Map<String, String> toLocalWrite = Map.fromEntries(remoteUpdates.rows.map((r) => MapEntry(r.id, r.data)));
+      Map<String, String> toLocalWrite = Map.fromEntries(
+          remoteUpdates.rows.map((r) => MapEntry(r.id, r.data)));
 
       // those will be built in the for loop below
       Map<String, String> toRemoteWrite = {};
@@ -238,11 +250,27 @@ class Store<G extends Model> {
           final bool upload = entry.value == 1;
           final String rowID = deferredFile[1];
           final String pathOrName = deferredFile[2];
+          final String fileName = deferredFile.length == 4 ?  deferredFile[3] : "";
           // we will delay file handling since it takes too much time
           // so we would run the document handling first then the file handling
           fileHandling.add(() async {
             if (upload) {
-              final multipart = await MultipartFile.fromPath("imgs+", pathOrName, filename: basename(pathOrName));
+              MultipartFile multipart;
+              if (!pathOrName.startsWith("http")) {
+                multipart = await MultipartFile.fromPath(
+                  "imgs+",
+                  pathOrName,
+                  filename: fileName,
+                );
+              } else {
+                multipart = MultipartFile.fromBytes(
+                  "imgs+",
+                  (await http.get(Uri.parse(
+                          'https://imgs.apexo.app/?url=${Uri.encodeComponent(pathOrName)}')))
+                      .bodyBytes,
+                  filename: fileName,
+                );
+              }
               await remote!.uploadImage(rowID, multipart);
             } else {
               await remote!.deleteImage(rowID, pathOrName);
@@ -257,7 +285,9 @@ class Store<G extends Model> {
         await local!.put(toLocalWrite);
       }
       if (toRemoteWrite.isNotEmpty) {
-        await remote!.put(toRemoteWrite.entries.map((e) => RowToWriteRemotely(id: e.key, data: e.value)).toList());
+        await remote!.put(toRemoteWrite.entries
+            .map((e) => RowToWriteRemotely(id: e.key, data: e.value))
+            .toList());
       }
 
       // when all json related updates are done, we can handle files
@@ -283,7 +313,10 @@ class Store<G extends Model> {
 
       await reload();
       return SyncResult(
-          pulled: toLocalWrite.length, pushed: toRemoteWrite.length, conflicts: conflicts, exception: null);
+          pulled: toLocalWrite.length,
+          pushed: toRemoteWrite.length,
+          conflicts: conflicts,
+          exception: null);
     } catch (e, s) {
       logger("Error during synchronization: $e", s);
       return SyncResult(exception: e.toString());
@@ -415,8 +448,9 @@ class Store<G extends Model> {
   }
 
   Map<String, G> get present {
-    return Map<String, G>.fromEntries(docs.entries.where(
-        (entry) => ((showArchived?.call() ?? false) || entry.value.archived != true) && entry.value.locked != true));
+    return Map<String, G>.fromEntries(docs.entries.where((entry) =>
+        ((showArchived?.call() ?? false) || entry.value.archived != true) &&
+        entry.value.locked != true));
   }
 
   bool has(String id) {
@@ -460,8 +494,12 @@ class Store<G extends Model> {
   /// delete an image
   Future<void> deleteImg(String rowID, String name) async {
     onSyncStart?.call();
-    if (remote == null) throw Exception("remote persistence layer is not defined");
-    if (local == null) throw Exception("local persistence layer is not defined");
+    if (remote == null) {
+      throw Exception("remote persistence layer is not defined");
+    }
+    if (local == null) {
+      throw Exception("local persistence layer is not defined");
+    }
     Map<String, int> lastDeferred = await local!.getDeferred();
     if (remote!.isOnline && lastDeferred.isEmpty) {
       try {
@@ -490,16 +528,42 @@ class Store<G extends Model> {
   }
 
   /// upload set of files to a certain row
-  Future<void> uploadImg(String rowID, String path) async {
+  Future<void> uploadImg(
+      {required String rowID,
+      required String filename,
+      String? path,
+      XFile? file}) async {
+    if (path == null && file == null) {
+      throw Exception("either path or file must be defined when uploading");
+    }
+    if (remote == null) {
+      throw Exception("remote persistence layer is not defined");
+    }
+    if (local == null) {
+      throw Exception("local persistence layer is not defined");
+    }
     onSyncStart?.call();
-    if (remote == null) throw Exception("remote persistence layer is not defined");
-    if (local == null) throw Exception("local persistence layer is not defined");
 
     Map<String, int> lastDeferred = await local!.getDeferred();
 
     if (remote!.isOnline && lastDeferred.isEmpty) {
       try {
-        final multipart = await MultipartFile.fromPath("imgs+", path, filename: basename(path));
+        MultipartFile multipart;
+        if (path != null) {
+          multipart = await MultipartFile.fromPath(
+            "imgs+",
+            path,
+            filename: filename,
+          );
+        } else {
+          multipart = MultipartFile.fromBytes(
+            "imgs+",
+            (await http.get(Uri.parse(
+                    'https://imgs.apexo.app/?url=${Uri.encodeComponent(file!.path)}')))
+                .bodyBytes,
+            filename: filename,
+          );
+        }
         await remote!.uploadImage(rowID, multipart);
         onSyncEnd?.call();
         synchronize();
@@ -516,9 +580,10 @@ class Store<G extends Model> {
      * 3. there are already deferred updates
      */
     // DEFERRED Structure: "FILE||{rowID}||path:{0 for deleting, 1 for uploading}"
+    final valueToDefer = path ?? file!.path;
     await local!.putDeferred({}
       ..addAll(lastDeferred)
-      ..addAll({"FILE||$rowID||$path": 1}));
+      ..addAll({"FILE||$rowID||$valueToDefer||$filename": 1}));
     deferredPresent = true;
     onSyncEnd?.call();
   }
