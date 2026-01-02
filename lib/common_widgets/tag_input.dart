@@ -15,6 +15,8 @@ class TagInputWidget extends StatefulWidget {
   final void Function(TagInputItem)? onItemTap;
   final String placeholder;
   final bool multiline;
+  final Color? inactiveColor;
+  final bool enabled;
 
   const TagInputWidget({
     super.key,
@@ -26,6 +28,8 @@ class TagInputWidget extends StatefulWidget {
     this.placeholder = "",
     this.onItemTap,
     this.multiline = false,
+    this.inactiveColor,
+    this.enabled = true,
   });
 
   @override
@@ -202,8 +206,9 @@ class _TagInputWidgetState extends State<TagInputWidget> {
             : WidgetStatePropertyAll(BoxDecoration(
                 color: Colors.transparent,
                 border: Border.all(color: Colors.transparent))),
-        unfocusedColor: _tags.isNotEmpty ? null : Colors.transparent,
+        unfocusedColor: widget.inactiveColor ?? (_tags.isNotEmpty ? null : Colors.transparent),
         highlightColor: _tags.isNotEmpty ? null : Colors.transparent,
+        enabled: widget.enabled,
         noResultsFoundBuilder: (context) => Padding(
           padding: const EdgeInsets.all(10),
           child: widget.strict
