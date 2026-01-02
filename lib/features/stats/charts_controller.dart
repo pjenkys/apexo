@@ -96,7 +96,7 @@ class _ChartsController {
       for (var receipt in filteredReceipts) {
         if (receipt.date.isAfter(period.end)) break;
         if (receipt.date.isBefore(period.start)) continue;
-        expense += receipt.amount;
+        expense += receipt.cost;
       }
       res.add(expense);
     }

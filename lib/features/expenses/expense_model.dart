@@ -1,85 +1,66 @@
 import 'package:apexo/core/model.dart';
-import 'package:apexo/features/doctors/doctor_model.dart';
-import 'package:apexo/features/doctors/doctors_store.dart';
-import 'package:apexo/services/localization/locale.dart';
-import 'package:apexo/services/login.dart';
-import 'package:intl/intl.dart';
+import 'package:apexo/features/expenses/expenses_store.dart';
 
 class Expense extends Model {
-  List<Doctor> get operators {
-    List<Doctor> foundOperators = [];
-    for (var id in operatorsIDs) {
-      var found = doctors.get(id);
-      if (found != null) {
-        foundOperators.add(found);
-      }
+
+  bool get isOrder {
+    return !isSupplier;
+  }
+
+  double get duePayments {
+    final items = expenses.present.values.toList();
+    double amount = 0;
+    for (var i = 0; i < items.length; i++) {
+      final item = items[i];
+      if(item.supplierId != id) continue;
+      if(item.processed) continue;
+      amount = amount + item.cost;
     }
-    return foundOperators;
+    return amount;
   }
 
-  @override
-  bool get locked {
-    if (operators.isEmpty) return false;
-    if (login.isAdmin) return false;
-    return operators.every((element) => element.locked);
-  }
+  // id: id of the expense item (inherited from Model)
+  // title: title of the expense item (inherited from Model, useless)
 
-  @override
-  get labels {
-    Map<String, String> buildingLabels = {
-      "issuer": issuer,
-      "status": paid ? txt("paid") : txt("due"),
-      "month": DateFormat("MMM yyyy", locale.s.$code).format(date),
-      "amount": amount.toString(),
-    };
-    for (var i = 0; i < tags.length; i++) {
-      buildingLabels[List.generate(i + 1, (_) => "\u200B").join("")] = tags[i];
-    }
-    return buildingLabels;
-  }
+  /* 1 */ bool isSupplier = false;
+  /* 2 */ String supplierName = "";
 
-  @override
-  String get title {
-    return DateFormat("yyyy-MM-dd").format(date);
-  }
-
-  // id: id of the labwork (inherited from Model)
-  // title: title of the labwork (inherited from Model)
-  /* 1 */ String note = "";
-  /* 2 */ double amount = 0;
-  /* 3 */ bool paid = false;
+  // when its an order
+  /* 3 */ String supplierId = "";
   /* 4 */ DateTime date = DateTime.now();
-  /* 5 */ String issuer = "";
-  /* 6 */ String phoneNumber = "";
-  /* 7 */ List<String> items = [];
-  /* 8 */ List<String> tags = [];
-  /* 9 */ List<String> operatorsIDs = [];
+  /* 5 */ List<String> items = [];
+  /* 6 */ double cost = 0;
+  /* 7 */ double paidAmount = 0;
+  /* 8 */ bool processed = false;
+  /* 9 */ List<String> photos = [];
 
   Expense.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
-    /* 1 */ note = json['note'] ?? note;
-    /* 2 */ amount = double.parse((json["amount"] ?? amount).toString());
-    /* 3 */ paid = json['paid'] ?? paid;
+    /* 1 */ isSupplier = json['isSupplier'] ?? isSupplier;
+    /* 2 */ supplierName = json['supplierName'] ?? supplierName;
+    
+    /* 3 */ supplierId = json['supplierId'] ?? supplierId;
     /* 4 */ date = json["date"] != null ? DateTime.fromMillisecondsSinceEpoch(json["date"] * 60 * 60 * 1000) : date;
-    /* 5 */ issuer = json['issuer'] ?? issuer;
-    /* 6 */ phoneNumber = json['phoneNumber'] ?? phoneNumber;
-    /* 7 */ items = List<String>.from(json["items"] ?? items);
-    /* 8 */ tags = List<String>.from(json['tags'] ?? tags);
-    /* 9 */ operatorsIDs = List<String>.from(json["operatorsIDs"] ?? operatorsIDs);
+    /* 5 */ items = List<String>.from(json["items"] ?? items);
+    /* 6 */ cost = double.parse((json["cost"] ?? cost).toString());
+    /* 7 */ paidAmount = double.parse((json["paidAmount"] ?? paidAmount).toString());
+    /* 8 */ processed = json['processed'] ?? processed;
+    /* 9 */ photos = List<String>.from(json["photos"] ?? photos);
   }
 
   @override
   Map<String, dynamic> toJson() {
     final json = super.toJson();
     final d = Expense.fromJson({});
-    /* 1 */ if (note != d.note) json['note'] = note;
-    /* 2 */ if (amount != d.amount) json['amount'] = amount;
-    /* 3 */ if (paid != d.paid) json['paid'] = paid;
+    /* 1 */ if (isSupplier != d.isSupplier) json['isSupplier'] = isSupplier;
+    /* 2 */ if (supplierName != d.supplierName) json['supplierName'] = supplierName;
+
+    /* 3 */ if (supplierId != d.supplierId) json['supplierId'] = supplierId;
     /* 4 */ json['date'] = (date.millisecondsSinceEpoch / (60 * 60 * 1000)).round();
-    /* 5 */ if (issuer != d.issuer) json['issuer'] = issuer;
-    /* 6 */ if (phoneNumber != d.phoneNumber) json['phoneNumber'] = phoneNumber;
-    /* 7 */ if (items.isNotEmpty) json['items'] = items;
-    /* 8 */ if (tags.isNotEmpty) json['tags'] = tags;
-    /* 9 */ if (operatorsIDs.isNotEmpty) json['operatorsIDs'] = operatorsIDs;
+    /* 5 */ if (items.isNotEmpty) json['items'] = items;
+    /* 6 */ if (cost != d.cost) json['cost'] = cost;
+    /* 7 */ if (paidAmount != d.paidAmount) json['paidAmount'] = paidAmount;
+    /* 8 */ if (processed != d.processed) json['processed'] = processed;
+    /* 9 */ if (photos.isNotEmpty) json['photos'] = photos;
 
     return json;
   }

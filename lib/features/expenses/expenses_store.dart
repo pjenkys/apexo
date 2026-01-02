@@ -4,7 +4,6 @@ import 'package:apexo/services/launch.dart';
 import 'package:apexo/services/network.dart';
 import 'package:apexo/utils/hash.dart';
 import 'package:apexo/utils/demo_generator.dart';
-
 import '../../core/save_local.dart';
 import '../../core/save_remote.dart';
 import '../network_actions/network_actions_controller.dart';
@@ -61,24 +60,6 @@ class Expenses extends Store<Expense> {
     };
   }
 
-  List<String> get allIssuers {
-    Set<String> issuers = {};
-    for (var doc in docs.values) {
-      issuers.add(doc.issuer);
-    }
-    return issuers.toList();
-  }
-
-  List<String> get allTags {
-    Set<String> tags = {};
-    for (var doc in docs.values) {
-      for (var tag in doc.tags) {
-        tags.add(tag);
-      }
-    }
-    return tags.toList();
-  }
-
   List<String> get allItems {
     Set<String> items = {};
     for (var doc in docs.values) {
@@ -87,23 +68,6 @@ class Expenses extends Store<Expense> {
       }
     }
     return items.toList();
-  }
-
-  List<String> get allPhones {
-    Set<String> phones = {};
-    for (var doc in docs.values) {
-      phones.add(doc.phoneNumber);
-    }
-    return phones.toList();
-  }
-
-  String? getPhoneNumber(String issuer) {
-    for (var doc in docs.values) {
-      if (doc.issuer == issuer) {
-        return doc.phoneNumber;
-      }
-    }
-    return null;
   }
 }
 
