@@ -112,7 +112,7 @@ class _GridGalleryState extends State<GridGallery> {
                 onTap: () => openSingleImage(context, img),
                 child: ClipRRect(
                   borderRadius:
-                      BorderRadius.circular(8.0), // Optional rounded corners
+                      BorderRadius.circular(8.0),
                   child: Image(
                     image: snapshot.data!,
                     fit: BoxFit.cover, // Crops the image to fit the space
