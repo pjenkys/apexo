@@ -12,13 +12,11 @@ class SupplierWindow extends StatefulWidget {
     required this.supplier,
     required this.onClose,
     required this.orders,
-    required this.onNewOrder,
   });
 
   final VoidCallback onClose;
   final Expense supplier;
   final List<Expense> orders;
-  final void Function(bool processed) onNewOrder;
 
   @override
   State<SupplierWindow> createState() => _SupplierWindowState();
@@ -160,33 +158,16 @@ class _SupplierWindowState extends State<SupplierWindow> {
   Widget _buildToolbar() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(7, 7, 7, 0),
-      child: Row(
-        children: [
-          FilledButton(
-            onPressed: () {
-              widget.onNewOrder(selectedTab == 1);
-            },
-            child: Row(
-              children: [
-                const Icon(FluentIcons.add_notes),
-                const SizedBox(width: 5),
-                Txt(txt("addOrder"))
-              ],
-            ),
-          ),
-          const SizedBox(width: 5),
-          Expanded(
-            flex: 3,
-            child: TextBox(
-              expands: false,
-              prefix: const Text(" 🔍"),
-              placeholder: txt("filterByItems"),
-              controller: _query,
-              unfocusedColor: Colors.grey.withAlpha(20),
-              onChanged: (i) => setState(() {}),
-            ),
-          ),
-        ],
+      child: Expanded(
+        flex: 3,
+        child: TextBox(
+          expands: false,
+          prefix: const Text(" 🔍"),
+          placeholder: txt("filterByItems"),
+          controller: _query,
+          unfocusedColor: Colors.grey.withAlpha(20),
+          onChanged: (i) => setState(() {}),
+        ),
       ),
     );
   }

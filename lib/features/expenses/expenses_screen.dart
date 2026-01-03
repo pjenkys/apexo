@@ -18,6 +18,7 @@ class ExpensesScreen extends StatelessWidget {
     return ScaffoldPage(
       key: WK.expensesScreen,
       padding: EdgeInsets.zero,
+      resizeToAvoidBottomInset: true,
       content: Column(
         children: [
           Expanded(
@@ -42,6 +43,7 @@ class SuppliersAndOrders extends StatefulWidget {
 
 class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
   Expense? selectedSupplier;
+  FlyoutController addOrderFlyout = FlyoutController();
   FlyoutController addSupplierFlyout = FlyoutController();
   TextEditingController addSupplierTextBox = TextEditingController();
   FocusNode addSupplierTextBoxFocusNode = FocusNode();
@@ -51,15 +53,12 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
     final suppliers =
         expenses.present.values.where((e) => e.isSupplier).toList();
 
-    return ScaffoldPage(
-      padding: const EdgeInsets.all(0),
-      content: Column(
-        children: [
-          _buildCommandBar(),
-          _buildSuppliersFolders(context, suppliers),
-          if (selectedSupplier != null) _buildInvoicesWindow(),
-        ],
-      ),
+    return Column(
+      children: [
+        _buildCommandBar(),
+        _buildSuppliersFolders(context, suppliers),
+        if (selectedSupplier != null) _buildInvoicesWindow(),
+      ],
     );
   }
 
@@ -75,14 +74,6 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
                 (o) => (!o.isSupplier) && o.supplierId == selectedSupplier?.id)
             .toList(),
         supplier: selectedSupplier!,
-        onNewOrder: (bool processed) {
-          if (selectedSupplier != null) {
-            expenses.set(Expense.fromJson({
-              "supplierId": selectedSupplier!.id,
-              "processed": processed,
-            }));
-          }
-        },
         onClose: () {
           setState(() {
             selectedSupplier = null;
@@ -98,7 +89,7 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
       duration: const Duration(milliseconds: 300),
       height: selectedSupplier == null
           ? MediaQuery.of(context).size.height - 200
-          : 120,
+          : 1,
       child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: 85,
@@ -148,8 +139,56 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildAddSupplierButton(),
+            selectedSupplier == null
+                ? _buildAddSupplierButton()
+                : _buildAddOrderButton(),
             const ArchiveToggle(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddOrderButton() {
+    return FlyoutTarget(
+      controller: addOrderFlyout,
+      child: IconButton(
+        onPressed: () {
+          addOrderFlyout.showFlyout(builder: (context) {
+            return MenuFlyout(
+              items: [
+                MenuFlyoutItem(
+                  text: Txt(txt("unpaid")),
+                  leading: const Icon(FluentIcons.file_request),
+                  onPressed: () {
+                    expenses.set(Expense.fromJson({
+                      "supplierId": selectedSupplier!.id,
+                      "processed": false,
+                    }));
+                  },
+                ),
+                MenuFlyoutItem(
+                  text: Txt(txt("paid")),
+                  leading: const Icon(FluentIcons.fabric_folder_confirm),
+                  onPressed: () {
+                    expenses.set(Expense.fromJson({
+                      "supplierId": selectedSupplier!.id,
+                      "processed": true,
+                    }));
+                  },
+                ),
+              ],
+            );
+          });
+        },
+        icon: Row(
+          children: [
+            const Icon(
+              FluentIcons.add_notes,
+              size: 17,
+            ),
+            const SizedBox(width: 10),
+            Txt(txt("addOrder"))
           ],
         ),
       ),
@@ -184,7 +223,7 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
 
   FlyoutContent _buildAddSupplierDialog() {
     return FlyoutContent(
-      constraints: BoxConstraints(maxWidth: 300),
+      constraints: const BoxConstraints(maxWidth: 300),
       child: Row(
         children: [
           Expanded(
