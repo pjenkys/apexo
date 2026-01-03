@@ -1,4 +1,9 @@
 
+### ____0.7.2____
+
+-   fixed bugs and usability issues in expenses screen
+
+
 ### ____0.7.1____
 
 -   fixed a bug in browser uploading
