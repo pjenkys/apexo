@@ -467,7 +467,7 @@ class _PanelScreenState extends State<PanelScreen> {
         emoji = "🥼";
         break;
       case "patient":
-        emoji = "🤒";
+        emoji = "👤";
         break;
     }
 
@@ -475,11 +475,16 @@ class _PanelScreenState extends State<PanelScreen> {
       width: 105,
       child: Row(
         children: [
-          Txt(emoji, style: TextStyle(fontSize: 20),),
+          Txt(
+            emoji,
+            style: const TextStyle(fontSize: 20),
+          ),
           Txt(
             txt(widget.panel.storeSingularName),
-            style:
-                TextStyle(fontSize: 12, color: Colors.grey.withValues(alpha: 0.7), fontWeight: FontWeight.w500),
+            style: TextStyle(
+                fontSize: 12,
+                color: FluentTheme.of(context).shadowColor,
+                fontWeight: FontWeight.w500),
             overflow: TextOverflow.ellipsis,
           ),
         ],
@@ -494,13 +499,16 @@ class _PanelScreenState extends State<PanelScreen> {
         maxWidth: 116,
         radius: 13,
         fontSize: 13,
-        item: widget.panel.title != null ? Model.fromJson({"title": widget.panel.title}) : widget.panel.item,
+        item: widget.panel.title != null
+            ? Model.fromJson({"title": widget.panel.title})
+            : widget.panel.item,
         icon: widget.panel.item.archived == true
             ? FluentIcons.archive
             : isNew
                 ? FluentIcons.add
                 : FluentIcons.edit,
-        predefinedColor: widget.panel.item.archived == true ? Colors.grey : null,
+        predefinedColor:
+            widget.panel.item.archived == true ? Colors.grey : null,
       ),
     );
   }
@@ -521,7 +529,9 @@ class _PanelScreenState extends State<PanelScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   FilledButton(
-                    style: const ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.warningPrimaryColor)),
+                    style: const ButtonStyle(
+                        backgroundColor:
+                            WidgetStatePropertyAll(Colors.warningPrimaryColor)),
                     onPressed: () {
                       Flyout.of(context).close();
                       routes.closePanel(widget.panel.item.id);
