@@ -1,4 +1,10 @@
 
+### ____0.7.1____
+
+-   fixed a bug in browser uploading
+-   close fullscreen view when deleting an image
+
+
 ### ____0.7.0____
 
 -   longer names are now visible 
