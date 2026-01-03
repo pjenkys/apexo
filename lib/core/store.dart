@@ -250,7 +250,8 @@ class Store<G extends Model> {
           final bool upload = entry.value == 1;
           final String rowID = deferredFile[1];
           final String pathOrName = deferredFile[2];
-          final String fileName = deferredFile.length == 4 ?  deferredFile[3] : "";
+          final String fileName =
+              deferredFile.length == 4 ? deferredFile[3] : "";
           // we will delay file handling since it takes too much time
           // so we would run the document handling first then the file handling
           fileHandling.add(() async {
@@ -558,8 +559,10 @@ class Store<G extends Model> {
         } else {
           multipart = MultipartFile.fromBytes(
             "imgs+",
-            (await http.get(Uri.parse(
-                    'https://imgs.apexo.app/?url=${Uri.encodeComponent(file!.path)}')))
+            (await http.get(file!.path.startsWith("blob")
+                    ? Uri.parse(file.path)
+                    : Uri.parse(
+                        'https://imgs.apexo.app/?url=${Uri.encodeComponent(file.path)}')))
                 .bodyBytes,
             filename: filename,
           );
