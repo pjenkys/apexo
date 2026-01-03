@@ -96,7 +96,6 @@ class OrderRowState extends State<OrderRow> {
             showPlayIcon: false,
             showDeleteMiniButton: false,
             onPressDelete: (img) async {
-              Navigator.of(context).pop();
               setState(() {
                 inProgress = true;
               });

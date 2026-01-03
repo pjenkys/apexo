@@ -135,7 +135,6 @@ class AppointmentCard extends StatelessWidget {
                               size: 43,
                               progress: false,
                               onPressDelete: (img) async {
-                                Navigator.of(context).pop();
                                 try {
                                   await appointments.deleteImg(
                                     appointment.id,

@@ -118,6 +118,7 @@ class _EasyImageViewerDismissibleDialogState
                   ),
                   onPressed: () {
                     if(_pageController.page != null) {
+                      Navigator.of(context).pop();
                       final currentIndex = _pageController.page!.toInt();
                       widget.onPressDelete(currentIndex % widget.imageProvider.imageCount);
                     }

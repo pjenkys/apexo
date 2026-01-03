@@ -198,7 +198,6 @@ class _AppointmentGalleryState extends State<_AppointmentGallery> {
                       imgs: widget.panel.item.imgs,
                       progress: widget.panel.inProgress(),
                       onPressDelete: (img) async {
-                        Navigator.of(context).pop();
                         widget.panel.inProgress(true);
                         try {
                           await appointments.deleteImg(
