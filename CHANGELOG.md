@@ -1,4 +1,13 @@
 
+### ____0.7.0____
+
+-   longer names are now visible 
+-   added emoji indicatros to panel titles 
+-   can delete images when they are viewed in fullscreen 
+-   support for image uploading in web browsers 
+-   new and improved expenses logging system and screen
+
+
 ### ____0.6.0____
 
 -   Payment summary as you enter payment and cost at the appointment panel
