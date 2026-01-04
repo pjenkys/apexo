@@ -158,16 +158,13 @@ class _SupplierWindowState extends State<SupplierWindow> {
   Widget _buildToolbar() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(7, 7, 7, 0),
-      child: Expanded(
-        flex: 3,
-        child: TextBox(
-          expands: false,
-          prefix: const Text(" 🔍"),
-          placeholder: txt("filterByItems"),
-          controller: _query,
-          unfocusedColor: Colors.grey.withAlpha(20),
-          onChanged: (i) => setState(() {}),
-        ),
+      child: TextBox(
+        expands: false,
+        prefix: const Text(" 🔍"),
+        placeholder: txt("filterByItems"),
+        controller: _query,
+        unfocusedColor: Colors.grey.withAlpha(20),
+        onChanged: (i) => setState(() {}),
       ),
     );
   }
