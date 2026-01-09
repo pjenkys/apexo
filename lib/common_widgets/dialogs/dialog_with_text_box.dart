@@ -1,3 +1,4 @@
+import 'package:apexo/common_widgets/dialogs/close_dialog_button.dart';
 import 'package:apexo/common_widgets/dialogs/dialog_styling.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -35,9 +36,10 @@ class DialogWithTextBox extends StatelessWidget {
       actions: [
         FilledButton(
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon),
-              const SizedBox(width: 5),
+              const SizedBox(width: 10),
               Txt(txt("save")),
             ],
           ),
@@ -47,18 +49,7 @@ class DialogWithTextBox extends StatelessWidget {
             Navigator.of(context).pop();
           },
         ),
-        Button(
-          child: Row(
-            children: [
-              const Icon(FluentIcons.cancel),
-              const SizedBox(width: 5),
-              Txt(txt("cancel"))
-            ],
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+        const CloseButtonInDialog(),
       ],
     );
   }
