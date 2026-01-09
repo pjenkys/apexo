@@ -64,9 +64,7 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
 
   Expanded _buildInvoicesWindow() {
     return Expanded(
-        child: AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      color: Colors.transparent,
+        child: Padding(
       padding: EdgeInsets.fromLTRB(0, selectedSupplier != null ? 0 : 500, 0, 0),
       child: SupplierWindow(
         orders: expenses.present.values
@@ -83,10 +81,9 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
     ));
   }
 
-  AnimatedContainer _buildSuppliersFolders(
+  SizedBox _buildSuppliersFolders(
       BuildContext context, List<Expense> suppliers) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+    return SizedBox(
       height: selectedSupplier == null
           ? MediaQuery.of(context).size.height - 200
           : 1,
