@@ -1,3 +1,4 @@
+import 'package:apexo/common_widgets/confirm_delete_flyout.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
@@ -20,9 +21,10 @@ class EasyImageViewerDismissibleDialog extends StatefulWidget {
   final String closeButtonTooltip;
   final Color closeButtonColor;
   final bool infinitelyScrollable;
+  final FlyoutController confirmDeleteFlyoutCtrl = FlyoutController();
 
   /// Refer to [showImageViewerPager] for the arguments
-  const EasyImageViewerDismissibleDialog(this.imageProvider,
+  EasyImageViewerDismissibleDialog(this.imageProvider,
       {super.key,
       this.immersive = true,
       this.onPageChanged,
@@ -108,21 +110,42 @@ class _EasyImageViewerDismissibleDialogState
               Positioned(
                 bottom: 5,
                 right: 5,
-                child: Button(
-                  child: Row(
-                    children: [
-                      const Icon(FluentIcons.delete, size: 17,),
-                      const SizedBox(width: 5),
-                      Txt(txt("delete"), style: const TextStyle(fontSize: 17),)
-                    ],
+                child: FlyoutTarget(
+                  controller: widget.confirmDeleteFlyoutCtrl,
+                  child: Button(
+                    child: Row(
+                      children: [
+                        const Icon(
+                          FluentIcons.delete,
+                          size: 17,
+                        ),
+                        const SizedBox(width: 5),
+                        Txt(
+                          txt("delete"),
+                          style: const TextStyle(fontSize: 17),
+                        )
+                      ],
+                    ),
+                    onPressed: () {
+                      widget.confirmDeleteFlyoutCtrl.showFlyout(
+                        builder: (context) => ConfirmDeleteFlyout(
+                          onConfirm: () {
+                            if (_pageController.page != null) {
+                              final currentIndex =
+                                  _pageController.page!.toInt();
+                              widget.onPressDelete(currentIndex %
+                                  widget.imageProvider.imageCount);
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                Navigator.of(context).pop();
+                                _handleDismissal();
+                              });
+                            }
+                          },
+                          controller: widget.confirmDeleteFlyoutCtrl,
+                        ),
+                      );
+                    },
                   ),
-                  onPressed: () {
-                    if(_pageController.page != null) {
-                      Navigator.of(context).pop();
-                      final currentIndex = _pageController.page!.toInt();
-                      widget.onPressDelete(currentIndex % widget.imageProvider.imageCount);
-                    }
-                  },
                 ),
               ),
               Positioned(

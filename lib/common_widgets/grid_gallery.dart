@@ -1,3 +1,4 @@
+import 'package:apexo/common_widgets/confirm_delete_flyout.dart';
 import 'package:apexo/common_widgets/dialogs/loading_blocking.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:apexo/utils/imgs.dart';
@@ -111,8 +112,7 @@ class _GridGalleryState extends State<GridGallery> {
               return GestureDetector(
                 onTap: () => openSingleImage(context, img),
                 child: ClipRRect(
-                  borderRadius:
-                      BorderRadius.circular(8.0),
+                  borderRadius: BorderRadius.circular(8.0),
                   child: Image(
                     image: snapshot.data!,
                     fit: BoxFit.cover, // Crops the image to fit the space
@@ -130,15 +130,7 @@ class _GridGalleryState extends State<GridGallery> {
           Positioned(
             top: 4,
             right: 4,
-            child: Acrylic(
-              elevation: 20,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.0)),
-              child: IconButton(
-                icon: const Icon(FluentIcons.delete),
-                onPressed: () => widget.onPressDelete.call(img),
-              ),
-            ),
+            child: ImageDeleteButton(widget: widget, img: img),
           ),
         if ((index == widget.clipCount - 1 &&
             widget.imgs.length > widget.clipCount))
@@ -223,5 +215,41 @@ class _GridGalleryState extends State<GridGallery> {
         },
       );
     }
+  }
+}
+
+class ImageDeleteButton extends StatelessWidget {
+  ImageDeleteButton({
+    super.key,
+    required this.widget,
+    required this.img,
+  });
+
+  final GridGallery widget;
+  final String img;
+  final FlyoutController deleteConfirmationFlyout = FlyoutController();
+
+  @override
+  Widget build(BuildContext context) {
+    return FlyoutTarget(
+      controller: deleteConfirmationFlyout,
+      child: Acrylic(
+        elevation: 20,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
+        child: IconButton(
+          icon: const Icon(FluentIcons.delete),
+          onPressed: () {
+            deleteConfirmationFlyout.showFlyout(builder: (context) {
+              return FlyoutContent(
+                child: ConfirmDeleteFlyout(
+                  controller: deleteConfirmationFlyout,
+                  onConfirm: () => widget.onPressDelete.call(img),
+                ),
+              );
+            });
+          },
+        ),
+      ),
+    );
   }
 }
