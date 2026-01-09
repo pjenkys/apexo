@@ -48,7 +48,7 @@ class Appointments extends Store<Appointment> {
         final isUpcoming = appointment.date.isAfter(DateTime.now());
         final isPast = appointment.date.isBefore(DateTime.now());
 
-        if(appointment.labName.isNotEmpty && !labs.contains(appointment.labName)) {
+        if (appointment.labName.isNotEmpty) {
           labs.add(appointment.labName);
         }
         // build patient caches
