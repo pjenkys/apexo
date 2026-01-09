@@ -1,4 +1,4 @@
-import 'package:apexo/common_widgets/dialog_with_text_box.dart';
+import 'package:apexo/common_widgets/dialogs/dialog_with_text_box.dart';
 import 'package:apexo/core/multi_stream_builder.dart';
 import 'package:apexo/features/expenses/expense_model.dart';
 import 'package:apexo/features/expenses/folder_widget.dart';

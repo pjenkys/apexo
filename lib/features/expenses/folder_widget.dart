@@ -1,4 +1,4 @@
-import 'package:apexo/common_widgets/dialog_with_text_box.dart';
+import 'package:apexo/common_widgets/dialogs/dialog_with_text_box.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 
