@@ -26,13 +26,7 @@ class Appointment extends Model {
   }
 
   Patient? get patient {
-    if (patientID != null &&
-        patientID!.isNotEmpty &&
-        patients.get(patientID!) == null &&
-        patientID!.length == 15) {
-      return Patient.fromJson({id: patientID, title: "${patientID}temp"});
-    }
-    return patients.get(patientID ?? "return null when null");
+    return patients.get("return null when null");
   }
 
   @override

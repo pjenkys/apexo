@@ -24,7 +24,7 @@ class PatientPicker extends StatelessWidget {
         if (s.isEmpty) return onChanged(null);
         onChanged(s.first.value ?? "");
       },
-      initialValue: value != null ? [TagInputItem(value: value!, label: patients.get(value!)!.title)] : [],
+      initialValue: value != null ? [TagInputItem(value: value!, label: patients.get(value!)?.title ?? "null")] : [],
       strict: true,
       limit: 1,
       placeholder: txt("selectPatient"),
