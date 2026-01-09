@@ -121,8 +121,8 @@ class _SupplierWindowState extends State<SupplierWindow> {
                 child: HorizontalScrollView(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
-                      minWidth: 800,
-                      maxWidth: max(constraints.maxWidth, 800),
+                      minWidth: _selectedList.isEmpty ? 300 : 800,
+                      maxWidth: _selectedList.isEmpty ? 300 : max(constraints.maxWidth, 800),
                     ),
                     child: _buildTable(),
                   ),
