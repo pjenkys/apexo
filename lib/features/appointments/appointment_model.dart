@@ -26,7 +26,7 @@ class Appointment extends Model {
   }
 
   Patient? get patient {
-    return patients.get("return null when null");
+    return patients.get(patientID ?? "return null when null");
   }
 
   @override
