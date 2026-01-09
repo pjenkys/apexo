@@ -1,3 +1,4 @@
+import 'package:apexo/common_widgets/dialog_with_text_box.dart';
 import 'package:apexo/core/multi_stream_builder.dart';
 import 'package:apexo/features/expenses/expense_model.dart';
 import 'package:apexo/features/expenses/folder_widget.dart';
@@ -44,9 +45,6 @@ class SuppliersAndOrders extends StatefulWidget {
 class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
   Expense? selectedSupplier;
   FlyoutController addOrderFlyout = FlyoutController();
-  FlyoutController addSupplierFlyout = FlyoutController();
-  TextEditingController addSupplierTextBox = TextEditingController();
-  FocusNode addSupplierTextBoxFocusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -193,66 +191,37 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
     );
   }
 
-  FlyoutTarget _buildAddSupplierButton() {
-    return FlyoutTarget(
-      controller: addSupplierFlyout,
-      child: IconButton(
-        onPressed: () {
-          addSupplierFlyout.showFlyout(builder: (context) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              addSupplierTextBoxFocusNode.requestFocus();
-            });
-            return _buildAddSupplierDialog();
-          });
-        },
-        icon: Row(
-          children: [
-            const Icon(
-              FluentIcons.fabric_new_folder,
-              size: 17,
-            ),
-            const SizedBox(width: 10),
-            Txt(txt("addSupplier"))
-          ],
-        ),
-      ),
-    );
-  }
-
-  FlyoutContent _buildAddSupplierDialog() {
-    return FlyoutContent(
-      constraints: const BoxConstraints(maxWidth: 300),
-      child: Row(
+  Widget _buildAddSupplierButton() {
+    return IconButton(
+      onPressed: () {
+        showDialog(
+          barrierDismissible: true,
+          dismissWithEsc: true,
+          context: context,
+          builder: (context) {
+            return DialogWithTextBox(
+              title: "${txt("addSupplier")}: ${txt("name")}",
+              onSave: (supplierNewName) {
+                expenses.set(
+                  Expense.fromJson({
+                    "isSupplier": true,
+                    "supplierName": supplierNewName,
+                  }),
+                );
+              },
+              icon: FluentIcons.fabric_new_folder,
+            );
+          },
+        );
+      },
+      icon: Row(
         children: [
-          Expanded(
-            child: SizedBox(
-              height: 40,
-              child: TextBox(
-                focusNode: addSupplierTextBoxFocusNode,
-                controller: addSupplierTextBox,
-              ),
-            ),
+          const Icon(
+            FluentIcons.fabric_new_folder,
+            size: 17,
           ),
-          const SizedBox(width: 5),
-          FilledButton(
-              child: Row(
-                children: [
-                  const Icon(FluentIcons.add),
-                  const SizedBox(width: 5),
-                  Txt(txt("add"))
-                ],
-              ),
-              onPressed: () {
-                setState(() {
-                  expenses.set(
-                    Expense.fromJson({
-                      "isSupplier": true,
-                      "supplierName": addSupplierTextBox.text
-                    }),
-                  );
-                  addSupplierFlyout.close();
-                });
-              })
+          const SizedBox(width: 10),
+          Txt(txt("addSupplier"))
         ],
       ),
     );

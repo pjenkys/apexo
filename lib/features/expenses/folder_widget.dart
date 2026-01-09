@@ -1,3 +1,4 @@
+import 'package:apexo/common_widgets/dialog_with_text_box.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 
@@ -31,8 +32,6 @@ class _FolderState extends State<Folder> {
   bool _isHovered = false;
   FlyoutController ctxMenuCtrl = FlyoutController();
   FlyoutController renameFlyoutCtrl = FlyoutController();
-  TextEditingController renameTextBox = TextEditingController();
-  FocusNode renameTextBoxFocusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -75,13 +74,27 @@ class _FolderState extends State<Folder> {
                     MenuFlyoutItem(
                       text: Txt(txt("rename")),
                       leading: const Icon(FluentIcons.rename),
-                      onPressed: () {
-                        renameFlyoutCtrl.showFlyout(builder: (context) {
-                          renameTextBox.text = widget.title;
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            renameTextBoxFocusNode.requestFocus();
-                          });
-                          return FlyoutContent(child: _buildRenameDialog());
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: true,
+                            dismissWithEsc: true,
+                            useRootNavigator: true,
+                            builder: (context) {
+                              return DialogWithTextBox(
+                                title: txt("rename"),
+                                onSave: (newName) {
+                                  if (widget.onRename != null) {
+                                    widget.onRename!(newName);
+                                  }
+                                },
+                                icon: FluentIcons.rename,
+                                initialValue: widget.title,
+                              );
+                            },
+                          );
                         });
                       },
                     ),
@@ -100,43 +113,6 @@ class _FolderState extends State<Folder> {
             },
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildRenameDialog() {
-    return SizedBox(
-      width: 300,
-      child: Row(
-        children: [
-          Expanded(
-            child: SizedBox(
-              height: 40,
-              child: TextBox(
-                focusNode: renameTextBoxFocusNode,
-                controller: renameTextBox,                
-              ),
-            ),
-          ),
-          const SizedBox(width: 5),
-          FilledButton(
-              child: Row(
-                children: [
-                  const Icon(FluentIcons.rename),
-                  const SizedBox(width: 5),
-                  Txt(txt("rename"))
-                ],
-              ),
-              onPressed: () {
-                renameFlyoutCtrl.close();
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  ctxMenuCtrl.close();
-                });
-                if (widget.onRename != null) {
-                  widget.onRename!(renameTextBox.text);
-                }
-              })
-        ],
       ),
     );
   }
