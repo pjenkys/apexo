@@ -399,8 +399,9 @@ class _PanelScreenState extends State<PanelScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(children: [
+                    _buildPanelHeaderStoreName(),
+                    const SizedBox(width: 2),
                     _buildPanelHeaderItemName(),
-                    _buildPanelHeaderStoreName()
                   ]),
                   Row(children: [
                     if (routes.panels().length > 1) _buildPanelSwitcher(),
@@ -494,10 +495,10 @@ class _PanelScreenState extends State<PanelScreen> {
 
   Widget _buildPanelHeaderItemName() {
     return SizedBox(
-      width: 155.5,
+      width: 154.5,
       child: ItemTitle(
-        maxWidth: 116,
-        radius: 13,
+        maxWidth: 141,
+        radius: 0,
         fontSize: 13,
         item: widget.panel.title != null
             ? Model.fromJson({"title": widget.panel.title})
