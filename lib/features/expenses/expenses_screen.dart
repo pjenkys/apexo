@@ -98,6 +98,7 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
           itemBuilder: (ctx, i) {
             final supplier = suppliers[i];
             return Folder(
+              key: Key(supplier.id),
               isArchived: supplier.archived ?? false,
               icon: FluentIcons.shop,
               title: supplier.supplierName,
