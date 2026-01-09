@@ -65,7 +65,8 @@ class Appointments extends Store<Appointment> {
           byPatient[patientID]!["upcoming"]!.add(appointment);
         } else if (isDone) {
           byPatient[patientID]!["done"]!.add(appointment);
-        } else if (isPast) {
+        }
+        if (isPast) {
           byPatient[patientID]!["past"]!.add(appointment);
         }
 
@@ -127,13 +128,15 @@ class Appointments extends Store<Appointment> {
 
   Map<String, Appointment> get filtered {
     if (doctorId().isEmpty) return present;
-    return Map<String, Appointment>.fromEntries(
-        present.entries.where((entry) => entry.value.operatorsIDs.contains(doctorId())));
+    return Map<String, Appointment>.fromEntries(present.entries
+        .where((entry) => entry.value.operatorsIDs.contains(doctorId())));
   }
 
   List<String>? _allPrescriptions;
   List<String> get allPrescriptions {
-    return _allPrescriptions ??= Set<String>.from(present.values.expand((doc) => doc.prescriptions)).toList();
+    return _allPrescriptions ??=
+        Set<String>.from(present.values.expand((doc) => doc.prescriptions))
+            .toList();
   }
 }
 
