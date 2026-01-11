@@ -46,57 +46,46 @@ class _ItemTitleState extends State<ItemTitle> {
     return SizedBox(
       width: 200,
       child: Row(children: [
+        FutureBuilder(
+            future: widget.item.avatar != null
+                ? (launch.isDemo
+                    ? demoAvatarRequestQue.add(
+                        () => getImage(widget.item.id, widget.item.avatar!))
+                    : getImage(widget.item.imageRowId ?? widget.item.id,
+                        widget.item.avatar!))
+                : null,
+            builder: (context, snapshot) {
+              if (snapshot.data != null) {
+                _avatarToEvict = snapshot.data;
+              }
+              if (widget.item.title.isEmpty) {
+                widget.item.title = " ";
+              }
+              return CircleAvatar(
+                key: Key(widget.item.id),
+                radius: widget.radius,
+                backgroundColor: color,
+                backgroundImage: (snapshot.data != null) ? snapshot.data : null,
+                child: widget.item.archived == true
+                    ? Icon(FluentIcons.archive, size: widget.radius)
+                    : snapshot.data == null
+                        ? widget.icon == null
+                            ? Txt(("${widget.item.title} ").substring(0, 1))
+                            : Icon(widget.icon, size: widget.radius)
+                        : null,
+              );
+            }),
+        const SizedBox(width: 5),
         Container(
-          padding: const EdgeInsets.all(1),
-          decoration:
-              BoxDecoration(color: color, borderRadius: BorderRadius.circular(100), boxShadow: kElevationToShadow[1]),
-          child: FutureBuilder(
-              future: widget.item.avatar != null
-                  ? (launch.isDemo
-                      ? demoAvatarRequestQue.add(() => getImage(widget.item.id, widget.item.avatar!))
-                      : getImage(widget.item.imageRowId ?? widget.item.id, widget.item.avatar!))
-                  : null,
-              builder: (context, snapshot) {
-                if (snapshot.data != null) {
-                  _avatarToEvict = snapshot.data;
-                }
-                if (widget.item.title.isEmpty) {
-                  widget.item.title = " ";
-                }
-                return CircleAvatar(
-                  key: Key(widget.item.id),
-                  radius: widget.radius,
-                  backgroundColor: color,
-                  backgroundImage: (snapshot.data != null) ? snapshot.data : null,
-                  child: widget.item.archived == true
-                      ? Icon(FluentIcons.archive, size: widget.radius)
-                      : snapshot.data == null
-                          ? widget.icon == null
-                              ? Txt(("${widget.item.title} ").substring(0, 1))
-                              : Icon(widget.icon, size: widget.radius)
-                          : null,
-                );
-              }),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(1.5, 5, 10, 5),
-          child: Container(
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(
-                  color: color.withValues(alpha: 0.25), width: 0.5, strokeAlign: BorderSide.strokeAlignOutside),
-            ),
-            child: Container(
-              constraints:
-                  BoxConstraints(minWidth: widget.maxWidth < 100 ? widget.maxWidth : 100, maxWidth: widget.maxWidth),
-              padding: const EdgeInsets.fromLTRB(12, 5, 12, 5),
-              child: Txt(
-                widget.item.title,
-                overflow: TextOverflow.visible,
-                style: TextStyle(fontSize: widget.fontSize ?? 14),
-              ),
-            ),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          constraints: BoxConstraints(
+            minWidth: widget.maxWidth < 100 ? widget.maxWidth : 100,
+            maxWidth: widget.maxWidth,
+          ),
+          child: Txt(
+            widget.item.title,
+            overflow: TextOverflow.ellipsis,
+            style: FluentTheme.of(context).typography.bodyStrong?.copyWith(backgroundColor: color.withAlpha(25)),
           ),
         )
       ]),
