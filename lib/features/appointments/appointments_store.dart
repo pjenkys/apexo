@@ -38,6 +38,8 @@ class Appointments extends Store<Appointment> {
   init() {
     super.init();
 
+
+
     observableMap.observe((_) => _allPrescriptions = null);
     observableMap.observe((_) {
       byPatient = {};
@@ -91,7 +93,6 @@ class Appointments extends Store<Appointment> {
         }
       }
     });
-
     login.activators[_storeName] = () async {
       await loaded;
 

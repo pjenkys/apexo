@@ -4,8 +4,6 @@ import 'package:apexo/utils/imgs.dart';
 import 'package:apexo/utils/que.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import '../core/model.dart';
-import '../utils/get_deterministic_item.dart';
-import '../utils/colors_without_yellow.dart';
 
 class ItemTitle extends StatefulWidget {
   final Model item;
@@ -42,39 +40,41 @@ class _ItemTitleState extends State<ItemTitle> {
     final Color color = widget.predefinedColor ??
         (widget.item.archived == true
             ? FluentTheme.of(context).shadowColor.withValues(alpha: 0.2)
-            : getDeterministicItem(colorsWithoutYellow, (widget.item.title)));
+            : widget.item.color);
     return SizedBox(
       width: 200,
       child: Row(children: [
-        FutureBuilder(
-            future: widget.item.avatar != null
-                ? (launch.isDemo
-                    ? demoAvatarRequestQue.add(
-                        () => getImage(widget.item.id, widget.item.avatar!))
-                    : getImage(widget.item.imageRowId ?? widget.item.id,
-                        widget.item.avatar!))
-                : null,
-            builder: (context, snapshot) {
-              if (snapshot.data != null) {
-                _avatarToEvict = snapshot.data;
-              }
-              if (widget.item.title.isEmpty) {
-                widget.item.title = " ";
-              }
-              return CircleAvatar(
-                key: Key(widget.item.id),
-                radius: widget.radius,
-                backgroundColor: color,
-                backgroundImage: (snapshot.data != null) ? snapshot.data : null,
-                child: widget.item.archived == true
-                    ? Icon(FluentIcons.archive, size: widget.radius)
-                    : snapshot.data == null
-                        ? widget.icon == null
-                            ? Txt(("${widget.item.title} ").substring(0, 1))
-                            : Icon(widget.icon, size: widget.radius)
-                        : null,
-              );
-            }),
+        if (widget.radius > 0)
+          FutureBuilder(
+              future: widget.item.avatar != null
+                  ? (launch.isDemo
+                      ? demoAvatarRequestQue.add(
+                          () => getImage(widget.item.id, widget.item.avatar!))
+                      : getImage(widget.item.imageRowId ?? widget.item.id,
+                          widget.item.avatar!))
+                  : null,
+              builder: (context, snapshot) {
+                if (snapshot.data != null) {
+                  _avatarToEvict = snapshot.data;
+                }
+                if (widget.item.title.isEmpty) {
+                  widget.item.title = " ";
+                }
+                return CircleAvatar(
+                  key: Key(widget.item.id),
+                  radius: widget.radius,
+                  backgroundColor: color,
+                  backgroundImage:
+                      (snapshot.data != null) ? snapshot.data : null,
+                  child: widget.item.archived == true
+                      ? Icon(FluentIcons.archive, size: widget.radius)
+                      : snapshot.data == null
+                          ? widget.icon == null
+                              ? Txt(("${widget.item.title} ").substring(0, 1))
+                              : Icon(widget.icon, size: widget.radius)
+                          : null,
+                );
+              }),
         const SizedBox(width: 5),
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -85,7 +85,10 @@ class _ItemTitleState extends State<ItemTitle> {
           child: Txt(
             widget.item.title,
             overflow: TextOverflow.ellipsis,
-            style: FluentTheme.of(context).typography.bodyStrong?.copyWith(backgroundColor: color.withAlpha(25)),
+            style: FluentTheme.of(context)
+                .typography
+                .bodyStrong
+                ?.copyWith(backgroundColor: color.withAlpha(25)),
           ),
         )
       ]),

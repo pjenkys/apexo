@@ -228,7 +228,9 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
                 key: WK.dataTableListView,
                 itemCount: sorted.length,
                 itemBuilder: (context, index) => _buildSingleItem(
-                    sorted[index], checkedIds.contains(sorted[index].id)),
+                  sorted[index],
+                  checkedIds.contains(sorted[index].id),
+                ),
               ),
             ),
           ],
@@ -275,88 +277,71 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
   }
 
   _buildSingleItem(Item item, bool isChecked) {
-    return Container(
-      padding: widget.compact
-          ? EdgeInsets.zero
-          : const EdgeInsets.symmetric(vertical: 1.5),
-      decoration: BoxDecoration(
-        color: isChecked
-            ? FluentTheme.of(context).selectionColor.withValues(alpha: 0.05)
-            : null,
-        border: Border(
-          bottom:
-              BorderSide(color: Colors.grey.withValues(alpha: 0.2), width: 0.5),
-        ),
+    return ListTile(
+      key: Key(item.id),
+      tileColor: WidgetStatePropertyAll(
+          isChecked ? Colors.blue.withAlpha(20) : Colors.transparent),
+      contentPadding: const EdgeInsets.all(0),
+      title: Row(
+        children: [
+          Divider(direction: Axis.vertical, size: widget.compact ? 1 : 45),
+          _buildInnerRow(item),
+          Divider(direction: Axis.vertical, size: widget.compact ? 1 : 45),
+        ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(0),
-        title: Container(
-          margin: const EdgeInsets.fromLTRB(5, 5, 5, 0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(3),
-          ),
-          child: Row(
-            children: [
-              Divider(direction: Axis.vertical, size: widget.compact ? 1 : 45),
-              _buildInnerRow(item),
-              Divider(direction: Axis.vertical, size: widget.compact ? 1 : 45),
-            ],
-          ),
-        ),
-        leading: _buildCheckBox(isChecked, item),
-        onPressed: () => widget.onSelect(item),
-        trailing: FlyoutTarget(
-            controller: contextMenuControllers[item.id]!,
-            child: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(5),
-                child: const Icon(FluentIcons.more),
-              ),
-              onPressed: () {
-                contextMenuControllers[item.id]!.showFlyout(
-                  barrierDismissible: true,
-                  dismissOnPointerMoveAway: false,
-                  dismissWithEsc: true,
-                  builder: (context) {
-                    return StatefulBuilder(builder: (context, setState) {
-                      return MenuFlyout(items: [
+      leading: _buildCheckBox(isChecked, item),
+      onPressed: () => widget.onSelect(item),
+      trailing: FlyoutTarget(
+          controller: contextMenuControllers[item.id]!,
+          child: IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(5),
+              child: const Icon(FluentIcons.more),
+            ),
+            onPressed: () {
+              contextMenuControllers[item.id]!.showFlyout(
+                barrierDismissible: true,
+                dismissOnPointerMoveAway: false,
+                dismissWithEsc: true,
+                builder: (context) {
+                  return StatefulBuilder(builder: (context, setState) {
+                    return MenuFlyout(items: [
+                      MenuFlyoutItem(
+                        text: Txt(item.title),
+                        leading: const Icon(FluentIcons.edit),
+                        onPressed: () => widget.onSelect(item),
+                        closeAfterClick: true,
+                      ),
+                      if (widget.itemActions.isNotEmpty)
+                        const MenuFlyoutSeparator(),
+                      for (var action in widget.itemActions)
                         MenuFlyoutItem(
-                          text: Txt(item.title),
-                          leading: const Icon(FluentIcons.edit),
-                          onPressed: () => widget.onSelect(item),
+                          leading: Icon(action.icon),
+                          text: Txt(action.title),
+                          onPressed: () => action.callback(item.id),
                           closeAfterClick: true,
                         ),
-                        if (widget.itemActions.isNotEmpty)
-                          const MenuFlyoutSeparator(),
-                        for (var action in widget.itemActions)
-                          MenuFlyoutItem(
-                            leading: Icon(action.icon),
-                            text: Txt(action.title),
-                            onPressed: () => action.callback(item.id),
-                            closeAfterClick: true,
-                          ),
-                        if (routes
-                            .panels()
-                            .where((p) => p.item.id == item.id)
-                            .isEmpty)
-                          MenuFlyoutItem(
-                            leading: Icon(item.archived == true
-                                ? FluentIcons.archive_undo
-                                : FluentIcons.archive),
-                            text: Txt(txt(
-                                item.archived == true ? "restore" : "archive")),
-                            onPressed: () => item.archived == true
-                                ? widget.store.unarchive(item.id)
-                                : widget.store.archive(item.id),
-                            closeAfterClick: true,
-                          )
-                      ]);
-                    });
-                  },
-                );
-              },
-            )),
-      ),
+                      if (routes
+                          .panels()
+                          .where((p) => p.item.id == item.id)
+                          .isEmpty)
+                        MenuFlyoutItem(
+                          leading: Icon(item.archived == true
+                              ? FluentIcons.archive_undo
+                              : FluentIcons.archive),
+                          text: Txt(txt(
+                              item.archived == true ? "restore" : "archive")),
+                          onPressed: () => item.archived == true
+                              ? widget.store.unarchive(item.id)
+                              : widget.store.archive(item.id),
+                          closeAfterClick: true,
+                        )
+                    ]);
+                  });
+                },
+              );
+            },
+          )),
     );
   }
 
@@ -377,9 +362,10 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ItemTitle(
-                  key: Key(item.id),
-                  radius: widget.compact ? 1 : 20,
-                  item: item),
+                key: Key(item.id),
+                radius: widget.compact ? 1 : 20,
+                item: item,
+              ),
               ...nonEmptyLabels.map((labelTitle) => _buildLabelPill(
                   labelTitle,
                   item,
@@ -560,22 +546,19 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
         colorsWithoutYellow[
             ((labels.indexOf(l) / labels.length) * colorsWithoutYellow.length)
                 .floor()];
-    return Padding(
-      padding: const EdgeInsets.all(2),
-      child: GestureDetector(
-        onTap: () {
-          if (selected) {
-            setSearchTerm("");
-          } else {
-            setSearchTerm((item.labels[l] ?? "").toLowerCase());
-          }
-        },
-        child: DataTablePill(
-          selected: selected,
-          color: color,
-          title: l,
-          content: item.labels[l] ?? "",
-        ),
+    return GestureDetector(
+      onTap: () {
+        if (selected) {
+          setSearchTerm("");
+        } else {
+          setSearchTerm((item.labels[l] ?? "").toLowerCase());
+        }
+      },
+      child: DataTablePill(
+        selected: selected,
+        color: l.length < 3 ? Colors.grey : color,
+        title: l,
+        content: item.labels[l] ?? "",
       ),
     );
   }
@@ -601,31 +584,17 @@ class DataTablePill extends StatelessWidget {
       textDirection: TextDirection.ltr,
       children: [
         Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                color.withValues(alpha: 0.15),
-                color.withValues(alpha: 0.07),
-                color.withValues(alpha: 0.15)
-              ],
-            ),
-            border: Border.all(color: color.withValues(alpha: 0.3), width: 0.3),
-            borderRadius: BorderRadius.circular(5),
-          ),
-          padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
-          child: Wrap(
+          color: color.withValues(alpha: 0.1),
+          padding: const EdgeInsets.all(10),
+          child: Row(
             children: [
-              Txt(
-                (txt(title)),
-                style: TextStyle(
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 11.5,
-                    color: color),
-              ),
-              const SizedBox(width: 5),
-              const Divider(direction: Axis.vertical, size: 10),
-              const SizedBox(width: 5),
+              if (title.length > 2) ...[
+                Txt(
+                  (txt(title)),
+                  style: FluentTheme.of(context).typography.caption?.copyWith(color: color, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(width: 10),
+              ],
               Txt((content), style: const TextStyle(fontSize: 15)),
             ],
           ),
@@ -633,12 +602,7 @@ class DataTablePill extends StatelessWidget {
         if (selected)
           Container(
             padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: .7),
-              borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(5),
-                  bottomRight: Radius.circular(5)),
-            ),
+            decoration: BoxDecoration(color: color.withValues(alpha: .7)),
             child: const Icon(
               FluentIcons.filter,
               size: 13,

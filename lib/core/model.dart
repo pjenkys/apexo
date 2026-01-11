@@ -1,3 +1,7 @@
+import 'package:apexo/utils/colors_without_yellow.dart';
+import 'package:apexo/utils/get_deterministic_item.dart';
+import 'package:fluent_ui/fluent_ui.dart';
+
 import '../utils/uuid.dart';
 
 class Model {
@@ -11,6 +15,11 @@ class Model {
 
   String? get imageRowId {
     return null;
+  }
+
+  Color? _color;
+  Color get color {
+    return _color ??= getDeterministicItem<Color>(colorsWithoutYellow, id);
   }
 
   Model.fromJson(Map<String, dynamic> json)

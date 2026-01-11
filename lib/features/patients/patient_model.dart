@@ -66,9 +66,10 @@ class Patient extends Model {
     return pricesGiven - paymentsMade;
   }
 
+  int? _daysSinceLastAppointmentCached;
   int? get daysSinceLastAppointment {
     if (doneAppointments.isEmpty) return null;
-    return DateTime.now().difference(doneAppointments.last.date).inDays;
+    return _daysSinceLastAppointmentCached ??= DateTime.now().difference(doneAppointments.last.date).inDays;
   }
 
   @override
@@ -90,40 +91,43 @@ class Patient extends Model {
     return "https://patient.apexo.app/${encode("$id|$title|${login.url}")}";
   }
 
+
+  Map<String, String> _labelsCached = {};
+
   @override
   Map<String, String> get labels {
-    Map<String, String> buildingLabels = {
-      "Age": (DateTime.now().year - birth).toString(),
-    };
+    if(_labelsCached.isNotEmpty) return _labelsCached;
+
+    _labelsCached["Age"] = (DateTime.now().year - birth).toString();
 
     if (daysSinceLastAppointment == null) {
-      buildingLabels["Last visit"] = txt("noVisits");
+      _labelsCached["Last visit"] = txt("noVisits");
     } else {
-      buildingLabels["Last visit"] = "$daysSinceLastAppointment ${txt("daysAgo")}";
+      _labelsCached["Last visit"] = "$daysSinceLastAppointment ${txt("daysAgo")}";
     }
 
     if (gender == 0) {
-      buildingLabels["Gender"] = "♀";
+      _labelsCached["Gender"] = "♀";
     } else {
-      buildingLabels["Gender"] = "♂️";
+      _labelsCached["Gender"] = "♂️";
     }
 
     if (outstandingPayments > 0) {
-      buildingLabels["Pay"] = "${txt("underpaid")}🔻";
+      _labelsCached["Pay"] = "${txt("underpaid")}🔻";
     }
 
     if (outstandingPayments < 0) {
-      buildingLabels["Pay"] = "${txt("overpaid")}🔺";
+      _labelsCached["Pay"] = "${txt("overpaid")}🔺";
     }
 
     if (paymentsMade != 0) {
-      buildingLabels["Total payments"] = "$paymentsMade";
+      _labelsCached["Total payments"] = "$paymentsMade";
     }
 
     for (var i = 0; i < tags.length; i++) {
-      buildingLabels[List.generate(i + 1, (_) => "\u200B").join("")] = tags[i];
+      _labelsCached[List.generate(i + 1, (_) => "\u200B").join("")] = tags[i];
     }
-    return buildingLabels;
+    return _labelsCached;
   }
 
   // id: id of the patient (inherited from Model)
@@ -142,6 +146,8 @@ class Patient extends Model {
     nullifyCachedAppointments(_) {
       _doneAppointmentsCached = null;
       _allAppointmentsCached = null;
+      _daysSinceLastAppointmentCached = null;
+      _labelsCached = {};
     }
 
     showArchived.observe(nullifyCachedAppointments);

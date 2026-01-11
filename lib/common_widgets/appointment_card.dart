@@ -1,14 +1,10 @@
 import 'dart:math';
 
 import 'package:apexo/utils/color_based_on_payment.dart';
-import 'package:apexo/utils/colors_without_yellow.dart';
-import 'package:apexo/utils/get_deterministic_item.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:apexo/features/appointments/open_appointment_panel.dart';
-import 'package:apexo/features/patients/open_patient_panel.dart';
 import 'package:apexo/common_widgets/item_title.dart';
 import 'package:apexo/common_widgets/grid_gallery.dart';
-import 'package:apexo/features/doctors/open_doctor_panel.dart';
 import 'package:apexo/features/appointments/appointment_model.dart';
 import 'package:apexo/features/appointments/appointments_store.dart';
 import 'package:apexo/features/settings/settings_stores.dart';
@@ -50,7 +46,7 @@ class AppointmentCard extends StatelessWidget {
         ? (FluentTheme.of(context).iconTheme.color ?? Colors.grey)
         : (appointment.isMissed)
             ? Colors.red
-            : getDeterministicItem(colorsWithoutYellow, appointment.id).light;
+            : appointment.color;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(7, 15, 15, 0),
@@ -65,24 +61,37 @@ class AppointmentCard extends StatelessWidget {
                   children: [
                     _doneCheckBox(color),
                     if (appointment.archived == true) ...[
-                      _verticalSpacing(10),
+                      const SizedBox(height: 10),
                       const Icon(FluentIcons.archive),
                     ] else if (appointment.isMissed == true) ...[
-                      _verticalSpacing(10),
+                      const SizedBox(height: 10),
                       Icon(FluentIcons.event_date_missed12, color: color),
                     ] else if (!appointment.fullPaid) ...[
-                      _verticalSpacing(10),
+                      const SizedBox(height: 10),
                       Icon(FluentIcons.money, color: color),
                     ],
                   ],
                 ),
-              if (readOnly == false) _horizontalSpacing(4),
+              if (readOnly == false) const SizedBox(width: 4),
               Expanded(
-                child: Acrylic(
-                  elevation: 100,
-                  blurAmount: 0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5)),
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(5)),
+                      color: FluentTheme.of(context).micaBackgroundColor,
+                      boxShadow: const [
+                        BoxShadow(
+                          offset: Offset(0.0, 8.0),
+                          blurRadius: 17.0,
+                          spreadRadius: 2.0,
+                          color: Color.fromARGB(14, 0, 0, 0),
+                        ),
+                        BoxShadow(
+                          offset: Offset(0.0, 5.0),
+                          blurRadius: 22.0,
+                          spreadRadius: 4.0,
+                          color: Color(0x1F000000),
+                        ),
+                      ]),
                   child: Container(
                     decoration: _coloredHandleDecoration(color),
                     padding: const EdgeInsets.all(8.0),
@@ -91,150 +100,153 @@ class AppointmentCard extends StatelessWidget {
                         _buildHeader(context, color),
                         if (appointment.patient != null &&
                             !hide.contains(AppointmentSections.patient)) ...[
-                          ..._betweenSections,
+                          const SizedBox(height: 12.5),
+                          const Divider(direction: Axis.horizontal,),
                           _buildSection(
-                            txt("patient"),
-                            GestureDetector(
-                                onTap: () {
-                                  openPatient(appointment.patient);
-                                },
-                                child: ItemTitle(item: appointment.patient!)),
-                            FluentIcons.medical,
-                            color,
-                          ),
+                              txt("patient"),
+                              ItemTitle(item: appointment.patient!),
+                              FluentIcons.medical,
+                              color,
+                              context),
                         ],
                         if (appointment.operators.isNotEmpty &&
                             !hide.contains(AppointmentSections.doctors)) ...[
-                          ..._betweenSections,
+                          const SizedBox(height: 12.5),
+                          const Divider(direction: Axis.horizontal,),
                           _buildSection(
-                            txt("doctors"),
-                            Column(
-                              children: appointment.operators
-                                  .map((e) => GestureDetector(
-                                      onTap: () {
-                                        openDoctor(e);
-                                      },
-                                      child: ItemTitle(item: e, maxWidth: 115)))
-                                  .toList(),
-                            ),
-                            FluentIcons.medical,
-                            color,
-                          ),
+                              txt("doctors"),
+                              Column(
+                                children: appointment.operators
+                                    .map((e) =>
+                                        ItemTitle(item: e, maxWidth: 115))
+                                    .toList(),
+                              ),
+                              FluentIcons.medical,
+                              color,
+                              context),
                         ],
                         if (appointment.imgs.isNotEmpty &&
                             !hide.contains(AppointmentSections.photos)) ...[
-                          ..._betweenSections,
+                          const SizedBox(height: 12.5),
+                          const Divider(direction: Axis.horizontal,),
                           _buildSection(
-                            txt("photos"),
-                            GridGallery(
-                              rowId: appointment.id,
-                              imgs: appointment.imgs,
-                              countPerLine: 4,
-                              clipCount: 4,
-                              rowWidth: 200,
-                              size: 43,
-                              progress: false,
-                              onPressDelete: (img) async {
-                                try {
-                                  await appointments.deleteImg(
-                                    appointment.id,
-                                    img,
-                                  );
-                                  appointments
-                                      .set(appointment..imgs.remove(img));
-                                } catch (e, s) {
-                                  logger("Error during deleting image: $e", s);
-                                }
-                              },
-                              showDeleteMiniButton: false,
-                            ),
-                            FluentIcons.camera,
-                            color,
-                          ),
+                              txt("photos"),
+                              GridGallery(
+                                rowId: appointment.id,
+                                imgs: appointment.imgs,
+                                countPerLine: 4,
+                                clipCount: 2,
+                                rowWidth: 200,
+                                size: 43,
+                                progress: false,
+                                onPressDelete: (img) async {
+                                  try {
+                                    await appointments.deleteImg(
+                                      appointment.id,
+                                      img,
+                                    );
+                                    appointments
+                                        .set(appointment..imgs.remove(img));
+                                  } catch (e, s) {
+                                    logger(
+                                        "Error during deleting image: $e", s);
+                                  }
+                                },
+                                showDeleteMiniButton: false,
+                              ),
+                              FluentIcons.camera,
+                              color,
+                              context),
                         ],
                         if (appointment.preOpNotes.isNotEmpty &&
                             !hide.contains(AppointmentSections.preNotes)) ...[
-                          ..._betweenSections,
+                          const SizedBox(height: 12.5),
+                          const Divider(direction: Axis.horizontal,),
                           _buildSection(
-                            txt("pre-opNotes"),
-                            Txt(
-                              appointment.preOpNotes,
-                              style: const TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.w500),
-                            ),
-                            FluentIcons.quick_note,
-                            color,
-                          ),
+                              txt("pre-opNotes"),
+                              Txt(
+                                appointment.preOpNotes,
+                                style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w500),
+                              ),
+                              FluentIcons.quick_note,
+                              color,
+                              context),
                         ],
                         if (appointment.postOpNotes.isNotEmpty &&
                             !hide.contains(AppointmentSections.postNotes)) ...[
-                          ..._betweenSections,
+                          const SizedBox(height: 12.5),
+                          const Divider(direction: Axis.horizontal,),
                           _buildSection(
-                            txt("post-opNotes"),
-                            Txt(
-                              appointment.postOpNotes,
-                              style: const TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.w500),
-                            ),
-                            FluentIcons.quick_note,
-                            color,
-                          ),
+                              txt("post-opNotes"),
+                              Txt(
+                                appointment.postOpNotes,
+                                style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w500),
+                              ),
+                              FluentIcons.quick_note,
+                              color,
+                              context),
                         ],
                         if (appointment.teeth.isNotEmpty &&
                             !hide
                                 .contains(AppointmentSections.dentalNotes)) ...[
-                          ..._betweenSections,
+                          const SizedBox(height: 12.5),
+                          const Divider(direction: Axis.horizontal,),
                           _buildSection(
-                            txt("dentalNotes"),
-                            Wrap(
-                              spacing: 5,
-                              children: appointment.teeth.keys
-                                  .map((iso) => toothHasNotes(
-                                      color, iso, appointment.teeth[iso]!))
-                                  .toList(),
-                            ),
-                            FluentIcons.teeth,
-                            color,
-                          ),
+                              txt("dentalNotes"),
+                              Wrap(
+                                spacing: 5,
+                                children: appointment.teeth.keys
+                                    .map((iso) => toothHasNotes(
+                                        color, iso, appointment.teeth[iso]!))
+                                    .toList(),
+                              ),
+                              FluentIcons.teeth,
+                              color,
+                              context),
                         ],
                         if (appointment.hasLabwork &&
                             !hide.contains(AppointmentSections.labworks)) ...[
-                          ..._betweenSections,
+                          const SizedBox(height: 12.5),
+                          const Divider(direction: Axis.horizontal,),
                           _buildSection(
-                            txt("labwork"),
-                            Txt(
-                              "${appointment.labworkNotes}\n${appointment.labworkReceived ? ("➡️ ${txt("received")}") : ("⚠️ ${txt("due")}")}",
-                              style: const TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.w500),
-                            ),
-                            FluentIcons.pill,
-                            color,
-                          ),
+                              txt("labwork"),
+                              Txt(
+                                "${appointment.labworkNotes}\n${appointment.labworkReceived ? ("➡️ ${txt("received")}") : ("⚠️ ${txt("due")}")}",
+                                style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w500),
+                              ),
+                              FluentIcons.pill,
+                              color,
+                              context),
                         ],
                         if (appointment.prescriptions.isNotEmpty &&
                             !hide.contains(
                                 AppointmentSections.prescriptions)) ...[
-                          ..._betweenSections,
+                          const SizedBox(height: 12.5),
+                          const Divider(direction: Axis.horizontal,),
                           _buildSection(
-                            txt("prescription"),
-                            Txt(
-                              appointment.prescriptions.join("\n"),
-                              style: const TextStyle(
-                                  fontSize: 12, fontWeight: FontWeight.w500),
-                            ),
-                            FluentIcons.pill,
-                            color,
-                          ),
+                              txt("prescription"),
+                              Txt(
+                                appointment.prescriptions.join("\n"),
+                                style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w500),
+                              ),
+                              FluentIcons.pill,
+                              color,
+                              context),
                         ],
                         if ((appointment.price != 0 || appointment.paid != 0) &&
                             !hide.contains(AppointmentSections.pay)) ...[
-                          ..._betweenSections,
+                          const SizedBox(height: 12.5),
+                          const Divider(direction: Axis.horizontal,),
                           _buildSection(
-                            "${txt("pay")}\n${globalSettings.get("currency_______").value}",
-                            _paymentPills(context),
-                            FluentIcons.money,
-                            color,
-                          ),
+                              "${txt("pay")}\n${globalSettings.get("currency_______").value}",
+                              _paymentPills(context),
+                              FluentIcons.money,
+                              color,
+                              context),
                         ],
                       ],
                     ),
@@ -243,7 +255,7 @@ class AppointmentCard extends StatelessWidget {
               ),
             ],
           ),
-          _verticalSpacing(),
+          const SizedBox(height: 10),
           if (difference != null) _buildTimeDifference()
         ],
       ),
@@ -297,22 +309,19 @@ class AppointmentCard extends StatelessWidget {
     );
   }
 
-  Padding _doneCheckBox(Color color) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 2),
-      child: Checkbox(
-        key: WK.acCheckBox,
-        checked: appointment.isDone,
-        onChanged: (checked) {
-          appointment.isDone = checked == true;
-          appointments.set(appointment);
-        },
-        style: CheckboxThemeData(
-          checkedDecoration: WidgetStatePropertyAll(
-            BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(5),
-            ),
+  Widget _doneCheckBox(Color color) {
+    return Checkbox(
+      key: WK.acCheckBox,
+      checked: appointment.isDone,
+      onChanged: (checked) {
+        appointment.isDone = checked == true;
+        appointments.set(appointment);
+      },
+      style: CheckboxThemeData(
+        checkedDecoration: WidgetStatePropertyAll(
+          BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(5),
           ),
         ),
       ),
@@ -325,17 +334,19 @@ class AppointmentCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       textDirection: TextDirection.ltr,
       children: [
-        _spacerIcon(1),
-        _horizontalSpacing(),
+        const SpacerIcon(flip: 1),
+        const SizedBox(width: 5),
         TimeDifference(difference: difference),
-        _horizontalSpacing(),
-        _spacerIcon(-1),
+        const SizedBox(width: 5),
+        const SpacerIcon(flip: -1),
       ],
     ));
   }
 
   Column _paymentPills(BuildContext context) {
-    final color = colorBasedOnPayments(appointment.paid, appointment.price);
+    final bgColor = colorBasedOnPayments(appointment.paid, appointment.price);
+    final txtColor =
+        bgColor ?? FluentTheme.of(context).iconTheme.color ?? Colors.grey;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -343,104 +354,63 @@ class AppointmentCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            _paymentPill(txt("price"), appointment.price.toString(), context,
-                null, color),
-            _horizontalSpacing(),
-            _paymentPill(
-                txt("paid"), appointment.paid.toString(), context, null, color),
+            PaymentPill(
+              title: txt("price"),
+              amount: appointment.price.toString(),
+              finalTextColor: txtColor,
+            ),
+            const SizedBox(width: 5),
+            PaymentPill(
+              title: txt("paid"),
+              amount: appointment.paid.toString(),
+              finalTextColor: txtColor,
+            ),
           ],
         ),
-        _verticalSpacing(),
+        const SizedBox(height: 10),
         if (appointment.paid != appointment.price)
-          _paymentPill(
-            appointment.overPaid ? txt("overpaid") : txt("underpaid"),
-            appointment.paymentDifference.toString(),
-            context,
-            colorBasedOnPayments(appointment.paid, appointment.price),
+          PaymentPill(
+            title: appointment.overPaid ? txt("overpaid") : txt("underpaid"),
+            amount: appointment.paymentDifference.toString(),
+            color: bgColor?.withAlpha(50),
+            finalTextColor: txtColor,
           )
       ],
     );
   }
 
-  PaymentPill _paymentPill(String title, String amount, BuildContext context,
-      [Color? color, Color? textColor]) {
-    final Color finalTextColor = textColor ??
-        (color == null
-            ? (FluentTheme.of(context).iconTheme.color ?? Colors.grey)
-            : Colors.white);
-    return PaymentPill(
-        finalTextColor: finalTextColor,
-        amount: amount,
-        title: title,
-        color: color);
-  }
-
-  List<Widget> get _betweenSections {
-    return [_verticalSpacing(), _divider(), _verticalSpacing()];
-  }
-
-  Divider _divider() => const Divider(size: 300);
-
-  Transform _spacerIcon([flip = 1]) {
-    return Transform.flip(
-      flipX: flip == 1 ? true : false,
-      flipY: false,
-      child: Transform.translate(
-        offset: Offset(0, flip < 1 ? 2.0 * flip : 5.0 * flip),
-        child: Transform.rotate(
-          angle: (pi / (flip == 1 ? 2 : 1)) * flip,
-          child: Icon(
-            color: Colors.grey.withValues(alpha: 0.3),
-            FluentIcons.turn_right,
-            size: 14,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Row _buildSection(String title, Widget child, IconData icon, Color color) {
+  Row _buildSection(
+    String title,
+    Widget child,
+    IconData icon,
+    Color color,
+    context,
+  ) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Icon(
-                icon,
-                size: 13,
-                color: color.withValues(alpha: 0.5),
-              ),
-            ),
-            Acrylic(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50)),
-              elevation: 100,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                child: Txt(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    fontStyle: FontStyle.italic,
-                  ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 7),
+          child: Row(
+            children: [
+              Icon(icon, size: 13),
+              const SizedBox(width: 7),
+              Txt(
+                title,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        _horizontalSpacing(),
+        const SizedBox(width: 5),
         Expanded(child: child),
       ],
     );
   }
-
-  SizedBox _horizontalSpacing([double n = 5]) => SizedBox(width: n);
-
-  SizedBox _verticalSpacing([double n = 10.0]) => SizedBox(height: n);
 
   Widget _buildHeader(BuildContext context, Color color) {
     return Row(
@@ -458,11 +428,11 @@ class AppointmentCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            _verticalSpacing(3),
+            const SizedBox(height: 3),
             Row(
               children: [
                 Icon(FluentIcons.clock, color: color),
-                _horizontalSpacing(),
+                const SizedBox(width: 5),
                 _buildFormattedDate(color),
               ],
             ),
@@ -518,37 +488,29 @@ class PaymentPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Acrylic(
-      luminosityAlpha: 1,
-      tintAlpha: 1,
-      blurAmount: 100,
-      elevation: 20,
-      tint: color,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
-        child: Wrap(
-          children: [
-            Txt(
-              title,
-              style: TextStyle(
-                fontStyle: FontStyle.italic,
-                fontWeight: FontWeight.bold,
-                fontSize: 11.5,
-                color: finalTextColor,
-              ),
+    return Container(
+      decoration: BoxDecoration(
+          color: color?.withAlpha(40), borderRadius: BorderRadius.circular(5)),
+      padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
+      height: 35,
+      child: Wrap(
+        children: [
+          Txt(
+            title,
+            style: TextStyle(
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.bold,
+              fontSize: 11.5,
+              color: finalTextColor,
             ),
-            const SizedBox(width: 5),
-            const Divider(direction: Axis.vertical, size: 10),
-            const SizedBox(width: 5),
-            Txt(
-              amount,
-              style: TextStyle(color: finalTextColor, fontSize: 12),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 5),
+          const SizedBox(width: 5),
+          Txt(
+            amount,
+            style: TextStyle(color: finalTextColor, fontSize: 12),
+          ),
+        ],
       ),
     );
   }
@@ -570,6 +532,30 @@ class TimeDifference extends StatelessWidget {
           fontSize: 12,
           color: Colors.grey.withValues(alpha: 0.5),
           fontWeight: FontWeight.bold),
+    );
+  }
+}
+
+class SpacerIcon extends StatelessWidget {
+  const SpacerIcon({super.key, required this.flip});
+  final int flip;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.flip(
+      flipX: flip == 1 ? true : false,
+      flipY: false,
+      child: Transform.translate(
+        offset: Offset(0, flip < 1 ? 2.0 * flip : 5.0 * flip),
+        child: Transform.rotate(
+          angle: (pi / (flip == 1 ? 2 : 1)) * flip,
+          child: Icon(
+            color: Colors.grey.withValues(alpha: 0.3),
+            FluentIcons.turn_right,
+            size: 14,
+          ),
+        ),
+      ),
     );
   }
 }

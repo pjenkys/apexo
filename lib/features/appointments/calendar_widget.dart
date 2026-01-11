@@ -523,7 +523,7 @@ class AppointmentCalendarTile<Item extends Appointment>
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 12),
                       )),
-                if (item.paid > 0 && login.isAdmin && this.showPayments)
+                if (item.paid > 0 && login.isAdmin && showPayments)
                   Txt(
                     "💵 ${item.paid.toStringAsFixed(0)} ${globalSettings.get("currency_______").value}",
                     style: const TextStyle(fontSize: 12),
