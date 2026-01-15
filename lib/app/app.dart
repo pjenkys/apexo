@@ -134,8 +134,9 @@ class ApexoApp extends StatelessWidget {
     );
   }
 
-  Positioned _buildPositionedMainScreen(BoxConstraints constraints, bool hideSidePanel) {
-    return Positioned(
+  Widget _buildPositionedMainScreen(BoxConstraints constraints, bool hideSidePanel) {
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 300),
       top: 0,
       left: locale.s.$direction == Direction.rtl ? null : 0,
       right: locale.s.$direction == Direction.rtl ? 0 : null,
@@ -198,9 +199,10 @@ class ApexoApp extends StatelessWidget {
     );
   }
 
-  Positioned _buildPositionedPanel(BoxConstraints constraints, bool hideSidePanel) {
+  Widget _buildPositionedPanel(BoxConstraints constraints, bool hideSidePanel) {
     final minimized = routes.minimizePanels() && constraints.maxWidth < 710;
-    return Positioned(
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 300),
       width: (constraints.maxWidth < 490 && minimized) ? constraints.maxWidth : 350,
       height: minimized ? 56 : constraints.maxHeight,
       top: minimized ? null : 0,
