@@ -9,7 +9,7 @@ import 'package:apexo/utils/logger.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:apexo/features/patients/open_patient_panel.dart';
 import 'package:apexo/utils/print/print_prescription.dart';
-import 'package:apexo/common_widgets/acrylic_button.dart';
+import 'package:apexo/common_widgets/unified_button.dart';
 import 'package:apexo/common_widgets/date_time_picker.dart';
 import 'package:apexo/common_widgets/grid_gallery.dart';
 import 'package:apexo/common_widgets/operators_picker.dart';
@@ -73,99 +73,97 @@ class _AppointmentGalleryFooter extends StatefulWidget {
 class _AppointmentGalleryFooterState extends State<_AppointmentGalleryFooter> {
   @override
   Widget build(BuildContext context) {
-    return Acrylic(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            FilledButton(
-              child: Row(
-                children: [
-                  const Icon(FluentIcons.link),
-                  const SizedBox(width: 5),
-                  Txt(txt("link")),
-                ],
-              ),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return ImportDialog(panel: widget.panel);
-                  },
-                );
-              },
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          FilledButton(
+            child: Row(
+              children: [
+                const Icon(FluentIcons.link),
+                const SizedBox(width: 5),
+                Txt(txt("link")),
+              ],
             ),
-            if (ImagePicker().supportsImageSource(ImageSource.camera))
-              FilledButton(
-                child: Row(
-                  children: [
-                    const Icon(FluentIcons.camera),
-                    const SizedBox(width: 5),
-                    Txt(txt("camera")),
-                  ],
-                ),
-                onPressed: () async {
-                  final XFile? res =
-                      await ImagePicker().pickImage(source: ImageSource.camera);
-                  if (res == null) return;
-                  widget.panel.inProgress(true);
-
-                  try {
-                    final imgName = await handleNewImage(
-                      rowID: widget.panel.item.id,
-                      sourcePath: res.path,
-                      sourceFile: res,
-                    );
-                    if (widget.panel.item.imgs.contains(imgName) == false) {
-                      widget.panel.item.imgs.add(imgName);
-                      appointments.set(widget.panel.item);
-                      widget.panel.savedJson =
-                          jsonEncode(widget.panel.item.toJson());
-                    }
-                  } catch (e, s) {
-                    logger("Error during uploading camera capture: $e", s);
-                  }
-                  widget.panel.selectedTab(widget.panel.selectedTab());
-                  widget.panel.inProgress(false);
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return ImportDialog(panel: widget.panel);
                 },
-              ),
+              );
+            },
+          ),
+          if (ImagePicker().supportsImageSource(ImageSource.camera))
             FilledButton(
               child: Row(
                 children: [
-                  const Icon(FluentIcons.photo2_add),
+                  const Icon(FluentIcons.camera),
                   const SizedBox(width: 5),
-                  Txt(txt("upload")),
+                  Txt(txt("camera")),
                 ],
               ),
               onPressed: () async {
-                List<XFile> res = await ImagePicker()
-                    .pickMultiImage(limit: 50 - widget.panel.item.imgs.length);
+                final XFile? res =
+                    await ImagePicker().pickImage(source: ImageSource.camera);
+                if (res == null) return;
                 widget.panel.inProgress(true);
+
                 try {
-                  for (var img in res) {
-                    final imgName = await handleNewImage(
-                      rowID: widget.panel.item.id,
-                      sourcePath: img.path,
-                      sourceFile: img,
-                    );
-                    if (widget.panel.item.imgs.contains(imgName) == false) {
-                      widget.panel.item.imgs.add(imgName);
-                      appointments.set(widget.panel.item);
-                      widget.panel.savedJson =
-                          jsonEncode(widget.panel.item.toJson());
-                      widget.panel.selectedTab(widget.panel.selectedTab());
-                    }
+                  final imgName = await handleNewImage(
+                    rowID: widget.panel.item.id,
+                    sourcePath: res.path,
+                    sourceFile: res,
+                  );
+                  if (widget.panel.item.imgs.contains(imgName) == false) {
+                    widget.panel.item.imgs.add(imgName);
+                    appointments.set(widget.panel.item);
+                    widget.panel.savedJson =
+                        jsonEncode(widget.panel.item.toJson());
                   }
                 } catch (e, s) {
-                  logger("Error during file upload: $e", s);
+                  logger("Error during uploading camera capture: $e", s);
                 }
-                widget.panel.inProgress(false);
                 widget.panel.selectedTab(widget.panel.selectedTab());
+                widget.panel.inProgress(false);
               },
             ),
-          ],
-        ),
+          FilledButton(
+            child: Row(
+              children: [
+                const Icon(FluentIcons.photo2_add),
+                const SizedBox(width: 5),
+                Txt(txt("upload")),
+              ],
+            ),
+            onPressed: () async {
+              List<XFile> res = await ImagePicker()
+                  .pickMultiImage(limit: 50 - widget.panel.item.imgs.length);
+              widget.panel.inProgress(true);
+              try {
+                for (var img in res) {
+                  final imgName = await handleNewImage(
+                    rowID: widget.panel.item.id,
+                    sourcePath: img.path,
+                    sourceFile: img,
+                  );
+                  if (widget.panel.item.imgs.contains(imgName) == false) {
+                    widget.panel.item.imgs.add(imgName);
+                    appointments.set(widget.panel.item);
+                    widget.panel.savedJson =
+                        jsonEncode(widget.panel.item.toJson());
+                    widget.panel.selectedTab(widget.panel.selectedTab());
+                  }
+                }
+              } catch (e, s) {
+                logger("Error during file upload: $e", s);
+              }
+              widget.panel.inProgress(false);
+              widget.panel.selectedTab(widget.panel.selectedTab());
+            },
+          ),
+        ],
       ),
     );
   }
@@ -252,7 +250,7 @@ class _AppointmentDetailsState extends State<_AppointmentDetails> {
                 ),
                 const SizedBox(width: 5),
                 if (widget.appointment.patientID == null)
-                  AcrylicButton(
+                  UnifiedButton(
                       icon: FluentIcons.add_friend,
                       text: txt("newPatient"),
                       onPressed: () async {
@@ -561,135 +559,121 @@ class _OperativeDetailsState extends State<_OperativeDetails> {
     );
   }
 
-  Acrylic _buildLabworkSection() {
+  Widget _buildLabworkSection() {
     final theme = FluentTheme.of(context);
-    return Acrylic(
-      elevation: 50,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadiusGeometry.circular(5),
-        side: BorderSide(
-          color: widget.appointment.labworkReceived
-              ? theme.accentColor
-              : Colors.warningPrimaryColor,
+    final color = widget.appointment.labworkReceived
+        ? theme.accentColor
+        : Colors.warningPrimaryColor;
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: color, width: 4),
+          bottom: BorderSide(color: color),
+          left: BorderSide(color: color),
+          right: BorderSide(color: color),
         ),
       ),
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          border: BorderDirectional(
-            top: BorderSide(
-                color: widget.appointment.labworkReceived
-                    ? theme.accentColor
-                    : Colors.warningPrimaryColor,
-                width: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Txt(txt("labworksForThisAppointment"),
+                  style: theme.typography.bodyStrong),
+              Tooltip(
+                message: txt("delete"),
+                child: IconButton(
+                  icon: const Icon(FluentIcons.delete),
+                  onPressed: () {
+                    setState(() {
+                      widget.appointment.hasLabwork = false;
+                    });
+                  },
+                ),
+              )
+            ],
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Txt(txt("labworksForThisAppointment"),
-                    style: theme.typography.bodyStrong),
-                Tooltip(
-                  message: txt("delete"),
-                  child: IconButton(
-                    icon: const Icon(FluentIcons.delete),
-                    onPressed: () {
-                      setState(() {
-                        widget.appointment.hasLabwork = false;
-                      });
-                    },
-                  ),
-                )
-              ],
-            ),
-            const SizedBox(height: 5),
-            const Divider(),
-            const SizedBox(height: 5),
-            Row(
-              children: [
-                Row(
-                  children: [
-                    const Icon(FluentIcons.manufacturing, size: 20),
-                    const SizedBox(width: 5),
-                    Acrylic(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50)),
-                      elevation: 100,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 3),
-                        child: Txt(
-                          txt("laboratory"),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
+          const SizedBox(height: 5),
+          const Divider(),
+          const SizedBox(height: 5),
+          Row(
+            children: [
+              Row(
+                children: [
+                  const Icon(FluentIcons.manufacturing, size: 20),
+                  const SizedBox(width: 5),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 3),
+                    child: Txt(
+                      txt("laboratory"),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(width: 5),
-                Expanded(
-                  child: AutoSuggestBox<String>(
-                    key: WK.fieldLabworkLabName,
-                    decoration: WidgetStatePropertyAll(BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border.all(color: Colors.transparent))),
-                    clearButtonEnabled: false,
-                    placeholder: "${txt("laboratory")}...",
-                    noResultsFoundBuilder: (context) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Txt(txt("noSuggestions")),
-                    ),
-                    onChanged: (text, reason) {
-                      widget.appointment.labName = text;
-                    },
-                    controller:
-                        TextEditingController(text: widget.appointment.labName),
-                    items: appointments.labs
-                        .map((name) => AutoSuggestBoxItem<String>(
-                            value: name, label: name))
-                        .toList(),
                   ),
-                )
-              ],
-            ),
-            const SizedBox(height: 2),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: TextFormBox(
-                    prefix: const Icon(FluentIcons.note_forward),
-                    key: WK.fieldLabworkLabName,
-                    decoration: WidgetStatePropertyAll(BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border.all(color: Colors.transparent))),
-                    placeholder: "${txt("orderNotes")}...",
-                    maxLines: null,
-                    controller: TextEditingController(
-                        text: widget.appointment.labworkNotes),
-                    onChanged: (value) {
-                      widget.appointment.labworkNotes = value;
-                    },
+                ],
+              ),
+              const SizedBox(width: 5),
+              Expanded(
+                child: AutoSuggestBox<String>(
+                  key: WK.fieldLabworkLabName,
+                  decoration: WidgetStatePropertyAll(BoxDecoration(
+                      color: Colors.transparent,
+                      border: Border.all(color: Colors.transparent))),
+                  clearButtonEnabled: false,
+                  placeholder: "${txt("laboratory")}...",
+                  noResultsFoundBuilder: (context) => Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Txt(txt("noSuggestions")),
                   ),
+                  onChanged: (text, reason) {
+                    widget.appointment.labName = text;
+                  },
+                  controller:
+                      TextEditingController(text: widget.appointment.labName),
+                  items: appointments.labs
+                      .map((name) =>
+                          AutoSuggestBoxItem<String>(value: name, label: name))
+                      .toList(),
                 ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            Checkbox(
-              checked: widget.appointment.labworkReceived,
-              onChanged: (v) => setState(
-                  () => widget.appointment.labworkReceived = v ?? false),
-              content: Txt(txt("received")),
-            ),
-          ],
-        ),
+              )
+            ],
+          ),
+          const SizedBox(height: 2),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: TextFormBox(
+                  prefix: const Icon(FluentIcons.note_forward),
+                  key: WK.fieldLabworkLabName,
+                  decoration: WidgetStatePropertyAll(BoxDecoration(
+                      color: Colors.transparent,
+                      border: Border.all(color: Colors.transparent))),
+                  placeholder: "${txt("orderNotes")}...",
+                  maxLines: null,
+                  controller: TextEditingController(
+                      text: widget.appointment.labworkNotes),
+                  onChanged: (value) {
+                    widget.appointment.labworkNotes = value;
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Checkbox(
+            checked: widget.appointment.labworkReceived,
+            onChanged: (v) =>
+                setState(() => widget.appointment.labworkReceived = v ?? false),
+            content: Txt(txt("received")),
+          ),
+        ],
       ),
     );
   }

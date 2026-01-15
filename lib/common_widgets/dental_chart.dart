@@ -142,53 +142,57 @@ class _DentalChartState extends State<DentalChart> {
           return Positioned(
             bottom: tooth.contains(txt("upper")) ? 100 : null,
             top: tooth.contains(txt("lower")) ? 100 : null,
-            left: (340 - 300) * 0.5,
-            child: Acrylic(
-              elevation: 20,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4)),
-              tintAlpha: 0,
-              child: Container(
-                width: 300,
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Txt(isoToTextualNotation(openTooth),
-                            style: const TextStyle(fontSize: 12)),
-                        IconButton(
-                          icon: const Icon(FluentIcons.cancel),
-                          onPressed: () => setState(() => openTooth = ""),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    const Divider(),
-                    const SizedBox(height: 10),
-                    TextFormBox(
-                      placeholder: "Write notes here...",
-                      maxLines: null,
-                      controller: _noteController,
-                    ),
-                    const SizedBox(height: 5),
-                    FilledButton(
-                        child: Txt(txt("save")),
-                        onPressed: () {
-                          setState(() {
-                            if (_noteController.text.isEmpty) {
-                              teeth.remove(openTooth);
-                            } else {
-                              teeth[openTooth] = _noteController.text;
-                            }
-                            openTooth = "";
-                          });
-                        })
-                  ],
-                ),
+            left: 10,
+            child: Container(
+              width: 300,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.withAlpha(50)),
+                  color: FluentTheme.of(context).menuColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withAlpha(40),
+                      offset: const Offset(0, 10),
+                      blurRadius: 10,
+                    )
+                  ]),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Txt(isoToTextualNotation(openTooth),
+                          style: const TextStyle(fontSize: 12)),
+                      IconButton(
+                        icon: const Icon(FluentIcons.cancel),
+                        onPressed: () => setState(() => openTooth = ""),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  const Divider(),
+                  const SizedBox(height: 10),
+                  TextFormBox(
+                    placeholder: "Write notes here...",
+                    maxLines: null,
+                    controller: _noteController,
+                  ),
+                  const SizedBox(height: 5),
+                  FilledButton(
+                      child: Txt(txt("save")),
+                      onPressed: () {
+                        setState(() {
+                          if (_noteController.text.isEmpty) {
+                            teeth.remove(openTooth);
+                          } else {
+                            teeth[openTooth] = _noteController.text;
+                          }
+                          openTooth = "";
+                        });
+                      })
+                ],
               ),
             ),
           );

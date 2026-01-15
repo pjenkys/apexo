@@ -9,13 +9,19 @@ class NoItemsFound extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(15),
-        child: Acrylic(
-          elevation: 20,
-          child: InfoBar(
-            isIconVisible: true,
-            severity: InfoBarSeverity.warning,
-            title: Txt(txt("noItemsFound")),
+        child: InfoBar(
+          style: InfoBarThemeData(
+            decoration: (severity) {
+              return BoxDecoration(
+                color: FluentTheme.of(context).cardColor,
+                border: Border.all(color: Colors.grey.withAlpha(50)),
+                borderRadius: BorderRadius.circular(10),
+              );
+            },
           ),
+          isIconVisible: true,
+          severity: InfoBarSeverity.warning,
+          title: Txt(txt("noItemsFound")),
         ),
       ),
     );

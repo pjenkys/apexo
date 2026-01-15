@@ -461,34 +461,29 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
       const SizedBox(width: 30),
       ...([widget.defaultSortingName, ...nonNullLabels])
           .map((e) => [
-                Acrylic(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(3)),
-                  elevation: sortBy == nonNullLabels.indexOf(e) ? 12 : 0,
-                  child: ToggleButton(
-                    checked: sortBy == nonNullLabels.indexOf(e),
-                    onChanged: (checked) {
-                      if (checked) {
-                        setSortBy(nonNullLabels.indexOf(e));
-                      } else {
-                        toggleSortDirection();
-                      }
-                    },
-                    style: const ToggleButtonThemeData(
-                        uncheckedButtonStyle: ButtonStyle(
-                      backgroundColor:
-                          WidgetStatePropertyAll(Colors.transparent),
-                    )),
-                    child: Row(
-                      children: [
-                        Txt(txt(e)),
-                        const SizedBox(width: 5),
-                        if (sortBy == nonNullLabels.indexOf(e))
-                          Icon(sortDirection > 0
-                              ? FluentIcons.sort_up
-                              : FluentIcons.sort_down)
-                      ],
-                    ),
+                ToggleButton(
+                  checked: sortBy == nonNullLabels.indexOf(e),
+                  onChanged: (checked) {
+                    if (checked) {
+                      setSortBy(nonNullLabels.indexOf(e));
+                    } else {
+                      toggleSortDirection();
+                    }
+                  },
+                  style: const ToggleButtonThemeData(
+                      uncheckedButtonStyle: ButtonStyle(
+                    backgroundColor:
+                        WidgetStatePropertyAll(Colors.transparent),
+                  )),
+                  child: Row(
+                    children: [
+                      Txt(txt(e)),
+                      const SizedBox(width: 5),
+                      if (sortBy == nonNullLabels.indexOf(e))
+                        Icon(sortDirection > 0
+                            ? FluentIcons.sort_up
+                            : FluentIcons.sort_down)
+                    ],
                   ),
                 ),
                 const SizedBox(width: 5)
@@ -497,45 +492,51 @@ class DataTableState<Item extends Model> extends State<DataTable<Item>> {
     ];
   }
 
-  Acrylic _buildCommandBar() {
-    return Acrylic(
-      tintAlpha: 1,
-      elevation: 140,
-      luminosityAlpha: 0.8,
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Builder(
-                builder: (context) => CommandBar(
-                  primaryItems: List.generate(widget.actions.length, (index) {
-                    final action = widget.actions[index];
-                    return CommandBarButton(
-                      onPressed: () {
-                        if (Navigator.canPop(context)) {
-                          Navigator.pop(context);
-                        }
-                        action.callback(checkedIds.toList());
-                      },
-                      label: action.child ??
-                          (action.title != null ? Txt(action.title!) : null),
-                      icon: Icon(action.icon),
-                    );
-                  }),
-                  overflowBehavior: CommandBarOverflowBehavior.dynamicOverflow,
-                ),
+  Widget _buildCommandBar() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0.0, 6.0),
+            blurRadius: 30.0,
+            spreadRadius: 5.0,
+            color: Colors.grey.withAlpha(50),
+          )
+        ],
+        color: FluentTheme.of(context).menuColor,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Builder(
+              builder: (context) => CommandBar(
+                primaryItems: List.generate(widget.actions.length, (index) {
+                  final action = widget.actions[index];
+                  return CommandBarButton(
+                    onPressed: () {
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      }
+                      action.callback(checkedIds.toList());
+                    },
+                    label: action.child ??
+                        (action.title != null ? Txt(action.title!) : null),
+                    icon: Icon(action.icon),
+                  );
+                }),
+                overflowBehavior: CommandBarOverflowBehavior.dynamicOverflow,
               ),
             ),
-            const Divider(size: 20, direction: Axis.vertical),
-            DataTableSearchField(
-              onChanged: setSearchTerm,
-              placeholder: _searchValue,
-            ),
-            ...widget.furtherActions.map((a) => a)
-          ],
-        ),
+          ),
+          const Divider(size: 20, direction: Axis.vertical),
+          DataTableSearchField(
+            onChanged: setSearchTerm,
+            placeholder: _searchValue,
+          ),
+          ...widget.furtherActions.map((a) => a)
+        ],
       ),
     );
   }
@@ -591,7 +592,10 @@ class DataTablePill extends StatelessWidget {
               if (title.length > 2) ...[
                 Txt(
                   (txt(title)),
-                  style: FluentTheme.of(context).typography.caption?.copyWith(color: color, fontWeight: FontWeight.w500),
+                  style: FluentTheme.of(context)
+                      .typography
+                      .caption
+                      ?.copyWith(color: color, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(width: 10),
               ],

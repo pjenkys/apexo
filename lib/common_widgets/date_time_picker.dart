@@ -1,5 +1,5 @@
 import 'package:apexo/services/localization/locale.dart';
-import 'package:apexo/common_widgets/acrylic_button.dart';
+import 'package:apexo/common_widgets/unified_button.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show showTimePicker, showDatePicker, TimeOfDay;
 import 'package:intl/intl.dart';
@@ -53,7 +53,7 @@ class DateTimePickerState extends State<DateTimePicker> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(height: 34, child: Center(child: Txt(DateFormat(widget.format, locale.s.$code).format(value)))),
-            if(widget.showButton) AcrylicButton(icon: widget.buttonIcon, text: widget.buttonText, onPressed: pick)
+            if(widget.showButton) UnifiedButton(icon: widget.buttonIcon, text: widget.buttonText, onPressed: pick)
           ],
         ),
       ),

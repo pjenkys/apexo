@@ -352,29 +352,37 @@ class _LabworksTableState extends State<LabworksTable> {
     );
   }
 
-  Acrylic _buildCommandBar() {
-    return Acrylic(
-      elevation: 150,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: CupertinoTextField(
-                decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    border: Border.all(color: Colors.transparent)),
-                placeholder: "🔍 ${txt("searchPlaceholder")}",
-                controller: searchController,
-                onChanged: (text) {
-                  setState(() {});
-                },
-              ),
+  Widget _buildCommandBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0.0, 6.0),
+            blurRadius: 30.0,
+            spreadRadius: 5.0,
+            color: Colors.grey.withAlpha(50),
+          )
+        ],
+        color: FluentTheme.of(context).menuColor,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: CupertinoTextField(
+              decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  border: Border.all(color: Colors.transparent)),
+              placeholder: "🔍 ${txt("searchPlaceholder")}",
+              controller: searchController,
+              onChanged: (text) {
+                setState(() {});
+              },
             ),
-            const ArchiveToggle()
-          ],
-        ),
+          ),
+          const ArchiveToggle()
+        ],
       ),
     );
   }

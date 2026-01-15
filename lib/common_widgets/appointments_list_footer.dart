@@ -15,25 +15,23 @@ class AppointmentsListFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Acrylic(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            FilledButton(
-                child: Row(
-                  children: [const Icon(FluentIcons.add_event), const SizedBox(width: 10), Txt(txt("addAppointment"))],
-                ),
-                onPressed: () {
-                  openAppointment(Appointment.fromJson({
-                    if (forPatientID != null) "patientID": forPatientID,
-                    if (forDoctorID != null) "operatorsIDs": [forDoctorID],
-                  }));
-                }),
-            const ArchiveToggle()
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          FilledButton(
+              child: Row(
+                children: [const Icon(FluentIcons.add_event), const SizedBox(width: 10), Txt(txt("addAppointment"))],
+              ),
+              onPressed: () {
+                openAppointment(Appointment.fromJson({
+                  if (forPatientID != null) "patientID": forPatientID,
+                  if (forDoctorID != null) "operatorsIDs": [forDoctorID],
+                }));
+              }),
+          const ArchiveToggle()
+        ],
       ),
     );
   }

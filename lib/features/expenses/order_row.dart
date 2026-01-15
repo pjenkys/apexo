@@ -1,4 +1,4 @@
-import 'package:apexo/common_widgets/acrylic_button.dart';
+import 'package:apexo/common_widgets/unified_button.dart';
 import 'package:apexo/common_widgets/date_time_picker.dart';
 import 'package:apexo/common_widgets/grid_gallery.dart';
 import 'package:apexo/common_widgets/tag_input.dart';
@@ -120,7 +120,7 @@ class OrderRowState extends State<OrderRow> {
   Widget _buildAddPhotoButton() {
     return FlyoutTarget(
       controller: photoAddMenu,
-      child: AcrylicButton(
+      child: UnifiedButton(
         icon: FluentIcons.photo2_add,
         text: "",
         size: 20,
@@ -317,7 +317,7 @@ class OrderRowState extends State<OrderRow> {
               child: SizedBox(width: 20, height: 20, child: ProgressRing()))
           : FlyoutTarget(
               controller: moreOptionsCtrl,
-              child: AcrylicButton(
+              child: UnifiedButton(
                   size: 20,
                   text: "",
                   icon: FluentIcons.more,

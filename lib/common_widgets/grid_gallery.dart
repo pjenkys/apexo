@@ -233,22 +233,19 @@ class ImageDeleteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlyoutTarget(
       controller: deleteConfirmationFlyout,
-      child: Acrylic(
-        elevation: 20,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
-        child: IconButton(
-          icon: const Icon(FluentIcons.delete),
-          onPressed: () {
-            deleteConfirmationFlyout.showFlyout(builder: (context) {
-              return FlyoutContent(
-                child: ConfirmDeleteFlyout(
-                  controller: deleteConfirmationFlyout,
-                  onConfirm: () => widget.onPressDelete.call(img),
-                ),
-              );
-            });
-          },
-        ),
+      child: IconButton(
+        style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(FluentTheme.of(context).menuColor)),
+        icon: const Icon(FluentIcons.delete),
+        onPressed: () {
+          deleteConfirmationFlyout.showFlyout(builder: (context) {
+            return FlyoutContent(
+              child: ConfirmDeleteFlyout(
+                controller: deleteConfirmationFlyout,
+                onConfirm: () => widget.onPressDelete.call(img),
+              ),
+            );
+          });
+        },
       ),
     );
   }

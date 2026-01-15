@@ -151,21 +151,16 @@ class _EasyImageViewerDismissibleDialogState
               Positioned(
                   top: 5,
                   right: 5,
-                  child: Acrylic(
-                    elevation: 10,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5)),
-                    child: IconButton(
-                      icon: const Icon(
-                        FluentIcons.clear,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        _handleDismissal();
-                      },
+                  child: IconButton(
+                    icon: const Icon(
+                      FluentIcons.clear,
+                      color: Colors.white,
+                      size: 20,
                     ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _handleDismissal();
+                    },
                   ))
             ]));
 

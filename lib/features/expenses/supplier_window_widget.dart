@@ -5,6 +5,7 @@ import 'package:apexo/features/expenses/order_row.dart';
 import 'package:apexo/features/settings/settings_stores.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/cupertino.dart';
 
 class SupplierWindow extends StatefulWidget {
   const SupplierWindow({
@@ -66,8 +67,8 @@ class _SupplierWindowState extends State<SupplierWindow> {
 
   @override
   Widget build(BuildContext context) {
-    return Acrylic(
-      elevation: 140,
+    return Container(
+      color: FluentTheme.of(context).inactiveBackgroundColor,
       child: TabView(
         header: Container(
           color: Colors.grey.withAlpha(60),
@@ -158,51 +159,47 @@ class _SupplierWindowState extends State<SupplierWindow> {
   Widget _buildToolbar() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(7, 7, 7, 0),
-      child: TextBox(
+      child: CupertinoTextField(
         expands: false,
         prefix: const Text(" 🔍"),
         placeholder: txt("filterByItems"),
         controller: _query,
-        unfocusedColor: Colors.grey.withAlpha(20),
         onChanged: (i) => setState(() {}),
       ),
     );
   }
 
   Widget _buildTableHeader() {
-    return Acrylic(
-      elevation: 120,
-      child: Container(
-        decoration: BoxDecoration(
-          border: BoxBorder.fromLTRB(
-            top: BorderSide(color: Colors.grey.withAlpha(20)),
-            bottom: BorderSide(color: Colors.grey.withAlpha(40)),
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        border: BoxBorder.fromLTRB(
+          top: BorderSide(color: Colors.grey.withAlpha(20)),
+          bottom: BorderSide(color: Colors.grey.withAlpha(40)),
         ),
-        padding: const EdgeInsets.fromLTRB(7, 14, 7, 14),
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () => setState(() => _sortAsc = !_sortAsc),
-              child: SizedBox(
-                width: 90,
-                child: _buildTableHeaderText(
-                    _sortAsc ? "${txt("date")} ↑" : '${txt("date")} ↓'),
-              ),
+      ),
+      padding: const EdgeInsets.fromLTRB(7, 14, 7, 14),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => setState(() => _sortAsc = !_sortAsc),
+            child: SizedBox(
+              width: 120,
+              child: _buildTableHeaderText(
+                  _sortAsc ? "${txt("date")} ↑" : '${txt("date")} ↓'),
             ),
-            Expanded(child: _buildTableHeaderText(txt("items"))),
-            SizedBox(
-                width: 90,
-                child: _buildTableHeaderText(txt("cost"), centerAlign: true)),
-            SizedBox(
-                width: 90,
-                child: _buildTableHeaderText(txt("paid"), centerAlign: true)),
-            SizedBox(
-                width: 90,
-                child: _buildTableHeaderText(txt("photos"), centerAlign: true)),
-            const SizedBox(width: 60, child: Text('')),
-          ],
-        ),
+          ),
+          Expanded(child: _buildTableHeaderText(txt("items"))),
+          SizedBox(
+              width: 90,
+              child: _buildTableHeaderText(txt("cost"), centerAlign: true)),
+          SizedBox(
+              width: 90,
+              child: _buildTableHeaderText(txt("paid"), centerAlign: true)),
+          SizedBox(
+              width: 90,
+              child: _buildTableHeaderText(txt("photos"), centerAlign: true)),
+          const SizedBox(width: 60, child: Text('')),
+        ],
       ),
     );
   }

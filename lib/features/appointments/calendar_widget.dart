@@ -116,28 +116,36 @@ class WeekAgendaCalendarState<Item extends Appointment>
     );
   }
 
-  Acrylic _buildCommandBar() {
-    return Acrylic(
-      elevation: 150,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-                onPressed: () => widget.onAddNew(selectedDate),
-                icon: Row(
-                  children: [
-                    const Icon(FluentIcons.add_event, size: 17),
-                    const SizedBox(width: 10),
-                    Txt(txt("add"))
-                  ],
-                )),
-            Row(
-              children: widget.actions ?? [],
-            ),
-          ],
-        ),
+  Widget _buildCommandBar() {
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0.0, 6.0),
+            blurRadius: 30.0,
+            spreadRadius: 5.0,
+            color: Colors.grey.withAlpha(50),
+          )
+        ],
+        color: FluentTheme.of(context).menuColor,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+              onPressed: () => widget.onAddNew(selectedDate),
+              icon: Row(
+                children: [
+                  const Icon(FluentIcons.add_event, size: 17),
+                  const SizedBox(width: 10),
+                  Txt(txt("add"))
+                ],
+              )),
+          Row(
+            children: widget.actions ?? [],
+          ),
+        ],
       ),
     );
   }

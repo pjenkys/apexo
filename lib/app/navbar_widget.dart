@@ -14,46 +14,59 @@ class BottomNavBar extends StatelessWidget {
       height: 62,
       width: MediaQuery.of(context).size.width,
       child: Container(
-        decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.withValues(alpha: 0.05)))),
-        child: Acrylic(
-          elevation: 30,
-          child: Padding(
-            padding: const EdgeInsets.all(1),
-            child: StreamBuilder(
-                stream: routes.currentRouteIndex.stream,
-                builder: (context, snapshot) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ...routes.allRoutes.where((r) => r.navbarTitle.isNotEmpty).map((r) => BottomNavBarButton(
-                            icon: r.icon,
-                            identifier: r.identifier,
-                            title: r.navbarTitle,
-                            active: r.identifier == routes.currentRoute.identifier,
-                          )),
-                      const Divider(direction: Axis.vertical),
-                      FlyoutTarget(
-                        controller: routes.bottomNavFlyoutController,
-                        child: IconButton(
-                          icon: const Icon(FluentIcons.more),
-                          onPressed: () => routes.bottomNavFlyoutController.showFlyout(
-                            dismissWithEsc: true,
-                            builder: (context) => MenuFlyout(items: [
-                              for (var route in routes.allRoutes.where((r) => r.navbarTitle.isEmpty))
-                                MenuFlyoutItem(
-                                  leading: Icon(route.icon),
-                                  text: Txt(route.title),
-                                  onPressed: () => routes.navigate(routes.getByIdentifier(route.identifier)!),
-                                  closeAfterClick: true,
-                                )
-                            ]),
-                          ),
+        decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0.0, 3.0),
+            blurRadius: 30.0,
+            spreadRadius: 5.0,
+            color: Colors.grey.withAlpha(50),
+          )
+        ],
+        color: FluentTheme.of(context).menuColor,
+      ),
+        child: Container(
+          padding: const EdgeInsets.all(1),
+          child: StreamBuilder(
+              stream: routes.currentRouteIndex.stream,
+              builder: (context, snapshot) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ...routes.allRoutes
+                        .where((r) => r.navbarTitle.isNotEmpty)
+                        .map((r) => BottomNavBarButton(
+                              icon: r.icon,
+                              identifier: r.identifier,
+                              title: r.navbarTitle,
+                              active: r.identifier ==
+                                  routes.currentRoute.identifier,
+                            )),
+                    const Divider(direction: Axis.vertical),
+                    FlyoutTarget(
+                      controller: routes.bottomNavFlyoutController,
+                      child: IconButton(
+                        icon: const Icon(FluentIcons.more),
+                        onPressed: () =>
+                            routes.bottomNavFlyoutController.showFlyout(
+                          dismissWithEsc: true,
+                          builder: (context) => MenuFlyout(items: [
+                            for (var route in routes.allRoutes
+                                .where((r) => r.navbarTitle.isEmpty))
+                              MenuFlyoutItem(
+                                leading: Icon(route.icon),
+                                text: Txt(route.title),
+                                onPressed: () => routes.navigate(
+                                    routes.getByIdentifier(route.identifier)!),
+                                closeAfterClick: true,
+                              )
+                          ]),
                         ),
-                      )
-                    ],
-                  );
-                }),
-          ),
+                      ),
+                    )
+                  ],
+                );
+              }),
         ),
       ),
     );

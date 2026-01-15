@@ -33,8 +33,7 @@ class TagInputWidget extends StatefulWidget {
   });
 
   @override
-  State<TagInputWidget> createState() =>
-      _TagInputWidgetState();
+  State<TagInputWidget> createState() => _TagInputWidgetState();
 }
 
 class _TagInputWidgetState extends State<TagInputWidget> {
@@ -123,7 +122,6 @@ class _TagInputWidgetState extends State<TagInputWidget> {
     _hiddenTappedFlyoutController.showFlyout(
         builder: (context) {
           return FlyoutContent(
-              useAcrylic: true,
               key: Key(_tags.map((e) => e.value).join("")),
               child: Wrap(children: _tags.map((e) => _buildTag(e)).toList()));
         },
@@ -206,7 +204,8 @@ class _TagInputWidgetState extends State<TagInputWidget> {
             : WidgetStatePropertyAll(BoxDecoration(
                 color: Colors.transparent,
                 border: Border.all(color: Colors.transparent))),
-        unfocusedColor: widget.inactiveColor ?? (_tags.isNotEmpty ? null : Colors.transparent),
+        unfocusedColor: widget.inactiveColor ??
+            (_tags.isNotEmpty ? null : Colors.transparent),
         highlightColor: _tags.isNotEmpty ? null : Colors.transparent,
         enabled: widget.enabled,
         noResultsFoundBuilder: (context) => Padding(
@@ -319,9 +318,12 @@ class _TagInputWidgetState extends State<TagInputWidget> {
   Padding _buildTag(TagInputItem tag) {
     return Padding(
       padding: const EdgeInsets.only(right: 2, bottom: 2),
-      child: Acrylic(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-        elevation: 1,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.withAlpha(100)),
+          borderRadius: BorderRadius.circular(5),
+          color: FluentTheme.of(context).cardColor,
+        ),
         child: IconButton(
           onPressed: () {
             if (_hiddenTappedFlyoutController.isOpen) {

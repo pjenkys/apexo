@@ -215,50 +215,54 @@ class DashboardScreen extends StatelessWidget {
   Padding dashboardSquare(AccentColor color, IconData icon, String title, String subtitle) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Acrylic(
-        elevation: 50,
-        luminosityAlpha: 1,
-        blurAmount: 80,
-        tintAlpha: 0.9,
-        tint: color,
-        shadowColor: color,
-        child: SizedBox(
-          width: 300,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Icon(
-                      icon,
-                      color: color,
-                    ),
-                    ...const [
-                      SizedBox(width: 10),
-                      Divider(size: 40, direction: Axis.vertical),
-                      SizedBox(width: 10),
-                    ],
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Txt(
-                          title,
-                          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: color.dark),
-                        ),
-                        Txt(
-                          subtitle,
-                          style: TextStyle(
-                              fontSize: 13, color: color.light, fontStyle: FontStyle.italic, letterSpacing: 0.6),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-                    )
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withAlpha(50),
+          borderRadius: BorderRadius.circular(5),
+          boxShadow: [
+            BoxShadow(
+            offset: const Offset(0.0, 6.0),
+            blurRadius: 30.0,
+            spreadRadius: 5.0,
+            color: color.withAlpha(50),
+          )
+          ]
+        ),
+        width: 300,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Icon(
+                    icon,
+                    color: color,
+                  ),
+                  ...const [
+                    SizedBox(width: 10),
+                    Divider(size: 40, direction: Axis.vertical),
+                    SizedBox(width: 10),
                   ],
-                ),
-              )
-            ],
-          ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Txt(
+                        title,
+                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: color.dark),
+                      ),
+                      Txt(
+                        subtitle,
+                        style: TextStyle(
+                            fontSize: 13, color: color.light, fontStyle: FontStyle.italic, letterSpacing: 0.6),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  )
+                ],
+              ),
+            )
+          ],
         ),
       ),
     );

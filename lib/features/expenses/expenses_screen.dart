@@ -127,20 +127,28 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
     );
   }
 
-  Acrylic _buildCommandBar() {
-    return Acrylic(
-      elevation: 150,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            selectedSupplier == null
-                ? _buildAddSupplierButton()
-                : _buildAddOrderButton(),
-            const ArchiveToggle(),
-          ],
-        ),
+  Widget _buildCommandBar() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0.0, 6.0),
+            blurRadius: 30.0,
+            spreadRadius: 5.0,
+            color: Colors.grey.withAlpha(50),
+          )
+        ],
+        color: FluentTheme.of(context).menuColor,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          selectedSupplier == null
+              ? _buildAddSupplierButton()
+              : _buildAddOrderButton(),
+          const ArchiveToggle(),
+        ],
       ),
     );
   }

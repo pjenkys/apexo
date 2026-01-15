@@ -24,7 +24,9 @@ Future<Patient> openPatient([Patient? patient]) {
     item: editingCopy,
     store: patients,
     icon: FluentIcons.medication_admin,
-    title: patients.get(editingCopy.id) == null ? txt("newPatient") : editingCopy.title,
+    title: patients.get(editingCopy.id) == null
+        ? txt("newPatient")
+        : editingCopy.title,
     tabs: [
       PanelTab(
         title: txt("patientDetails"),
@@ -63,26 +65,28 @@ class _PrintQRButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Acrylic(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FilledButton(
-                child: Row(
-                  children: [const Icon(FluentIcons.print), const SizedBox(width: 5), Txt(txt("printQR"))],
-                ),
-                onPressed: () {
-                  printingQRCode(
-                    context,
-                    patient.webPageLink,
-                    "Access your information",
-                    "Scan to visit link:\n${patient.webPageLink}\nto access your appointments, payments and photos.",
-                  );
-                }),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FilledButton(
+              child: Row(
+                children: [
+                  const Icon(FluentIcons.print),
+                  const SizedBox(width: 5),
+                  Txt(txt("printQR"))
+                ],
+              ),
+              onPressed: () {
+                printingQRCode(
+                  context,
+                  patient.webPageLink,
+                  "Access your information",
+                  "Scan to visit link:\n${patient.webPageLink}\nto access your appointments, payments and photos.",
+                );
+              }),
+        ],
       ),
     );
   }
@@ -129,8 +133,10 @@ class _PatientAppointments extends StatelessWidget {
                       final appointment = patient.allAppointments[index];
                       String? difference;
                       if (patient.allAppointments.last != appointment) {
-                        int differenceInDays =
-                            appointment.date.difference(patient.allAppointments[index + 1].date).inDays.abs();
+                        int differenceInDays = appointment.date
+                            .difference(patient.allAppointments[index + 1].date)
+                            .inDays
+                            .abs();
 
                         difference =
                             "${txt("after")} $differenceInDays ${txt("day${(differenceInDays > 1) ? "s" : ""}")}";
@@ -146,63 +152,75 @@ class _PatientAppointments extends StatelessWidget {
                     const Divider(),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(10, 10, 12, 50),
-                      child: Acrylic(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                        elevation: 50,
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(5),
-                              boxShadow: kElevationToShadow[4],
-                              border: Border(
-                                  top: BorderSide(
-                                color: (colorBasedOnPayments(patient.paymentsMade, patient.pricesGiven) ??
-                                        FluentTheme.of(context).cardColor)
-                                    .withValues(alpha: 0.3),
-                                width: 5,
-                              ))),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 5),
-                                child: Txt("${txt("paymentSummary")} (${globalSettings.get("currency_______").value})",
-                                    style:
-                                        const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-                              ),
-                              const SizedBox(height: 10),
-                              const Divider(),
-                              const SizedBox(height: 15),
-                              Wrap(
-                                alignment: WrapAlignment.center,
-                                spacing: 10,
-                                runSpacing: 10,
-                                children: [
-                                  PaymentPill(
-                                    finalTextColor: Colors.grey,
-                                    title: txt("cost"),
-                                    amount: patient.pricesGiven.toString(),
-                                    color: Colors.white,
-                                  ),
-                                  PaymentPill(
-                                    finalTextColor: Colors.grey,
-                                    title: txt("paid"),
-                                    amount: patient.paymentsMade.toString(),
-                                    color: Colors.white,
-                                  ),
-                                  PaymentPill(
-                                    finalTextColor: Colors.grey,
-                                    title: patient.overPaid
-                                        ? txt("overpaid")
-                                        : patient.underPaid
-                                            ? txt("underpaid")
-                                            : txt("fullyPaid"),
-                                    amount: (patient.paymentsMade - patient.pricesGiven).abs().toString(),
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5),
+                          boxShadow: [
+                            BoxShadow(
+                              offset: const Offset(0.0, 6.0),
+                              blurRadius: 30.0,
+                              spreadRadius: 5.0,
+                              color: Colors.grey.withAlpha(50),
+                            )
+                          ],
+                          border: Border(
+                              top: BorderSide(
+                            color: (colorBasedOnPayments(patient.paymentsMade,
+                                        patient.pricesGiven) ??
+                                    FluentTheme.of(context).cardColor)
+                                .withValues(alpha: 0.3),
+                            width: 5,
+                          )),
+                        ),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 5),
+                              child: Txt(
+                                  "${txt("paymentSummary")} (${globalSettings.get("currency_______").value})",
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey)),
+                            ),
+                            const SizedBox(height: 10),
+                            const Divider(),
+                            const SizedBox(height: 15),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: [
+                                PaymentPill(
+                                  finalTextColor: Colors.grey,
+                                  title: txt("cost"),
+                                  amount: patient.pricesGiven.toString(),
+                                  color: Colors.white,
+                                ),
+                                PaymentPill(
+                                  finalTextColor: Colors.grey,
+                                  title: txt("paid"),
+                                  amount: patient.paymentsMade.toString(),
+                                  color: Colors.white,
+                                ),
+                                PaymentPill(
+                                  finalTextColor: Colors.grey,
+                                  title: patient.overPaid
+                                      ? txt("overpaid")
+                                      : patient.underPaid
+                                          ? txt("underpaid")
+                                          : txt("fullyPaid"),
+                                  amount: (patient.paymentsMade -
+                                          patient.pricesGiven)
+                                      .abs()
+                                      .toString(),
+                                )
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -244,8 +262,10 @@ class _PatientDetailsState extends State<_PatientDetails> {
               child: CupertinoTextField(
                 key: WK.fieldPatientYOB,
                 placeholder: "${txt("birthYear")}...",
-                controller: TextEditingController(text: widget.patient.birth.toString()),
-                onChanged: (value) => widget.patient.birth = int.tryParse(value) ?? widget.patient.birth,
+                controller: TextEditingController(
+                    text: widget.patient.birth.toString()),
+                onChanged: (value) => widget.patient.birth =
+                    int.tryParse(value) ?? widget.patient.birth,
               ),
             ),
           ),
@@ -331,11 +351,16 @@ class _PatientDetailsState extends State<_PatientDetails> {
           isHeader: true,
           child: TagInputWidget(
             key: WK.fieldPatientTags,
-            suggestions: patients.allTags.map((t) => TagInputItem(value: t, label: t)).toList(),
+            suggestions: patients.allTags
+                .map((t) => TagInputItem(value: t, label: t))
+                .toList(),
             onChanged: (tags) {
-              widget.patient.tags = List<String>.from(tags.map((e) => e.value).where((e) => e != null));
+              widget.patient.tags = List<String>.from(
+                  tags.map((e) => e.value).where((e) => e != null));
             },
-            initialValue: widget.patient.tags.map((e) => TagInputItem(value: e, label: e)).toList(),
+            initialValue: widget.patient.tags
+                .map((e) => TagInputItem(value: e, label: e))
+                .toList(),
             strict: false,
             limit: 9999,
             placeholder: "${txt("patientTags")}...",

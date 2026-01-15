@@ -30,7 +30,9 @@ class StatsScreen extends StatelessWidget {
       _buildHeader(context),
       ChartsRangeSelector(
           color: FluentTheme.of(context).inactiveColor.withValues(alpha: 0.5),
-          textStyle: _textStyle.copyWith(color: FluentTheme.of(context).inactiveColor.withValues(alpha: 0.5)),
+          textStyle: _textStyle.copyWith(
+              color:
+                  FluentTheme.of(context).inactiveColor.withValues(alpha: 0.5)),
           icons: _icons),
       const Divider(size: 1500),
       Expanded(
@@ -52,42 +54,55 @@ class StatsScreen extends StatelessWidget {
                         "${txt("appointmentsPer")} ${txt(chartsCtrl.intervalString.toLowerCase())}",
                         "${txt("total")}: ${chartsCtrl.filteredAppointments.length} ${txt("appointments")} ${txt("in_Duration_")} ${chartsCtrl.periods.length} ${txt(chartsCtrl.intervalString.toLowerCase())}",
                         StyledBarChart(
-                          labels: chartsCtrl.periods.map((p) => p.label).toList(),
-                          yAxis: chartsCtrl.groupedAppointments.map((g) => g.length.toDouble()).toList(),
+                          labels:
+                              chartsCtrl.periods.map((p) => p.label).toList(),
+                          yAxis: chartsCtrl.groupedAppointments
+                              .map((g) => g.length.toDouble())
+                              .toList(),
                         ),
+                        context,
                         FluentIcons.date_time,
                       ),
                       _buildSingleChart(
                         "${txt("paymentsAndExpensesPer")} ${txt(chartsCtrl.intervalString.toLowerCase())}",
                         "${txt("total")}: ${chartsCtrl.groupedPayments.reduce((v, e) => v += e)} ${globalSettings.get("currency_______").value} ${txt("in_Duration_")} ${chartsCtrl.periods.length} ${txt(chartsCtrl.intervalString.toLowerCase())}",
                         StyledLineChart(
-                          labels: chartsCtrl.periods.map((p) => p.label).toList(),
-                          datasets: [chartsCtrl.groupedPayments.toList(), chartsCtrl.groupedExpenses.toList()],
+                          labels:
+                              chartsCtrl.periods.map((p) => p.label).toList(),
+                          datasets: [
+                            chartsCtrl.groupedPayments.toList(),
+                            chartsCtrl.groupedExpenses.toList()
+                          ],
                           datasetLabels: [
                             "${txt("payments")} ${globalSettings.get("currency_______").value}",
                             "${txt("expenses")} ${globalSettings.get("currency_______").value}"
                           ],
                         ),
+                        context,
                         FluentIcons.currency,
                       ),
                       _buildSingleChart(
                         "${txt("newPatientsPer")} ${txt(chartsCtrl.intervalString.toLowerCase())}",
                         "${txt("acquiredPatientsIn")} ${chartsCtrl.periods.length} ${txt(chartsCtrl.intervalString.toLowerCase())}",
                         StyledLineChart(
-                          labels: chartsCtrl.periods.map((p) => p.label).toList(),
+                          labels:
+                              chartsCtrl.periods.map((p) => p.label).toList(),
                           datasets: [chartsCtrl.newPatients.toList()],
                           datasetLabels: [txt("patients")],
                         ),
+                        context,
                         FluentIcons.people,
                       ),
                       _buildSingleChart(
                         "${txt("doneMissedPer")} ${txt(chartsCtrl.intervalString.toLowerCase())}",
                         "${txt("doneAndMissedAppointmentsIn")} ${chartsCtrl.periods.length} ${txt(chartsCtrl.intervalString.toLowerCase())}",
                         StyledStackedChart(
-                          labels: chartsCtrl.periods.map((p) => p.label).toList(),
+                          labels:
+                              chartsCtrl.periods.map((p) => p.label).toList(),
                           datasets: chartsCtrl.doneAndMissedAppointments,
                           datasetLabels: [txt("done"), txt("all")],
                         ),
+                        context,
                         FluentIcons.check_list,
                       ),
                       _buildSingleChart(
@@ -96,8 +111,11 @@ class StatsScreen extends StatelessWidget {
                         StyledRadarChart(
                           data: [chartsCtrl.timeOfDayDistribution],
                           labels: List.generate(
-                              24, (index) => DateFormat("hh a", locale.s.$code).format(DateTime(0, 0, 0, index))),
+                              24,
+                              (index) => DateFormat("hh a", locale.s.$code)
+                                  .format(DateTime(0, 0, 0, index))),
                         ),
+                        context,
                         FluentIcons.clock,
                       ),
                       _buildSingleChart(
@@ -105,10 +123,17 @@ class StatsScreen extends StatelessWidget {
                         txt("distributionOfAppointments"),
                         StyledRadarChart(
                           data: [chartsCtrl.dayOfWeekDistribution],
-                          labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-                              .map((e) => txt(e))
-                              .toList(),
+                          labels: [
+                            "Monday",
+                            "Tuesday",
+                            "Wednesday",
+                            "Thursday",
+                            "Friday",
+                            "Saturday",
+                            "Sunday"
+                          ].map((e) => txt(e)).toList(),
                         ),
+                        context,
                         FluentIcons.calendar_day,
                       ),
                       _buildSingleChart(
@@ -116,7 +141,9 @@ class StatsScreen extends StatelessWidget {
                         txt("distributionOfAppointments"),
                         StyledRadarChart(
                             data: [chartsCtrl.dayOfMonthDistribution],
-                            labels: List.generate(31, (index) => (index + 1).toString())),
+                            labels: List.generate(
+                                31, (index) => (index + 1).toString())),
+                        context,
                         FluentIcons.calendar_day,
                       ),
                       _buildSingleChart(
@@ -139,6 +166,7 @@ class StatsScreen extends StatelessWidget {
                             "December"
                           ].map((e) => txt(e)).toList(),
                         ),
+                        context,
                         FluentIcons.calendar_year,
                       ),
                       _buildSingleChart(
@@ -148,6 +176,7 @@ class StatsScreen extends StatelessWidget {
                           txt("female"): chartsCtrl.femaleMale[0].toDouble(),
                           txt("male"): chartsCtrl.femaleMale[1].toDouble(),
                         }),
+                        context,
                         FluentIcons.people_external_share,
                       ),
                     ],
@@ -159,75 +188,88 @@ class StatsScreen extends StatelessWidget {
     ]);
   }
 
-  SizedBox _buildSingleChart(String title, String subtitle, Widget chart, [IconData icon = FluentIcons.chart]) {
+  SizedBox _buildSingleChart(
+      String title, String subtitle, Widget chart, BuildContext context,
+      [IconData icon = FluentIcons.chart]) {
     return SizedBox(
       width: 600,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Acrylic(
-          blurAmount: 20,
-          elevation: 10,
-          luminosityAlpha: 1,
-          shape: RoundedRectangleBorder(
+        child: Container(
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                offset: const Offset(0.0, 6.0),
+                blurRadius: 30.0,
+                spreadRadius: 5.0,
+                color: Colors.grey.withAlpha(50),
+              )
+            ],
+            color: FluentTheme.of(context).cardColor,
           ),
-          child: Container(
-            color: Colors.white.withValues(alpha: 0.3),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 10, 10, 7),
-                  child: Row(
-                    children: [
-                      Icon(icon),
-                      const SizedBox(width: 10),
-                      const Divider(size: 20, direction: Axis.vertical),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Txt(
-                            title,
-                            style: TextStyle(fontSize: 15, color: Colors.grey.withValues(alpha: 0.7)),
-                          ),
-                          Txt(
-                            subtitle,
-                            style: TextStyle(fontSize: 12, color: Colors.grey.withValues(alpha: 0.7)),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(15, 10, 10, 7),
+                child: Row(
+                  children: [
+                    Icon(icon),
+                    const SizedBox(width: 10),
+                    const Divider(size: 20, direction: Axis.vertical),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Txt(
+                          title,
+                          style: FluentTheme.of(context).typography.bodyLarge,
+                        ),
+                        Txt(
+                          subtitle,
+                          style: FluentTheme.of(context).typography.caption,
+                        )
+                      ],
+                    ),
+                  ],
                 ),
-                const Divider(size: 600),
-                SizedBox(
-                  height: 300,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: chart,
-                  ),
+              ),
+              const Divider(size: 600),
+              SizedBox(
+                height: 300,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: chart,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Acrylic _buildHeader(BuildContext context) {
-    return Acrylic(
-      elevation: 150,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildPickRangeButton(context),
-            _buildFarItems(),
-          ],
-        ),
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0.0, 6.0),
+            blurRadius: 30.0,
+            spreadRadius: 5.0,
+            color: Colors.grey.withAlpha(50),
+          )
+        ],
+        color: FluentTheme.of(context).menuColor,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildPickRangeButton(context),
+          _buildFarItems(),
+        ],
       ),
     );
   }

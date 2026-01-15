@@ -119,40 +119,39 @@ class _PanelScreenState extends State<PanelScreen> {
             }
           }
         },
-        child: Padding(
-          padding: const EdgeInsets.all(5),
-          child: Acrylic(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(3),
-              side: BorderSide(color: Colors.grey.withValues(alpha: 0.25)),
-            ),
-            elevation: 120,
-            child: MStreamBuilder(
-                streams: [
-                  localSettings.stream,
-                  widget.panel.selectedTab.stream,
-                  routes.minimizePanels.stream,
-                ],
-                builder: (context, snapshot) {
-                  return Column(
-                    key: Key(localSettings.selectedLocale.toString()),
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildPanelHeader(),
-                      if (routes.minimizePanels() == false ||
-                          widget.layoutWidth >= 710) ...[
-                        _buildTabsControllers(),
-                        _buildTabBody(),
-                        if (widget.panel.tabs[widget.panel.selectedTab()]
-                                .footer !=
-                            null)
-                          widget.panel.tabs[widget.panel.selectedTab()].footer!,
-                        _buildBottomControls(),
-                      ],
-                    ],
-                  );
-                }),
+        child: Container(
+          margin: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            boxShadow: kElevationToShadow[24],
+            color: FluentTheme.of(context).cardColor,
+            border: Border.all(color: Colors.grey.withAlpha(150)),
+            borderRadius: BorderRadius.circular(5)
           ),
+          child: MStreamBuilder(
+              streams: [
+                localSettings.stream,
+                widget.panel.selectedTab.stream,
+                routes.minimizePanels.stream,
+              ],
+              builder: (context, snapshot) {
+                return Column(
+                  key: Key(localSettings.selectedLocale.toString()),
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildPanelHeader(),
+                    if (routes.minimizePanels() == false ||
+                        widget.layoutWidth >= 710) ...[
+                      _buildTabsControllers(),
+                      _buildTabBody(),
+                      if (widget
+                              .panel.tabs[widget.panel.selectedTab()].footer !=
+                          null)
+                        widget.panel.tabs[widget.panel.selectedTab()].footer!,
+                      _buildBottomControls(),
+                    ],
+                  ],
+                );
+              }),
         ),
       ),
     );
@@ -192,38 +191,34 @@ class _PanelScreenState extends State<PanelScreen> {
   Widget _buildBottomControls() {
     return Container(
       constraints: const BoxConstraints(minHeight: 50, minWidth: 350),
-      child: Acrylic(
-        luminosityAlpha: 0.2,
-        elevation: 5,
-        child: StreamBuilder(
-            stream: widget.panel.inProgress.stream,
-            builder: (context, snapshot) {
-              return Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                      top: BorderSide(
-                          color: Colors.grey.withValues(alpha: 0.1))),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                child: widget.panel.inProgress()
-                    ? const Center(child: ProgressBar())
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          if (isNew == false &&
-                              widget.panel.item.archived == true)
-                            _buildRestoreButton(),
-                          if (isNew == false &&
-                              widget.panel.item.archived != true)
-                            _buildArchiveButton(),
-                          _buildSaveButton(),
-                          _buildCancelButton(),
-                        ],
-                      ),
-              );
-            }),
-      ),
+      child: StreamBuilder(
+          stream: widget.panel.inProgress.stream,
+          builder: (context, snapshot) {
+            return Container(
+              decoration: BoxDecoration(
+                border: Border(
+                    top: BorderSide(
+                        color: Colors.grey.withValues(alpha: 0.1))),
+              ),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+              child: widget.panel.inProgress()
+                  ? const Center(child: ProgressBar())
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        if (isNew == false &&
+                            widget.panel.item.archived == true)
+                          _buildRestoreButton(),
+                        if (isNew == false &&
+                            widget.panel.item.archived != true)
+                          _buildArchiveButton(),
+                        _buildSaveButton(),
+                        _buildCancelButton(),
+                      ],
+                    ),
+            );
+          }),
     );
   }
 
@@ -337,48 +332,47 @@ class _PanelScreenState extends State<PanelScreen> {
     );
   }
 
-  Acrylic _buildTabsControllers() {
-    return Acrylic(
-      luminosityAlpha: 0.9,
-      elevation: 30,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(3, 17, 3, 0),
-        child: SizedBox(
-          height: 39,
-          child: TabView(
-            closeButtonVisibility: CloseButtonVisibilityMode.never,
-            onChanged: (value) => widget.panel.selectedTab(value),
-            currentIndex: widget.panel.selectedTab(),
-            showScrollButtons: false,
-            shortcutsEnabled: true,
-            tabWidthBehavior: TabWidthBehavior.compact,
-            header: widget.panel.selectedTab() != 0
-                ? IconButton(
-                    icon: const Icon(FluentIcons.chevron_left),
-                    onPressed: () => widget.panel
-                        .selectedTab(widget.panel.selectedTab() - 1),
-                  )
-                : const SizedBox(width: 25),
-            footer: widget.panel.selectedTab() <
-                    widget.panel.tabs
-                            .where((t) => t.onlyIfSaved ? (!isNew) : true)
-                            .length -
-                        1
-                ? IconButton(
-                    icon: const Icon(FluentIcons.chevron_right),
-                    onPressed: () => widget.panel
-                        .selectedTab(widget.panel.selectedTab() + 1),
-                  )
-                : const SizedBox(width: 25),
-            tabs: widget.panel.tabs
-                .map((e) => Tab(
-                      text: Txt(txt(e.title)),
-                      icon: Icon(e.icon),
-                      body: const SizedBox(),
-                      disabled: e.onlyIfSaved && isNew,
-                    ))
-                .toList(),
-          ),
+  Widget _buildTabsControllers() {
+    return Container(
+      decoration: BoxDecoration(
+        color: FluentTheme.of(context).inactiveBackgroundColor
+      ),
+      padding: const EdgeInsets.fromLTRB(3, 15, 3, 0),
+      child: SizedBox(
+        height: 39,
+        child: TabView(
+          closeButtonVisibility: CloseButtonVisibilityMode.never,
+          onChanged: (value) => widget.panel.selectedTab(value),
+          currentIndex: widget.panel.selectedTab(),
+          showScrollButtons: false,
+          shortcutsEnabled: true,
+          tabWidthBehavior: TabWidthBehavior.compact,
+          header: widget.panel.selectedTab() != 0
+              ? IconButton(
+                  icon: const Icon(FluentIcons.chevron_left),
+                  onPressed: () => widget.panel
+                      .selectedTab(widget.panel.selectedTab() - 1),
+                )
+              : const SizedBox(width: 25),
+          footer: widget.panel.selectedTab() <
+                  widget.panel.tabs
+                          .where((t) => t.onlyIfSaved ? (!isNew) : true)
+                          .length -
+                      1
+              ? IconButton(
+                  icon: const Icon(FluentIcons.chevron_right),
+                  onPressed: () => widget.panel
+                      .selectedTab(widget.panel.selectedTab() + 1),
+                )
+              : const SizedBox(width: 25),
+          tabs: widget.panel.tabs
+              .map((e) => Tab(
+                    text: Txt(txt(e.title)),
+                    icon: Icon(e.icon),
+                    body: const SizedBox(),
+                    disabled: e.onlyIfSaved && isNew,
+                  ))
+              .toList(),
         ),
       ),
     );
