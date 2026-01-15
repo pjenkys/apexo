@@ -4,7 +4,7 @@ import 'package:apexo/services/localization/locale.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 
-FlTitlesData titles(List<String> labels) {
+FlTitlesData titles(List<String> labels, BuildContext context) {
   return FlTitlesData(
     show: true,
     bottomTitles: AxisTitles(
@@ -20,7 +20,7 @@ FlTitlesData titles(List<String> labels) {
                 angle: math.pi / -4,
                 child: Txt(
                   labels[value.toInt()],
-                  style: const TextStyle(fontSize: 12, color: Colors.black),
+                  style:  TextStyle(fontSize: 12, color: FluentTheme.of(context).inactiveColor),
                 ),
               ),
             ),
@@ -40,7 +40,7 @@ FlTitlesData titles(List<String> labels) {
             axisSide: meta.axisSide,
             child: Text(
               value.toInt().toString(),
-              style: const TextStyle(fontSize: 12, color: Colors.black),
+              style: TextStyle(fontSize: 12, color: FluentTheme.of(context).inactiveColor),
             ),
           );
         },
@@ -51,7 +51,7 @@ FlTitlesData titles(List<String> labels) {
   );
 }
 
-FlGridData grid(double max) {
+FlGridData grid(double max, BuildContext context) {
   return FlGridData(
     show: true,
     drawVerticalLine: true,
@@ -59,13 +59,13 @@ FlGridData grid(double max) {
     verticalInterval: 1,
     getDrawingHorizontalLine: (value) {
       return FlLine(
-        color: Colors.grey.withValues(alpha: 0.1),
+        color: FluentTheme.of(context).inactiveBackgroundColor.withAlpha(150),
         strokeWidth: 1,
       );
     },
     getDrawingVerticalLine: (value) {
       return FlLine(
-        color: Colors.grey.withValues(alpha: 0.05),
+        color: FluentTheme.of(context).inactiveBackgroundColor.withAlpha(150),
         strokeWidth: 1,
       );
     },

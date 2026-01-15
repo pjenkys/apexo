@@ -51,8 +51,8 @@ class StyledLineChart extends StatelessWidget {
             },
           ),
         ),
-        titlesData: titles(labels),
-        gridData: grid(max),
+        titlesData: titles(labels, context),
+        gridData: grid(max, context),
         borderData: border(),
         lineBarsData: List.generate(
           datasets.length,

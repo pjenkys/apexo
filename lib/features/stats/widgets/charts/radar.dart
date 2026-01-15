@@ -32,9 +32,9 @@ class _StyledRadarChartState extends State<StyledRadarChart> {
           Expanded(
             child: RadarChart(RadarChartData(
               borderData: border(),
-              gridBorderData: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
-              tickBorderData: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
-              radarBorderData: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
+              gridBorderData: BorderSide(color: FluentTheme.of(context).inactiveBackgroundColor),
+              tickBorderData: BorderSide(color: FluentTheme.of(context).inactiveBackgroundColor),
+              radarBorderData: BorderSide(color: FluentTheme.of(context).inactiveBackgroundColor),
               getTitle: (index, angle) => RadarChartTitle(text: widget.labels[index]),
               titlePositionPercentageOffset: 0.2,
               radarTouchData: RadarTouchData(
@@ -56,7 +56,7 @@ class _StyledRadarChartState extends State<StyledRadarChart> {
                   }),
               tickCount: 1,
               ticksTextStyle: const TextStyle(color: Colors.transparent),
-              titleTextStyle: const TextStyle(color: Colors.grey, fontSize: 11),
+              titleTextStyle: TextStyle(color: FluentTheme.of(context).inactiveColor, fontSize: 11),
               radarShape: RadarShape.polygon,
               dataSets: List.generate(widget.data.length, (setIndex) {
                 Color color = getDeterministicItem(colorsWithoutYellow, widget.labels.join() + setIndex.toString());
