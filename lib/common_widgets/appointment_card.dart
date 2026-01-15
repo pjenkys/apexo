@@ -101,7 +101,9 @@ class AppointmentCard extends StatelessWidget {
                         if (appointment.patient != null &&
                             !hide.contains(AppointmentSections.patient)) ...[
                           const SizedBox(height: 12.5),
-                          const Divider(direction: Axis.horizontal,),
+                          const Divider(
+                            direction: Axis.horizontal,
+                          ),
                           _buildSection(
                               txt("patient"),
                               ItemTitle(item: appointment.patient!),
@@ -112,7 +114,9 @@ class AppointmentCard extends StatelessWidget {
                         if (appointment.operators.isNotEmpty &&
                             !hide.contains(AppointmentSections.doctors)) ...[
                           const SizedBox(height: 12.5),
-                          const Divider(direction: Axis.horizontal,),
+                          const Divider(
+                            direction: Axis.horizontal,
+                          ),
                           _buildSection(
                               txt("doctors"),
                               Column(
@@ -128,7 +132,9 @@ class AppointmentCard extends StatelessWidget {
                         if (appointment.imgs.isNotEmpty &&
                             !hide.contains(AppointmentSections.photos)) ...[
                           const SizedBox(height: 12.5),
-                          const Divider(direction: Axis.horizontal,),
+                          const Divider(
+                            direction: Axis.horizontal,
+                          ),
                           _buildSection(
                               txt("photos"),
                               GridGallery(
@@ -161,7 +167,9 @@ class AppointmentCard extends StatelessWidget {
                         if (appointment.preOpNotes.isNotEmpty &&
                             !hide.contains(AppointmentSections.preNotes)) ...[
                           const SizedBox(height: 12.5),
-                          const Divider(direction: Axis.horizontal,),
+                          const Divider(
+                            direction: Axis.horizontal,
+                          ),
                           _buildSection(
                               txt("pre-opNotes"),
                               Txt(
@@ -176,7 +184,9 @@ class AppointmentCard extends StatelessWidget {
                         if (appointment.postOpNotes.isNotEmpty &&
                             !hide.contains(AppointmentSections.postNotes)) ...[
                           const SizedBox(height: 12.5),
-                          const Divider(direction: Axis.horizontal,),
+                          const Divider(
+                            direction: Axis.horizontal,
+                          ),
                           _buildSection(
                               txt("post-opNotes"),
                               Txt(
@@ -192,7 +202,9 @@ class AppointmentCard extends StatelessWidget {
                             !hide
                                 .contains(AppointmentSections.dentalNotes)) ...[
                           const SizedBox(height: 12.5),
-                          const Divider(direction: Axis.horizontal,),
+                          const Divider(
+                            direction: Axis.horizontal,
+                          ),
                           _buildSection(
                               txt("dentalNotes"),
                               Wrap(
@@ -209,7 +221,9 @@ class AppointmentCard extends StatelessWidget {
                         if (appointment.hasLabwork &&
                             !hide.contains(AppointmentSections.labworks)) ...[
                           const SizedBox(height: 12.5),
-                          const Divider(direction: Axis.horizontal,),
+                          const Divider(
+                            direction: Axis.horizontal,
+                          ),
                           _buildSection(
                               txt("labwork"),
                               Txt(
@@ -225,7 +239,9 @@ class AppointmentCard extends StatelessWidget {
                             !hide.contains(
                                 AppointmentSections.prescriptions)) ...[
                           const SizedBox(height: 12.5),
-                          const Divider(direction: Axis.horizontal,),
+                          const Divider(
+                            direction: Axis.horizontal,
+                          ),
                           _buildSection(
                               txt("prescription"),
                               Txt(
@@ -240,7 +256,9 @@ class AppointmentCard extends StatelessWidget {
                         if ((appointment.price != 0 || appointment.paid != 0) &&
                             !hide.contains(AppointmentSections.pay)) ...[
                           const SizedBox(height: 12.5),
-                          const Divider(direction: Axis.horizontal,),
+                          const Divider(
+                            direction: Axis.horizontal,
+                          ),
                           _buildSection(
                               "${txt("pay")}\n${globalSettings.get("currency_______").value}",
                               _paymentPills(context),
@@ -392,8 +410,9 @@ class AppointmentCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 7),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(icon, size: 13),
+              Icon(icon, size: 16),
               const SizedBox(width: 7),
               Txt(
                 title,
