@@ -166,6 +166,7 @@ class _TagInputWidgetState extends State<TagInputWidget> {
             height: widget.multiline ? visibleTags.length * 35 + 40 : 40,
             padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
             decoration: BoxDecoration(
+              color: FluentTheme.of(context).cardColor,
               border: Border.all(
                   color: FluentTheme.of(context).inactiveColor.withAlpha(30)),
               borderRadius: BorderRadius.circular(5),
@@ -315,41 +316,36 @@ class _TagInputWidgetState extends State<TagInputWidget> {
         : Row(children: childrenToBuild);
   }
 
-  Padding _buildTag(TagInputItem tag) {
-    return Padding(
+  Widget _buildTag(TagInputItem tag) {
+    return Container(
       padding: const EdgeInsets.only(right: 2, bottom: 2),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.withAlpha(100)),
-          borderRadius: BorderRadius.circular(5),
-          color: FluentTheme.of(context).cardColor,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.withAlpha(100)),
+        borderRadius: BorderRadius.circular(5),
+        color: FluentTheme.of(context).cardColor,
+      ),
+      child: IconButton(
+        onPressed: () {
+          if (_hiddenTappedFlyoutController.isOpen) {
+            _hiddenTappedFlyoutController.close();
+          }
+          widget.onItemTap == null ? null : widget.onItemTap!(tag);
+        },
+        style: const ButtonStyle(
+          padding: WidgetStatePropertyAll(
+              EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5)),
         ),
-        child: IconButton(
-          onPressed: () {
-            if (_hiddenTappedFlyoutController.isOpen) {
-              _hiddenTappedFlyoutController.close();
-            }
-            widget.onItemTap == null ? null : widget.onItemTap!(tag);
-          },
-          style: const ButtonStyle(
-            padding: WidgetStatePropertyAll(
-                EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5)),
-          ),
-          icon: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Txt(tag.label),
-              const SizedBox(width: 5),
-              IconButton(
-                key: Key("${tag.label}_clear"),
-                icon: const Icon(FluentIcons.clear, size: 10),
-                onPressed: () => _removeTag(tag),
-                style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(
-                        Colors.black.withValues(alpha: 0.05))),
-              ),
-            ],
-          ),
+        icon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Txt(tag.label),
+            const SizedBox(width: 5),
+            IconButton(
+              key: Key("${tag.label}_clear"),
+              icon: const Icon(FluentIcons.clear, size: 10),
+              onPressed: () => _removeTag(tag),
+            ),
+          ],
         ),
       ),
     );

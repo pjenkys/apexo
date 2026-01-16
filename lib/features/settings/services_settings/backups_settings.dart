@@ -1,3 +1,4 @@
+import 'package:apexo/common_widgets/button_styles.dart';
 import 'package:apexo/common_widgets/dialogs/close_dialog_button.dart';
 import 'package:apexo/common_widgets/dialogs/dialog_styling.dart';
 import 'package:apexo/core/multi_stream_builder.dart';
@@ -112,13 +113,7 @@ class BackupsSettings extends StatelessWidget {
         style: backups.uploading()
             ? ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.grey.withValues(alpha: 0.1)))
             : null,
-        child: Row(
-          children: [
-            const Icon(FluentIcons.upload),
-            const SizedBox(width: 10),
-            Txt(txt("upload")),
-          ],
-        ),
+        child: ButtonContent(FluentIcons.upload, txt("upload")),
         onPressed: () {
           if (backups.uploading()) return;
           backups.pickAndUpload();
@@ -134,13 +129,7 @@ class BackupsSettings extends StatelessWidget {
         style: backups.creating()
             ? ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.grey.withValues(alpha: 0.1)))
             : null,
-        child: Row(
-          children: [
-            const Icon(FluentIcons.add),
-            const SizedBox(width: 10),
-            Txt(txt("createNew")),
-          ],
-        ),
+        child: ButtonContent(FluentIcons.add, txt("createNew")),
         onPressed: () {
           if (backups.creating()) return;
           backups.newBackup();

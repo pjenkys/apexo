@@ -1,7 +1,8 @@
+import 'package:apexo/common_widgets/button_styles.dart';
 import 'package:apexo/services/localization/locale.dart';
-import 'package:apexo/common_widgets/unified_button.dart';
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/material.dart' show showTimePicker, showDatePicker, TimeOfDay;
+import 'package:flutter/material.dart'
+    show showTimePicker, showDatePicker, TimeOfDay;
 import 'package:intl/intl.dart';
 
 class DateTimePicker extends StatefulWidget {
@@ -13,17 +14,16 @@ class DateTimePicker extends StatefulWidget {
   final IconData buttonIcon;
   final void Function(DateTime value) onChange;
   final bool enabled;
-  const DateTimePicker({
-    super.key,
-    required this.initValue,
-    required this.onChange,
-    this.pickTime = false,
-    this.format = "dd/MM/yyyy",
-    this.buttonIcon = FluentIcons.time_entry,
-    this.buttonText = "Change date",
-    this.showButton = true,
-    this.enabled = true
-  });
+  const DateTimePicker(
+      {super.key,
+      required this.initValue,
+      required this.onChange,
+      this.pickTime = false,
+      this.format = "dd/MM/yyyy",
+      this.buttonIcon = FluentIcons.time_entry,
+      this.buttonText = "Change date",
+      this.showButton = true,
+      this.enabled = true});
 
   @override
   State<DateTimePicker> createState() => DateTimePickerState();
@@ -52,8 +52,16 @@ class DateTimePickerState extends State<DateTimePicker> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(height: 34, child: Center(child: Txt(DateFormat(widget.format, locale.s.$code).format(value)))),
-            if(widget.showButton) UnifiedButton(icon: widget.buttonIcon, text: widget.buttonText, onPressed: pick)
+            SizedBox(
+                height: 34,
+                child: Center(
+                    child: Txt(DateFormat(widget.format, locale.s.$code)
+                        .format(value)))),
+            if (widget.showButton)
+              Button(
+                onPressed: pick,
+                child: ButtonContent(widget.buttonIcon, widget.buttonText),
+              )
           ],
         ),
       ),
@@ -61,7 +69,7 @@ class DateTimePickerState extends State<DateTimePicker> {
   }
 
   pick() async {
-    if(!widget.enabled) return;
+    if (!widget.enabled) return;
     DateTime selected = value;
 
     if (widget.pickTime) {
@@ -70,7 +78,8 @@ class DateTimePickerState extends State<DateTimePicker> {
             initialTime: TimeOfDay(hour: value.hour, minute: value.minute),
           ) ??
           TimeOfDay(hour: selected.hour, minute: selected.minute);
-      selected = DateTime(selected.year, selected.month, selected.day, time.hour, time.minute);
+      selected = DateTime(
+          selected.year, selected.month, selected.day, time.hour, time.minute);
     } else {
       selected = await showDatePicker(
             context: context,

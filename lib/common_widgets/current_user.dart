@@ -1,3 +1,4 @@
+import 'package:apexo/common_widgets/button_styles.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:apexo/widget_keys.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -18,13 +19,7 @@ class CurrentUser extends StatelessWidget {
         Button(
           key: WK.btnLogout,
           onPressed: login.logout,
-          child: Row(
-            children: [
-              const Icon(FluentIcons.sign_out),
-              const SizedBox(width: 3),
-              Txt(txt("logout")),
-            ],
-          ),
+          child: ButtonContent(FluentIcons.sign_out, txt("logout")),
         ),
       ],
     );

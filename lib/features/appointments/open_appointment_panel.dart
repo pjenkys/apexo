@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:apexo/app/routes.dart';
+import 'package:apexo/common_widgets/button_styles.dart';
 import 'package:apexo/common_widgets/dental_chart.dart';
 import 'package:apexo/common_widgets/dialogs/import_photos_dialog.dart';
 import 'package:apexo/features/patients/patient_model.dart';
@@ -9,7 +10,6 @@ import 'package:apexo/utils/logger.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:apexo/features/patients/open_patient_panel.dart';
 import 'package:apexo/utils/print/print_prescription.dart';
-import 'package:apexo/common_widgets/unified_button.dart';
 import 'package:apexo/common_widgets/date_time_picker.dart';
 import 'package:apexo/common_widgets/grid_gallery.dart';
 import 'package:apexo/common_widgets/operators_picker.dart';
@@ -250,9 +250,11 @@ class _AppointmentDetailsState extends State<_AppointmentDetails> {
                 ),
                 const SizedBox(width: 5),
                 if (widget.appointment.patientID == null)
-                  UnifiedButton(
-                      icon: FluentIcons.add_friend,
-                      text: txt("newPatient"),
+                  Button(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6.0),
+                        child: ButtonContent(FluentIcons.add_friend, txt("newPatient")),
+                      ),
                       onPressed: () async {
                         final newPatientId = uuid();
                         final newPatient = await openPatient(
@@ -605,8 +607,8 @@ class _OperativeDetailsState extends State<_OperativeDetails> {
                   const Icon(FluentIcons.manufacturing, size: 20),
                   const SizedBox(width: 5),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                     child: Txt(
                       txt("laboratory"),
                       style: const TextStyle(

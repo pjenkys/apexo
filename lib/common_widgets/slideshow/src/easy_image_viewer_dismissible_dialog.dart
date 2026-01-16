@@ -1,3 +1,4 @@
+import 'package:apexo/common_widgets/button_styles.dart';
 import 'package:apexo/common_widgets/confirm_delete_flyout.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -113,19 +114,7 @@ class _EasyImageViewerDismissibleDialogState
                 child: FlyoutTarget(
                   controller: widget.confirmDeleteFlyoutCtrl,
                   child: Button(
-                    child: Row(
-                      children: [
-                        const Icon(
-                          FluentIcons.delete,
-                          size: 17,
-                        ),
-                        const SizedBox(width: 5),
-                        Txt(
-                          txt("delete"),
-                          style: const TextStyle(fontSize: 17),
-                        )
-                      ],
-                    ),
+                    child: ButtonContent(FluentIcons.delete, txt("delete"), size: 17),
                     onPressed: () {
                       widget.confirmDeleteFlyoutCtrl.showFlyout(
                         builder: (context) => ConfirmDeleteFlyout(

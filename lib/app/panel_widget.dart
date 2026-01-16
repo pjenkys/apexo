@@ -122,11 +122,10 @@ class _PanelScreenState extends State<PanelScreen> {
         child: Container(
           margin: const EdgeInsets.all(5),
           decoration: BoxDecoration(
-            boxShadow: kElevationToShadow[24],
-            color: FluentTheme.of(context).cardColor,
-            border: Border.all(color: Colors.grey.withAlpha(150)),
-            borderRadius: BorderRadius.circular(5)
-          ),
+              boxShadow: kElevationToShadow[24],
+              color: FluentTheme.of(context).cardColor,
+              border: Border.all(color: Colors.grey.withAlpha(150)),
+              borderRadius: BorderRadius.circular(5)),
           child: MStreamBuilder(
               streams: [
                 localSettings.stream,
@@ -197,11 +196,9 @@ class _PanelScreenState extends State<PanelScreen> {
             return Container(
               decoration: BoxDecoration(
                 border: Border(
-                    top: BorderSide(
-                        color: Colors.grey.withValues(alpha: 0.1))),
+                    top: BorderSide(color: Colors.grey.withValues(alpha: 0.1))),
               ),
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
               child: widget.panel.inProgress()
                   ? const Center(child: ProgressBar())
                   : Row(
@@ -237,14 +234,9 @@ class _PanelScreenState extends State<PanelScreen> {
                     ? WidgetStatePropertyAll(Colors.orange)
                     : const WidgetStatePropertyAll(Colors.grey),
               ),
-              child: Row(
-                children: [
-                  const Icon(FluentIcons.cancel),
-                  const SizedBox(width: 5),
-                  Txt(widget.panel.hasUnsavedChanges()
-                      ? txt("cancel")
-                      : txt("close"))
-                ],
+              child: ButtonContent(
+                FluentIcons.cancel,
+                widget.panel.hasUnsavedChanges() ? txt("cancel") : txt("close"),
               ),
             );
           }),
@@ -334,9 +326,8 @@ class _PanelScreenState extends State<PanelScreen> {
 
   Widget _buildTabsControllers() {
     return Container(
-      decoration: BoxDecoration(
-        color: FluentTheme.of(context).inactiveBackgroundColor
-      ),
+      decoration:
+          BoxDecoration(color: FluentTheme.of(context).inactiveBackgroundColor),
       padding: const EdgeInsets.fromLTRB(3, 15, 3, 0),
       child: SizedBox(
         height: 39,
@@ -350,8 +341,8 @@ class _PanelScreenState extends State<PanelScreen> {
           header: widget.panel.selectedTab() != 0
               ? IconButton(
                   icon: const Icon(FluentIcons.chevron_left),
-                  onPressed: () => widget.panel
-                      .selectedTab(widget.panel.selectedTab() - 1),
+                  onPressed: () =>
+                      widget.panel.selectedTab(widget.panel.selectedTab() - 1),
                 )
               : const SizedBox(width: 25),
           footer: widget.panel.selectedTab() <
@@ -361,8 +352,8 @@ class _PanelScreenState extends State<PanelScreen> {
                       1
               ? IconButton(
                   icon: const Icon(FluentIcons.chevron_right),
-                  onPressed: () => widget.panel
-                      .selectedTab(widget.panel.selectedTab() + 1),
+                  onPressed: () =>
+                      widget.panel.selectedTab(widget.panel.selectedTab() + 1),
                 )
               : const SizedBox(width: 25),
           tabs: widget.panel.tabs

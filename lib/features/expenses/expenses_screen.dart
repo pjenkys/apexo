@@ -62,21 +62,23 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
 
   Expanded _buildInvoicesWindow() {
     return Expanded(
-        child: Padding(
-      padding: EdgeInsets.fromLTRB(0, selectedSupplier != null ? 0 : 500, 0, 0),
-      child: SupplierWindow(
-        orders: expenses.present.values
-            .where(
-                (o) => (!o.isSupplier) && o.supplierId == selectedSupplier?.id)
-            .toList(),
-        supplier: selectedSupplier!,
-        onClose: () {
-          setState(() {
-            selectedSupplier = null;
-          });
-        },
+      child: Padding(
+        padding:
+            EdgeInsets.fromLTRB(0, selectedSupplier != null ? 0 : 500, 0, 0),
+        child: SupplierWindow(
+          orders: expenses.present.values
+              .where((o) =>
+                  (!o.isSupplier) && o.supplierId == selectedSupplier?.id)
+              .toList(),
+          supplier: selectedSupplier!,
+          onClose: () {
+            setState(() {
+              selectedSupplier = null;
+            });
+          },
+        ),
       ),
-    ));
+    );
   }
 
   SizedBox _buildSuppliersFolders(

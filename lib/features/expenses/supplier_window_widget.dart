@@ -116,14 +116,25 @@ class _SupplierWindowState extends State<SupplierWindow> {
           decoration: BoxDecoration(color: FluentTheme.of(context).cardColor),
           child: Column(
             children: [
-              _buildToolbar(),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(7, 7, 7, 0),
+                child: CupertinoTextField(
+                  expands: false,
+                  prefix: const Text(" 🔍"),
+                  placeholder: txt("filterByItems"),
+                  controller: _query,
+                  onChanged: (i) => setState(() {}),
+                ),
+              ),
               const SizedBox(height: 5),
               Expanded(
                 child: HorizontalScrollView(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minWidth: _selectedList.isEmpty ? 300 : 800,
-                      maxWidth: _selectedList.isEmpty ? 300 : max(constraints.maxWidth, 800),
+                      maxWidth: _selectedList.isEmpty
+                          ? 300
+                          : max(constraints.maxWidth, 800),
                     ),
                     child: _buildTable(),
                   ),
@@ -156,19 +167,6 @@ class _SupplierWindowState extends State<SupplierWindow> {
     );
   }
 
-  Widget _buildToolbar() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(7, 7, 7, 0),
-      child: CupertinoTextField(
-        expands: false,
-        prefix: const Text(" 🔍"),
-        placeholder: txt("filterByItems"),
-        controller: _query,
-        onChanged: (i) => setState(() {}),
-      ),
-    );
-  }
-
   Widget _buildTableHeader() {
     return Container(
       decoration: BoxDecoration(
@@ -183,22 +181,22 @@ class _SupplierWindowState extends State<SupplierWindow> {
           GestureDetector(
             onTap: () => setState(() => _sortAsc = !_sortAsc),
             child: SizedBox(
-              width: 120,
+              width: 125,
               child: _buildTableHeaderText(
                   _sortAsc ? "${txt("date")} ↑" : '${txt("date")} ↓'),
             ),
           ),
           Expanded(child: _buildTableHeaderText(txt("items"))),
           SizedBox(
-              width: 90,
-              child: _buildTableHeaderText(txt("cost"), centerAlign: true)),
+              width: 85,
+              child: _buildTableHeaderText(txt("cost"), centerAlign: false)),
           SizedBox(
-              width: 90,
-              child: _buildTableHeaderText(txt("paid"), centerAlign: true)),
+              width: 85,
+              child: _buildTableHeaderText(txt("paid"), centerAlign: false)),
           SizedBox(
-              width: 90,
-              child: _buildTableHeaderText(txt("photos"), centerAlign: true)),
-          const SizedBox(width: 60, child: Text('')),
+              width: 85,
+              child: _buildTableHeaderText(txt("photos"), centerAlign: false)),
+          const SizedBox(width: 60),
         ],
       ),
     );
