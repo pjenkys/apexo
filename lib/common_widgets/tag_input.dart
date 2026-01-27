@@ -232,7 +232,7 @@ class _TagInputWidgetState extends State<TagInputWidget> {
         focusNode: _focusNode,
         placeholder: widget.placeholder,
         key: autoSuggestBoxRef,
-        trailingIcon: (_tags.length < 2 || widget.multiline)
+        trailingIcon: (_tags.length < 2 || widget.multiline) && widget.enabled
             ? (IconButton(
                 icon: autoSuggestBoxRef.currentState == null
                     ? const Icon(FluentIcons.chevron_down)
@@ -340,7 +340,7 @@ class _TagInputWidgetState extends State<TagInputWidget> {
           children: [
             Txt(tag.label),
             const SizedBox(width: 5),
-            IconButton(
+            if(widget.enabled) IconButton(
               key: Key("${tag.label}_clear"),
               icon: const Icon(FluentIcons.clear, size: 10),
               onPressed: () => _removeTag(tag),
