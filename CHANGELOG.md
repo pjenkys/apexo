@@ -1,4 +1,17 @@
 
+### ____0.8.0____
+
+-   Major performance improvements
+-   BREAKING: Accounts are now where you find operators, doctors, users, admins and permissions
+-   improved labworks screen (showing operator)
+-   improved expenses screen (showing due total)
+-   fixed panel header width
+-   fixed darkmode issues with charts and dashboard
+-   more consistent dialog styling
+-   confirm deletion on images
+-   other minor tweaks
+
+
 ### ____0.7.2____
 
 -   fixed bugs and usability issues in expenses screen
