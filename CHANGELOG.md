@@ -1,4 +1,10 @@
 
+### ____0.8.1____
+
+-   fixed a bug where when resyncing the routes are reset
+-   fixed a bug where a new user can not have its persmission changed unless its created and being edited
+
+
 ### ____0.8.0____
 
 -   Major performance improvements
