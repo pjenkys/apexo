@@ -6,7 +6,6 @@ class WK {
   static const builder = Key("builder");
   static const loginScreen = Key("loginScreen");
   static const dashboardScreen = Key("dashboardScreen");
-  static const doctorsScreen = Key("doctorsScreen");
   static const patientsScreen = Key("patientsScreen");
   static const calendarScreen = Key("calendarScreen");
   static const labworksScreen = Key("labworksScreen");
@@ -18,7 +17,7 @@ class WK {
   static const globalActions = Key("globalActions");
   static const backButton = Key("backButton");
   static const appLogo = Key("appLogo");
-  static const currentUserSection = Key("currentUserSection");
+  static const currentAccountSection = Key("currentAccountSection");
   static const version = Key("version");
   static const loginLangComboBox = Key("loginLangComboBox");
   static const loginTab = Key("loginTab");

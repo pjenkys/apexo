@@ -5,6 +5,8 @@ import 'package:apexo/features/expenses/expense_model.dart';
 import 'package:apexo/features/expenses/expenses_store.dart';
 import 'package:apexo/features/settings/settings_stores.dart';
 import 'package:apexo/services/localization/locale.dart';
+import 'package:apexo/services/login.dart';
+import 'package:apexo/utils/constants.dart';
 import 'package:apexo/utils/imgs.dart';
 import 'package:apexo/utils/logger.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -24,6 +26,7 @@ class OrderRowState extends State<OrderRow> {
   final TextEditingController paidCtrl = TextEditingController();
   final FlyoutController moreOptionsCtrl = FlyoutController();
   final FlyoutController photoAddMenu = FlyoutController();
+  final bool canEdit = login.permissions[PInt.expenses] == 2;
 
   bool inProgress = false;
 
@@ -72,7 +75,12 @@ class OrderRowState extends State<OrderRow> {
           const SizedBox(width: 5),
           _buildPayCell(context),
           _buildPhotosCell(context),
-          _buildMoreButton(),
+          if (canEdit)
+            _buildMoreButton()
+          else
+            const SizedBox(
+              width: 55,
+            ),
         ],
       ),
     );
@@ -85,6 +93,7 @@ class OrderRowState extends State<OrderRow> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           GridGallery(
+            canDelete: canEdit,
             rowId: widget.order.id,
             imgs: widget.order.photos,
             countPerLine: 4,
@@ -109,7 +118,7 @@ class OrderRowState extends State<OrderRow> {
               });
             },
           ),
-          if (widget.order.archived != true && !inProgress)
+          if (widget.order.archived != true && !inProgress && canEdit)
             _buildAddPhotoButton()
         ],
       ),
@@ -212,6 +221,7 @@ class OrderRowState extends State<OrderRow> {
       child: Column(
         children: [
           CupertinoTextField(
+            readOnly: !canEdit,
             textAlign: TextAlign.end,
             style: FluentTheme.of(context).typography.body,
             padding:
@@ -239,6 +249,7 @@ class OrderRowState extends State<OrderRow> {
       child: Column(
         children: [
           CupertinoTextField(
+            readOnly: !canEdit,
             textAlign: TextAlign.end,
             style: FluentTheme.of(context).typography.body,
             padding:
@@ -269,7 +280,7 @@ class OrderRowState extends State<OrderRow> {
               .map((e) => TagInputItem(value: e, label: e))
               .toList(),
           limit: 9999,
-          enabled: !inProgress,
+          enabled: !inProgress && canEdit,
           onChanged: (newItems) {
             setState(() {
               expenses.set(
@@ -292,7 +303,7 @@ class OrderRowState extends State<OrderRow> {
       child: Align(
         alignment: AlignmentGeometry.center,
         child: DateTimePicker(
-          enabled: !inProgress,
+          enabled: !inProgress && canEdit,
           initValue: widget.order.date,
           onChange: (newDate) {
             setState(() {
@@ -332,7 +343,7 @@ class OrderRowState extends State<OrderRow> {
                             MenuFlyoutItem(
                               text: Txt(txt("markAsDue")),
                               onPressed: () {
-                                expenses.set(widget.order..processed = true);
+                                expenses.set(widget.order..processed = false);
                               },
                               leading: const Icon(FluentIcons.warning),
                             ),

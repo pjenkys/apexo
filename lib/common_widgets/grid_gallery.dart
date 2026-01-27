@@ -1,6 +1,8 @@
 import 'package:apexo/common_widgets/confirm_delete_flyout.dart';
 import 'package:apexo/common_widgets/dialogs/loading_blocking.dart';
 import 'package:apexo/services/localization/locale.dart';
+import 'package:apexo/services/login.dart';
+import 'package:apexo/utils/constants.dart';
 import 'package:apexo/utils/imgs.dart';
 import 'package:apexo/common_widgets/slideshow/slideshow.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -16,6 +18,7 @@ class GridGallery extends StatefulWidget {
   final bool progress;
   final bool showPlayIcon;
   final bool showDeleteMiniButton;
+  final bool canDelete;
   const GridGallery({
     super.key,
     required this.rowId,
@@ -23,6 +26,7 @@ class GridGallery extends StatefulWidget {
     required this.progress,
     required this.onPressDelete,
     required this.showDeleteMiniButton,
+    required this.canDelete,
     this.countPerLine = 3,
     this.rowWidth = 350,
     this.size,
@@ -126,7 +130,7 @@ class _GridGalleryState extends State<GridGallery> {
             }
           },
         ),
-        if (widget.showDeleteMiniButton && widget.progress == false)
+        if (widget.showDeleteMiniButton && login.permissions[PInt.photos] == 1 && widget.progress == false)
           Positioned(
             top: 4,
             right: 4,
@@ -173,6 +177,7 @@ class _GridGalleryState extends State<GridGallery> {
       showImageViewer(
         context,
         provider,
+        canDelete: widget.canDelete,
         backgroundColor: Colors.black.withValues(alpha: 0.9),
         doubleTapZoomable: true,
         immersive: false,
@@ -210,6 +215,7 @@ class _GridGalleryState extends State<GridGallery> {
         swipeDismissible: true,
         closeButtonColor: Colors.white,
         infinitelyScrollable: true,
+        canDelete: widget.canDelete,
         onPressDelete: (int index) {
           widget.onPressDelete(widget.imgs[index]);
         },

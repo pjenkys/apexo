@@ -1,28 +1,23 @@
 import 'package:apexo/app/routes.dart';
-import 'package:apexo/common_widgets/appointment_card.dart';
+import 'package:apexo/common_widgets/button_styles.dart';
+import 'package:apexo/features/appointments/open_appointment_panel.dart';
 import 'package:apexo/features/dashboard/dashboard_controller.dart';
+import 'package:apexo/features/expenses/expenses_store.dart';
+import 'package:apexo/features/labwork/labworks_ctrl.dart';
+import 'package:apexo/features/patients/open_patient_panel.dart';
+import 'package:apexo/features/settings/settings_stores.dart';
 import 'package:apexo/services/launch.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:apexo/common_widgets/item_title.dart';
-import 'package:apexo/features/stats/widgets/charts/bar.dart';
-import 'package:apexo/features/stats/widgets/charts/line.dart';
-import 'package:apexo/features/stats/charts_controller.dart';
 import 'package:apexo/services/network.dart';
-import 'package:apexo/services/permissions.dart';
 import 'package:apexo/services/login.dart';
-import 'package:apexo/features/settings/settings_stores.dart';
+import 'package:apexo/utils/constants.dart';
 import 'package:apexo/widget_keys.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:intl/intl.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
-
-  String get currentName {
-    if (login.currentMember == null) return "";
-    if (login.currentMember!.title.length > 20) return "${login.currentMember!.title.substring(0, 17)}...";
-    return login.currentMember?.title ?? "";
-  }
 
   String get mode {
     return login.isAdmin
@@ -33,201 +28,309 @@ class DashboardScreen extends StatelessWidget {
   }
 
   String get dashboardMessage {
-    final onceStable = network.isOnline() ? "" : " ${txt("onceConnectionIsStable")}.";
+    final onceStable =
+        network.isOnline() ? "" : " ${txt("onceConnectionIsStable")}.";
 
-    final restriction = (login.isAdmin && network.isOnline()) ? txt("unRestrictedAccess") : txt("restrictedAccess");
+    final restriction = (login.isAdmin && network.isOnline())
+        ? txt("unRestrictedAccess")
+        : txt("restrictedAccess");
 
     return "${txt("youAreCurrentlyIn")} $mode ${txt("mode")}. ${txt("youHave")} $restriction.$onceStable";
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(
+    return LayoutBuilder(builder: (context, constraints) {
+      final height = constraints.maxHeight - 190;
+      return Column(
         key: WK.dashboardScreen,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(15),
+          _buildHeader(context),
+          _buildTopSquares(),
+          SizedBox(
+            width: constraints.maxWidth,
+            height: height,
+            child: ListView(scrollDirection: Axis.horizontal, children: [
+              if (login.permissions[PInt.patients] > 0 &&
+                  login.permissions[PInt.appointments] > 0)
+                _buildDashboardList(
+                  context: context,
+                  icon: FluentIcons.contact_info,
+                  onPressed: () => routes.navigate("calendar"),
+                  height: height,
+                  title: txt("patientsToday"),
+                  items: dashboardCtrl.todayAppointments
+                      .map((e) => ListTile(
+                            onPressed: () => openAppointment(e),
+                            title: ItemTitle(item: e),
+                            trailing: Text(DateFormat('hh:mm a', locale.s.$code)
+                                .format(e.date)),
+                            subtitle: Text(
+                                "${e.subtitleLine1.isNotEmpty ? "${e.subtitleLine1}\n" : ""}${e.subtitleLine2}"),
+                          ))
+                      .toList(),
+                ),
+              if (login.permissions[PInt.patients] > 0 &&
+                  login.permissions[PInt.appointments] > 0)
+                _buildDashboardList(
+                  context: context,
+                  height: height,
+                  icon: FluentIcons.calendar,
+                  onPressed: () => routes.navigate("calendar"),
+                  title: txt("newPatientsToday"),
+                  items: dashboardCtrl.newPatientsToday.map((e) {
+                    final a = e.allAppointments.first;
+                    return ListTile(
+                      onPressed: () => openPatient(e),
+                      title: ItemTitle(item: e),
+                      subtitle: Text(
+                          "${a.subtitleLine1.isNotEmpty ? "${a.subtitleLine1}\n" : ""}${a.subtitleLine2}"),
+                    );
+                  }).toList(),
+                ),
+              if (login.permissions[PInt.patients] > 0 &&
+                  login.permissions[PInt.appointments] > 0)
+                _buildDashboardList(
+                  context: context,
+                  height: height,
+                  icon: FluentIcons.manufacturing,
+                  onPressed: () => routes.navigate("labworks"),
+                  title: "${txt("labworks")} (${txt("due")})",
+                  items: labworks.due
+                      .map((e) => ListTile(
+                            onPressed: () => openPatient(e.patient),
+                            title: ItemTitle(item: e),
+                            subtitle: Txt(
+                                "${DateTime.now().difference(e.date).inDays} ${txt("daysAgo")}"),
+                          ))
+                      .toList(),
+                ),
+              if (login.permissions[PInt.patients] > 0 &&
+                  login.permissions[PInt.appointments] > 0)
+                _buildDashboardList(
+                  context: context,
+                  height: height,
+                  icon: FluentIcons.manufacturing,
+                  onPressed: () => routes.navigate("labworks"),
+                  title: "${txt("labworks")} (${txt("undelivered")})",
+                  items: labworks.notDelivered
+                      .map((e) => ListTile(
+                            onPressed: () => openPatient(e),
+                            title: ItemTitle(item: e),
+                            subtitle: Txt(
+                                "${DateTime.now().difference(e.doneAppointments.last.date).inDays} ${txt("daysAgo")}"),
+                          ))
+                      .toList(),
+                ),
+              if (login.permissions[PInt.expenses] > 0)
+                _buildDashboardList(
+                  context: context,
+                  height: height,
+                  icon: FluentIcons.money,
+                  onPressed: () => routes.navigate("expenses"),
+                  title: "${txt("expenses")} (${txt("due")})",
+                  items: expenses.suppliers
+                      .where((x) => x.duePayments > 0)
+                      .map((e) => ListTile(
+                            title: Text(
+                              e.supplierName,
+                              style:
+                                  FluentTheme.of(context).typography.bodyStrong,
+                            ),
+                            subtitle: Text(
+                                "${e.duePayments} ${globalSettings.get("currency_______").value}"),
+                            leading: const Icon(FluentIcons.company_directory),
+                          ))
+                      .toList(),
+                ),
+            ]),
+          ),
+        ],
+      );
+    });
+  }
+
+  Container _buildDashboardList({
+    required BuildContext context,
+    required double height,
+    required String title,
+    required List<Widget> items,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    const double colWidth = 265;
+
+    return Container(
+      width: colWidth,
+      height: 100,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        color: FluentTheme.of(context).menuColor,
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0.0, 6.0),
+            blurRadius: 30.0,
+            spreadRadius: 5.0,
+            color: Colors.grey.withAlpha(50),
+          )
+        ],
+      ),
+      margin: const EdgeInsets.all(5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            color:
+                FluentTheme.of(context).inactiveBackgroundColor.withAlpha(150),
+            width: colWidth,
+            padding: const EdgeInsets.all(10),
+            margin: const EdgeInsets.all(5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(FluentIcons.medical),
-                    const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Txt(
-                          "${txt("hello")} $currentName",
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                        Txt(
-                          DateFormat("MMMM d yyyy, hh:mm:a", locale.s.$code).format(DateTime.now()),
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ],
+                Txt(
+                  title,
+                  style: FluentTheme.of(context).typography.bodyStrong,
                 ),
-                if (!launch.isDemo)
-                  Tooltip(
-                    message: dashboardMessage,
-                    child: PaymentPill(
-                      finalTextColor: login.isAdmin ? Colors.blue : Colors.warningPrimaryColor,
-                      title: txt("mode"),
-                      amount: mode,
-                    ),
-                  ),
+                IconButton(
+                  icon: Icon(icon),
+                  onPressed: onPressed,
+                )
               ],
             ),
           ),
-          const Divider(),
-          if (permissions.list[5] || login.isAdmin) ...[
-            buildTopSquares(),
-            buildDashboardCharts()
-          ] else if (permissions.list[2] && dashboardCtrl.todayAppointments.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(15, 5, 15, 0),
-              child: Txt(txt("patientsToday")),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-              height: 50,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: dashboardCtrl.todayAppointments.map((e) => ItemTitle(item: e)).toList(),
-              ),
-            )
-          ]
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+            height: height - 90,
+            child: items.isEmpty
+                ? Center(
+                    child: Txt(
+                    txt("noResultsFound"),
+                    style: FluentTheme.of(context)
+                        .typography
+                        .bodyStrong!
+                        .copyWith(backgroundColor: Colors.grey.withAlpha(40)),
+                  ))
+                : ListView(
+                    scrollDirection: Axis.vertical,
+                    children: items,
+                  ),
+          )
         ],
       ),
     );
   }
 
-  Expanded buildDashboardCharts() {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        child: StreamBuilder(
-            stream: dashboardCtrl.currentOpenTab.stream,
-            builder: (context, snapshot) {
-              return TabView(
-                currentIndex: dashboardCtrl.currentOpenTab(),
-                closeButtonVisibility: CloseButtonVisibilityMode.never,
-                header: const SizedBox(width: 5),
-                footer: IconButton(
-                  icon: Row(
-                    children: [const Icon(FluentIcons.chart), const SizedBox(width: 5), Txt(txt("fullStats"))],
+  Container _buildHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0.0, 6.0),
+            blurRadius: 30.0,
+            spreadRadius: 5.0,
+            color: Colors.grey.withAlpha(50),
+          )
+        ],
+        color: FluentTheme.of(context).menuColor,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              login.currentLoginIsOperator
+                  ? const Icon(FluentIcons.medical)
+                  : const Icon(FluentIcons.contact),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Txt(
+                    "${txt("hello")} ${login.currentName}",
+                    style: const TextStyle(fontSize: 20),
                   ),
-                  onPressed: () => routes.navigate(routes.getByIdentifier("statistics")!),
-                ),
-                onChanged: (i) => dashboardCtrl.currentOpenTab(i),
-                tabs: [
-                  Tab(
-                    text: Txt(txt("appointments")),
-                    icon: const Icon(FluentIcons.calendar),
-                    closeIcon: null,
-                    outlineColor: WidgetStatePropertyAll(Colors.grey.withValues(alpha: 0.1)),
-                    body: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.4),
-                        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(children: [
-                          Expanded(
-                              child: StyledBarChart(
-                            labels: chartsCtrl.periods.map((p) => p.label).toList(),
-                            yAxis: chartsCtrl.groupedAppointments.map((g) => g.length.toDouble()).toList(),
-                          ))
-                        ]),
-                      ),
-                    ),
-                  ),
-                  Tab(
-                    text: Txt(txt("payments")),
-                    icon: const Icon(FluentIcons.money),
-                    closeIcon: null,
-                    outlineColor: WidgetStatePropertyAll(Colors.grey.withValues(alpha: 0.1)),
-                    body: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.4),
-                        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
-                        child: Column(children: [
-                          Expanded(
-                              child: StyledLineChart(
-                            labels: chartsCtrl.periods.map((p) => p.label).toList(),
-                            datasets: [chartsCtrl.groupedPayments.toList()],
-                            datasetLabels: ["Payments in ${globalSettings.get("currency_______").value}"],
-                          ))
-                        ]),
-                      ),
-                    ),
+                  Txt(
+                    DateFormat("MMMM d yyyy, hh:mm:a", locale.s.$code)
+                        .format(DateTime.now()),
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ],
-              );
-            }),
+              ),
+              const SizedBox(width: 15),
+              Tooltip(
+                message: dashboardMessage,
+                child: Txt(
+                  mode,
+                  style: FluentTheme.of(context).typography.caption!.copyWith(
+                      color: Colors.blue, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          if (!launch.isDemo)
+            HyperlinkButton(
+              onPressed: login.logout,
+              child: ButtonContent(FluentIcons.sign_out, txt("logout")),
+            ),
+        ],
       ),
     );
   }
 
-  SingleChildScrollView buildTopSquares() {
+  SingleChildScrollView _buildTopSquares() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            dashboardSquare(
-              Colors.purple,
-              FluentIcons.goto_today,
-              dashboardCtrl.todayAppointments.length.toString(),
-              txt("appointmentsToday"),
-            ),
-            dashboardSquare(
-              Colors.blue,
-              FluentIcons.people,
-              dashboardCtrl.newPatientsToday.toString(),
-              txt("newPatientsToday"),
-            ),
-            dashboardSquare(
-              Colors.teal,
-              FluentIcons.money,
-              dashboardCtrl.paymentsToday.toStringAsFixed(2),
-              txt("paymentsMadeToday"),
-            ),
+            if (login.permissions[PInt.appointments] > 0)
+              dashboardSquare(
+                Colors.purple,
+                FluentIcons.goto_today,
+                dashboardCtrl.todayAppointments.length.toString(),
+                txt("appointmentsToday"),
+              ),
+            if (login.permissions[PInt.patients] > 0)
+              dashboardSquare(
+                Colors.blue,
+                FluentIcons.people,
+                dashboardCtrl.newPatientsToday.length.toString(),
+                txt("newPatientsToday"),
+              ),
+            if (login.permissions[PInt.postOp] > 1)
+              dashboardSquare(
+                Colors.teal,
+                FluentIcons.money,
+                dashboardCtrl.paymentsToday.toStringAsFixed(2),
+                txt("paymentsMadeToday"),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Padding dashboardSquare(AccentColor color, IconData icon, String title, String subtitle) {
+  Padding dashboardSquare(
+      AccentColor color, IconData icon, String title, String subtitle) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
         decoration: BoxDecoration(
-          color: color.withAlpha(50),
-          borderRadius: BorderRadius.circular(5),
-          boxShadow: [
-            BoxShadow(
-            offset: const Offset(0.0, 6.0),
-            blurRadius: 30.0,
-            spreadRadius: 5.0,
             color: color.withAlpha(50),
-          )
-          ]
-        ),
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                offset: const Offset(0.0, 6.0),
+                blurRadius: 30.0,
+                spreadRadius: 5.0,
+                color: color.withAlpha(50),
+              )
+            ]),
         width: 300,
         child: Column(
           children: [
@@ -249,12 +352,18 @@ class DashboardScreen extends StatelessWidget {
                     children: [
                       Txt(
                         title,
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: color.dark),
+                        style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: color.dark),
                       ),
                       Txt(
                         subtitle,
                         style: TextStyle(
-                            fontSize: 13, color: color.light, fontStyle: FontStyle.italic, letterSpacing: 0.6),
+                            fontSize: 13,
+                            color: color.light,
+                            fontStyle: FontStyle.italic,
+                            letterSpacing: 0.6),
                       ),
                       const SizedBox(height: 10),
                     ],

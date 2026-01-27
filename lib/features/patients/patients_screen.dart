@@ -9,6 +9,8 @@ import 'package:apexo/common_widgets/archive_selected.dart';
 import 'package:apexo/common_widgets/archive_toggle.dart';
 import 'package:apexo/features/patients/patient_model.dart';
 import 'package:apexo/features/patients/patients_store.dart';
+import 'package:apexo/services/login.dart';
+import 'package:apexo/utils/constants.dart';
 import 'package:apexo/widget_keys.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,7 +25,10 @@ class PatientsScreen extends StatelessWidget {
       key: WK.patientsScreen,
       padding: EdgeInsets.zero,
       content: MStreamBuilder(
-          streams: [patients.observableMap.stream, appointments.observableMap.stream],
+          streams: [
+            patients.observableMap.stream,
+            appointments.observableMap.stream
+          ],
           builder: (context, snapshot) {
             return DataTable<Patient>(
               items: patients.present.values.toList(),
@@ -49,7 +54,10 @@ class PatientsScreen extends StatelessWidget {
                   title: txt("exportSelected"),
                 ),
               ],
-              furtherActions: [const SizedBox(width: 5), ArchiveToggle(notifier: patients.notify)],
+              furtherActions: [
+                const SizedBox(width: 5),
+                ArchiveToggle(notifier: patients.notify)
+              ],
               onSelect: openPatient,
               itemActions: [
                 ItemAction(
@@ -59,7 +67,13 @@ class PatientsScreen extends StatelessWidget {
                     final patient = patients.get(id);
                     if (patient == null) return;
                     if (context.mounted) {
-                      openAppointment(Appointment.fromJson({"patientID": id}));
+                      openAppointment(Appointment.fromJson({
+                        "patientID": id,
+                        if (login.permissions[PInt.patients] == 1 ||
+                            login.permissions[PInt.appointments] == 1 ||
+                            login.currentLoginIsOperator)
+                          "operatorsIDs": [login.currentAccountID]
+                      }));
                     }
                   },
                 ),

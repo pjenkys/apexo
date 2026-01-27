@@ -21,7 +21,7 @@ class Period {
 }
 
 class _ChartsController {
-  final doctorID = ObservableState("");
+  final filterByOperatorID = ObservableState("");
   final start = ObservableState(DateTime(DateTime.now().year, DateTime.now().month, 1));
   final end = ObservableState(DateTime(DateTime.now().year, DateTime.now().month, 1).add(const Duration(days: 31)));
   final interval = ObservableState(StatsInterval.days);
@@ -41,7 +41,7 @@ class _ChartsController {
     for (var appointment in appointments.present.values) {
       if (appointment.date.isAfter(end())) continue;
       if (appointment.date.isBefore(start())) continue;
-      if (doctorID().isNotEmpty && !appointment.operatorsIDs.contains(doctorID())) continue;
+      if (filterByOperatorID().isNotEmpty && !appointment.operatorsIDs.contains(filterByOperatorID())) continue;
       res.add(appointment);
     }
     _filteredAppointments = res..sort((a, b) => a.date.compareTo(b.date));
@@ -367,8 +367,8 @@ class _ChartsController {
     normalizeSelectedRange(true);
   }
 
-  void filterByDoctor(String? value) {
-    doctorID(value ?? "");
+  void filterByOperator(String? value) {
+    filterByOperatorID(value ?? "");
   }
 
   rangePicker(BuildContext context) async {
@@ -393,7 +393,7 @@ class _ChartsController {
     for (final ObservableState<DateTime> filter in filters) {
       filter.observe(_nullifyCache);
     }
-    doctorID.observe(_nullifyCache);
+    filterByOperatorID.observe(_nullifyCache);
     // also bind to showArchived
     showArchived.observe((_) => start(start()));
   }

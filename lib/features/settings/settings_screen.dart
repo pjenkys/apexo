@@ -2,16 +2,12 @@ import 'package:apexo/common_widgets/dialogs/dialog_styling.dart';
 import 'package:apexo/core/multi_stream_builder.dart';
 import 'package:apexo/core/observable.dart';
 import 'package:apexo/features/appointments/appointments_store.dart';
-import 'package:apexo/features/doctors/doctors_store.dart';
 import 'package:apexo/features/expenses/expenses_store.dart';
 import 'package:apexo/features/network_actions/network_actions_controller.dart';
 import 'package:apexo/features/patients/patients_store.dart';
 import 'package:apexo/services/localization/locale.dart';
-import 'package:apexo/features/settings/services_settings/admins_settings.dart';
 import 'package:apexo/features/settings/services_settings/backups_settings.dart';
-import 'package:apexo/features/settings/services_settings/permissions_settings.dart';
 import 'package:apexo/features/settings/services_settings/production_test.dart';
-import 'package:apexo/features/settings/services_settings/users_settings.dart';
 import 'package:apexo/services/login.dart';
 import 'package:apexo/services/network.dart';
 import 'package:apexo/widget_keys.dart';
@@ -176,7 +172,6 @@ class SettingsScreen extends StatelessWidget {
                         cacheResetState(txt("initialSynchronization"));
                         await networkActions.resync();
                         cacheResetState(txt("clearingLocalData"));
-                        await doctors.local!.clear();
                         await patients.local!.clear();
                         await appointments.local!.clear();
                         await expenses.local!.clear();
@@ -192,9 +187,6 @@ class SettingsScreen extends StatelessWidget {
               ),
             if (login.isAdmin && network.isOnline()) ...[
               const BackupsSettings(),
-              AdminsSettings(),
-              UsersSettings(),
-              PermissionsSettings(),
               ProductionTests(),
             ],
           ],

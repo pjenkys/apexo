@@ -11,7 +11,7 @@ import 'package:apexo/services/launch.dart';
 import 'package:apexo/services/localization/en.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:apexo/features/login/login_screen.dart';
-import 'package:apexo/common_widgets/current_user.dart';
+import 'package:apexo/common_widgets/current_account.dart';
 import 'package:apexo/common_widgets/logo.dart';
 import 'package:apexo/services/version.dart';
 import 'package:apexo/widget_keys.dart';
@@ -162,9 +162,12 @@ class ApexoApp extends StatelessWidget {
           pane: !launch.open()
               ? null
               : NavigationPane(
-                  autoSuggestBox: const CurrentUser(key: WK.currentUserSection),
-                  autoSuggestBoxReplacement: const Icon(FluentIcons.contact),
-                  header: const AppLogo(),
+                  header: const Column(
+                    children: [
+                       AppLogo(),
+                       CurrentAccount(),
+                    ],
+                  ),
                   selected: routes.currentRouteIndex(),
                   displayMode: PaneDisplayMode.auto,
                   toggleable: false,
@@ -179,7 +182,7 @@ class ApexoApp extends StatelessWidget {
                                 )
                               : const SizedBox(),
                           title: Txt(route.title),
-                          onTap: () => route.accessible ? routes.navigate(route) : null,
+                          onTap: () => route.accessible ? routes.navigate(route.identifier) : null,
                           enabled: route.accessible,
                         ),
                       )),
@@ -189,7 +192,7 @@ class ApexoApp extends StatelessWidget {
                             icon: Icon(route.icon),
                             body: (route.screen)(),
                             title: Txt(route.title),
-                            onTap: () => routes.navigate(route),
+                            onTap: () => routes.navigate(route.identifier),
                           ),
                         ),
                   ],

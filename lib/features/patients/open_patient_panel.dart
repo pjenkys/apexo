@@ -2,8 +2,10 @@ import 'package:apexo/app/routes.dart';
 import 'package:apexo/common_widgets/appointments_list_footer.dart';
 import 'package:apexo/core/multi_stream_builder.dart';
 import 'package:apexo/services/archived.dart';
+import 'package:apexo/services/login.dart';
 import 'package:apexo/utils/color_based_on_payment.dart';
 import 'package:apexo/services/localization/locale.dart';
+import 'package:apexo/utils/constants.dart';
 import 'package:apexo/utils/print/print_link.dart';
 import 'package:apexo/common_widgets/appointment_card.dart';
 import 'package:apexo/common_widgets/call_button.dart';
@@ -38,7 +40,7 @@ Future<Patient> openPatient([Patient? patient]) {
         icon: FluentIcons.teeth,
         body: DentalChart(patient: editingCopy),
       ),
-      PanelTab(
+      if(login.permissions[PInt.appointments] > 0) PanelTab(
         title: txt("appointments"),
         icon: FluentIcons.calendar,
         body: _PatientAppointments(editingCopy),

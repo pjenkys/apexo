@@ -31,19 +31,15 @@ class Appointments extends Store<Appointment> {
         );
 
   Map<String, Map<String, List<Appointment>>> byPatient = {};
-  Map<String, Map<String, List<Appointment>>> byDoctor = {};
   Set<String> labs = {};
 
   @override
   init() {
     super.init();
 
-
-
     observableMap.observe((_) => _allPrescriptions = null);
     observableMap.observe((_) {
       byPatient = {};
-      byDoctor = {};
       for (var appointment in observableMap.values) {
         final patientID = appointment.patientID ?? "";
         final isDone = appointment.isDone;
@@ -70,26 +66,6 @@ class Appointments extends Store<Appointment> {
         }
         if (isPast) {
           byPatient[patientID]!["past"]!.add(appointment);
-        }
-
-        // build doctor caches
-        for (var doctorId in appointment.operatorsIDs) {
-          if (byDoctor[doctorId] == null) {
-            byDoctor[doctorId] = {
-              "upcoming": [],
-              "done": [],
-              "past": [],
-              "all": [],
-            };
-          }
-          byDoctor[doctorId]!["all"]!.add(appointment);
-          if (isUpcoming) {
-            byDoctor[doctorId]!["upcoming"]!.add(appointment);
-          } else if (isDone) {
-            byDoctor[doctorId]!["done"]!.add(appointment);
-          } else if (isPast) {
-            byDoctor[doctorId]!["past"]!.add(appointment);
-          }
         }
       }
     });
@@ -125,12 +101,12 @@ class Appointments extends Store<Appointment> {
     };
   }
 
-  final doctorId = ObservableState("");
+  final filterByOperatorID = ObservableState("");
 
   Map<String, Appointment> get filtered {
-    if (doctorId().isEmpty) return present;
+    if (filterByOperatorID().isEmpty) return present;
     return Map<String, Appointment>.fromEntries(present.entries
-        .where((entry) => entry.value.operatorsIDs.contains(doctorId())));
+        .where((entry) => entry.value.operatorsIDs.contains(filterByOperatorID())));
   }
 
   List<String>? _allPrescriptions;
@@ -148,6 +124,7 @@ class LabworkItem {
   final String laboratory;
   final String notes;
   final bool status;
+  final String operators;
 
   LabworkItem({
     required this.appointmentId,
@@ -156,6 +133,7 @@ class LabworkItem {
     required this.laboratory,
     required this.notes,
     required this.status,
+    required this.operators
   });
 }
 

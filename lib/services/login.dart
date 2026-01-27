@@ -1,12 +1,15 @@
+import 'dart:convert';
+
 import 'package:apexo/app/routes.dart';
+import 'package:apexo/features/accounts/accounts_controller.dart';
 import 'package:apexo/features/login/login_controller.dart';
+import 'package:apexo/features/accounts/accounts_screen.dart';
 import 'package:apexo/services/launch.dart';
+import 'package:apexo/services/network.dart';
 import 'package:apexo/utils/constants.dart';
 import 'package:apexo/utils/encode.dart';
 import 'package:apexo/utils/init_pocketbase.dart';
 import 'package:apexo/utils/logger.dart';
-import 'package:apexo/features/doctors/doctor_model.dart';
-import 'package:apexo/features/doctors/doctors_store.dart';
 import '../core/observable.dart';
 import 'package:pocketbase/pocketbase.dart';
 
@@ -15,27 +18,55 @@ class _LoginService extends ObservablePersistingObject {
 
   String url = "";
   String email = "";
+  List<int> savedPermissions = zeroPermissions;
   String password = "";
   String token = "";
   String adminCollectionId = "__UNDEFINED__";
 
-  String get currentUserID {
-    if (token.isEmpty) return "";
-    if (pb == null) return "";
-    if (pb!.authStore.record == null) return "";
-    return pb!.authStore.record!.id;
+  String get currentAccountID {
+    if(launch.isDemo) return accounts.list().first.id;
+    final findByEmail =
+        accounts.list().where((x) => x.getStringValue("email") == email);
+    if ((token.isEmpty || pb == null || pb!.authStore.record == null) &&
+        findByEmail.isNotEmpty) {
+      return findByEmail.first.id;
+    } else {
+      return pb!.authStore.record!.id;
+    }
   }
 
   // PocketBase instance
   PocketBase? pb;
 
-  Doctor? get currentMember {
-    return doctors.getByEmail(email);
+  String get currentName {
+    return accounts.name(
+        accounts.list().firstWhere((x) => x.id == login.currentAccountID));
+  }
+
+  List<int> get permissions {
+    if (launch.isDemo) return fullPermissions;
+    if (isAdmin) return fullPermissions;
+    if (network.isOnline()) {
+      final currentAccount =
+          accounts.list().firstWhere((r) => r.id == currentAccountID);
+      return accounts
+          .parsePermissions(currentAccount.getStringValue("permissions"));
+    } else {
+      return savedPermissions;
+    }
+  }
+
+  bool get currentLoginIsOperator {
+    final findByEmail =
+        accounts.list().where((x) => x.getStringValue("email") == email);
+    if (findByEmail.isEmpty) return false;
+    return findByEmail.first.getIntValue("operate") == 1;
   }
 
   bool get isAdmin {
     final tokenSegments = token.split(".");
-    if (tokenSegments.length == 3 && decode(tokenSegments[1]).contains(adminCollectionId)) {
+    if (tokenSegments.length == 3 &&
+        decode(tokenSegments[1]).contains(adminCollectionId)) {
       return true;
     }
 
@@ -57,24 +88,31 @@ class _LoginService extends ObservablePersistingObject {
     return loginCtrl.finishedLoginProcess();
   }
 
-  Future<String> authenticateWithPassword(String email, String password) async {
+  Future<String> _authenticateWithPassword(
+      String email, String password) async {
     try {
-      final auth = await pb!.collection("_superusers").authWithPassword(email, password);
+      final auth =
+          await pb!.collection("_superusers").authWithPassword(email, password);
       adminCollectionId = auth.record.collectionId;
       return auth.token;
     } catch (e) {
-      final auth = await pb!.collection("users").authWithPassword(email, password);
+      final auth =
+          await pb!.collection("users").authWithPassword(email, password);
+      savedPermissions =
+          accounts.parsePermissions(auth.record.getStringValue("permissions"));
       return auth.token;
     }
   }
 
-  Future<String> authenticateWithToken(String token) async {
+  Future<String> _authenticateWithToken(String token) async {
     try {
       final auth = await pb!.collection("_superusers").authRefresh();
       adminCollectionId = auth.record.collectionId;
       return auth.token;
     } catch (e) {
       final auth = await pb!.collection("users").authRefresh();
+      savedPermissions =
+          accounts.parsePermissions(auth.record.getStringValue("permissions"));
       return auth.token;
     }
   }
@@ -96,7 +134,8 @@ class _LoginService extends ObservablePersistingObject {
       try {
         // email and password authentication
         if (credentials.length == 2) {
-          token = await authenticateWithPassword(credentials[0], credentials[1]);
+          token =
+              await _authenticateWithPassword(credentials[0], credentials[1]);
           email = credentials[0];
           url = inputURL;
         }
@@ -106,7 +145,7 @@ class _LoginService extends ObservablePersistingObject {
           if (pb!.authStore.isValid == false) {
             throw Exception("Invalid token");
           }
-          token = await authenticateWithToken(token);
+          token = await _authenticateWithToken(token);
           url = inputURL;
         }
 
@@ -114,12 +153,17 @@ class _LoginService extends ObservablePersistingObject {
         try {
           try {
             loginCtrl.loadingIndicator("Verifying collections");
-            await pb!.collection(dataCollectionName).getList(page: 1, perPage: 1);
-            await pb!.collection(publicCollectionName).getList(page: 1, perPage: 1);
+            await pb!
+                .collection(dataCollectionName)
+                .getList(page: 1, perPage: 1);
+            await pb!
+                .collection(publicCollectionName)
+                .getList(page: 1, perPage: 1);
           } catch (e) {
             launch.isFirstLaunch(true);
             if (isAdmin) {
-              loginCtrl.loadingIndicator("Creating collections for the first time");
+              loginCtrl
+                  .loadingIndicator("Creating collections for the first time");
               await initializePocketbase(pb!);
             } else {
               logger(
@@ -129,20 +173,48 @@ class _LoginService extends ObservablePersistingObject {
             }
           }
         } catch (e) {
-          throw Exception("Error while creating the collection for the first time: $e");
+          throw Exception(
+              "Error while creating the collection for the first time: $e");
+        }
+
+        // create profiles if it doesn't exist
+        try {
+          try {
+            loginCtrl.loadingIndicator("Verifying profiles");
+            await pb!
+                .collection(profilesCollectionName)
+                .getList(page: 1, perPage: 1);
+            await pb!
+                .collection(profilesViewCollectionName)
+                .getList(page: 1, perPage: 1);
+          } catch (e) {
+            if (isAdmin) {
+              loginCtrl.loadingIndicator("Creating profiles collections");
+              await initializeProfiles(pb!);
+            } else {
+              logger(
+                "ERROR: The profiles must be created with a logged-in admin, NOT a regular user!",
+                StackTrace.current,
+              );
+            }
+          }
+        } catch (e) {
+          throw Exception("Error while creating the profile collections: $e");
         }
       } catch (e, s) {
         if (e.runtimeType != ClientException) {
           loginCtrl.loginError("Error while logging-in: $e.");
         } else if ((e as ClientException).statusCode == 404) {
-          loginCtrl.loginError("Invalid server, make sure PocketBase is installed and running.");
+          loginCtrl.loginError(
+              "Invalid server, make sure PocketBase is installed and running.");
         } else if (e.statusCode == 400) {
           loginCtrl.loginError("Invalid email or password.");
         } else if (e.statusCode == 0) {
           loginCtrl.loginError(
               "Unable to connect, please check your internet connection, firewall, or the server URL field.");
         } else {
-          loginCtrl.loginError("Unknown client exception while authenticating: $e.");
+          loginCtrl
+              .loginError("Unknown client exception while authenticating: $e.");
         }
         logger("Could not login due to the following error: $e", s, 2);
         return loginCtrl.finishedLoginProcess(loginCtrl.loginError());
@@ -150,8 +222,6 @@ class _LoginService extends ObservablePersistingObject {
 
       loginCtrl.proceededOffline(false);
     }
-
-    /// if we reached here it means it was a successful login
 
     for (var callback in activators.values) {
       try {
@@ -163,6 +233,7 @@ class _LoginService extends ObservablePersistingObject {
       }
     }
 
+    routes.reset();
     launch.open(true);
     return loginCtrl.finishedLoginProcess();
   }
@@ -178,6 +249,9 @@ class _LoginService extends ObservablePersistingObject {
     url = json["url"] ?? url;
     email = json["email"] ?? email;
     token = json["token"] ?? token;
+    savedPermissions = json["savedPermission"] != null
+        ? List<int>.from(jsonDecode(json["savedPermission"]))
+        : savedPermissions;
     adminCollectionId = json["adminCollectionId"] ?? adminCollectionId;
     loginCtrl.urlField.text = url;
     loginCtrl.emailField.text = email;
@@ -194,6 +268,7 @@ class _LoginService extends ObservablePersistingObject {
     json['url'] = url;
     json['email'] = email;
     json["token"] = token;
+    json["savedPermission"] = jsonEncode(savedPermissions);
     json["adminCollectionId"] = adminCollectionId;
     return json;
   }

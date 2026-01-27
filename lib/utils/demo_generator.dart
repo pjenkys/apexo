@@ -1,10 +1,11 @@
 import 'dart:math';
 
+import 'package:apexo/features/accounts/accounts_screen.dart';
 import 'package:apexo/features/appointments/appointment_model.dart';
-import 'package:apexo/features/doctors/doctor_model.dart';
 import 'package:apexo/features/expenses/expense_model.dart';
-import 'package:apexo/features/labwork/labwork_model.dart';
 import 'package:apexo/features/patients/patient_model.dart';
+import 'package:apexo/utils/uuid.dart';
+import 'package:pocketbase/pocketbase.dart';
 
 const _firstNames = [
   "John",
@@ -185,22 +186,61 @@ const _postOpNotes = [
   "Reassurance given.",
 ];
 
-const Map<String, String> _labs = {
-  "Master Design Lab": "07518076345",
-  "Everest Dental Lab": "07538971145",
-  "Galaxy Orthodontics Lab": "07576298412",
-  "Royal Dental Lab": "07517409134",
-  "Acer Veneers Lab": "07537601928",
-};
+const _suppliersNames = [
+  "Globaldentix",
+  "Pattersen Dental",
+  "UMGROUP",
+  "Bingo Dental"
+];
 
-const Map<String, String> _receiptIssuers = {
-  "Echo Dental Supplies": "075389000145",
-  "Dental Supplies Ltd": "075188176345",
-  "Vana Office Furniture": "07517402134",
-  "Dental Equipment Ltd": "07577798412",
-  "COX-O Dental Supplies": "07537601228",
-  "Village Stationary": "07517409134",
-};
+const List<String> _teeth = [
+  "11",
+  "12",
+  "14",
+  "18",
+  "32",
+  "21",
+  "22",
+  "24",
+  "25",
+  "26",
+  "31",
+  "33",
+  "35",
+  "36",
+  "27",
+  "41",
+  "42",
+  "42",
+  "43"
+];
+
+const List<String> _teethNotes = [
+  "Fractured",
+  "Needs followup",
+  "SDF applied",
+  "Needs XRay",
+  "re-endo",
+  "slight mobility",
+  "deep pocket",
+  "overlay"
+];
+
+const List<String> _prescriptions = [
+  "Amoxicillin 500mg 1x3 - 5 days",
+  "Azithromycin 500mg 1x3 - 5 days",
+  "Flagyl 500mg 1x3 - 5 days",
+  "Ibuprofen 400mg on need",
+  "Dexamethosone 8mg ampoule 1x1 - 2 days"
+];
+
+const List<String> _labs = [
+  "Master Design Lab",
+  "Everest Dental Lab",
+  "Galaxy Orthodontics Lab",
+  "Royal Dental Lab",
+  "Acer Veneers Lab",
+];
 
 const List<String> _labworkNotes = [
   "Zirconia Crown",
@@ -265,15 +305,45 @@ const List<String> _receiptItems = [
   "Dental Adhesive Remover",
   "Burs",
   "Dental Drill",
-];
-
-const List<String> _receiptTags = [
-  "Urgent",
-  "Regular",
-  "Installment",
-  "Online Purchase",
-  "Debit",
-  "Credit",
+  "Dental burs",
+  "Anesthetic",
+  "Needles",
+  "Gloves",
+  "Masks",
+  "Cotton",
+  "Gauze",
+  "Saliva",
+  "Prophy",
+  "Fluoride",
+  "Impression",
+  "Alginate",
+  "Composite",
+  "Etching",
+  "Matrix",
+  "Wedges",
+  "Explorers",
+  "Scalers",
+  "Curettes",
+  "Excavators",
+  "Forceps",
+  "Elevators",
+  "Rubber",
+  "Rubber",
+  "Endodontic",
+  "Gutta-percha",
+  "Temporary crown",
+  "Surgical",
+  "Bone",
+  "Implant",
+  "Protective",
+  "Disinfectants",
+  "Autoclave",
+  "Sterilization",
+  "Tray",
+  "Suction",
+  "Mixing pad",
+  "Applicator",
+  "Polishing",
 ];
 
 String _generateName() {
@@ -283,8 +353,8 @@ String _generateName() {
   return "$firstName $lastName";
 }
 
-String _demoEmailToName(String name) {
-  return "${name.split(" ").first.toLowerCase()}@apexo.app";
+String _generateEmail(String name) {
+  return "${name.replaceAll(" ", ".")}@gmail.com";
 }
 
 String _randomAddress() {
@@ -292,16 +362,9 @@ String _randomAddress() {
   return "${random.nextInt(1000)} ${_lastNames[random.nextInt(_lastNames.length)]} St";
 }
 
-List<Doctor> _savedDoctors = [];
 List<Patient> _savedPatients = [];
-
-Doctor _demoDoctor() {
-  final name = _generateName();
-  return Doctor.fromJson({
-    "title": "Dr. $name",
-    "email": _demoEmailToName(name),
-  });
-}
+List<RecordModel> _savedAccounts = [];
+List<Expense> _savedSuppliers = [];
 
 Patient _demoPatient() {
   final name = _generateName();
@@ -311,13 +374,12 @@ Patient _demoPatient() {
     "phone": "+1 555-555-5555",
     "address": _randomAddress(),
     "birth": DateTime.now().year - 5 - Random().nextInt(55),
-    "tags":
-        List.generate(Random().nextInt(5).isEven ? 0 : 1, (_) => _patientTags[Random().nextInt(_patientTags.length)]),
+    "tags": List.generate(Random().nextInt(5).isEven ? 0 : 1,
+        (_) => _patientTags[Random().nextInt(_patientTags.length)]),
   });
 }
 
 Appointment _demoAppointment() {
-  final doctor = _savedDoctors[Random().nextInt(_savedDoctors.length)];
   final patient = _savedPatients[Random().nextInt(_savedPatients.length)];
   final price = Random().nextInt(1000);
   final date = DateTime.now()
@@ -331,11 +393,27 @@ Appointment _demoAppointment() {
         : Random().nextInt(10) == 5
             ? false
             : true,
-    "operatorsIDs": [doctor.id],
     "patientID": patient.id,
     "preOpNotes": _preOpNotes[Random().nextInt(_preOpNotes.length)],
-    "postOpNotes": future ? "" : _postOpNotes[Random().nextInt(_postOpNotes.length)],
+    "postOpNotes":
+        future ? "" : _postOpNotes[Random().nextInt(_postOpNotes.length)],
+    "prescriptions": [
+      if (Random().nextBool())
+        _prescriptions[Random().nextInt(_prescriptions.length)]
+    ],
+    "hasLabwork": price > 500,
+    "labworkNotes": _labworkNotes[Random().nextInt(_labworkNotes.length)],
+    "labName": _labs[Random().nextInt(_labs.length)],
+    "labworkReceived": DateTime.now().difference(date).inDays > 30,
     "price": price,
+    "teeth": {
+      if (Random().nextBool())
+        _teeth[Random().nextInt(_labs.length)]:
+            _teethNotes[Random().nextInt(_labs.length)],
+      if (Random().nextBool())
+        _teeth[Random().nextInt(_labs.length)]:
+            _teethNotes[Random().nextInt(_labs.length)],
+    },
     "paid": future
         ? null
         : Random().nextInt(20) == 15
@@ -344,22 +422,15 @@ Appointment _demoAppointment() {
   });
 }
 
-Labwork _demoLabwork() {
-  final patient = _savedPatients[Random().nextInt(_savedPatients.length)];
-  final date = DateTime.now()
-      .add(Duration(hours: Random().nextInt(24 * 30)))
-      .subtract(Duration(hours: Random().nextInt(24 * 200)));
-  final future = date.isAfter(DateTime.now());
-  final lab = _labs.keys.toList()[Random().nextInt(_labs.length)];
-  return Labwork.fromJson({
-    "date": (date.millisecondsSinceEpoch / (60 * 60 * 1000)).toInt(),
-    "operatorsIDs": [_savedDoctors[Random().nextInt(_savedDoctors.length)].id],
-    "patientID": patient.id,
-    "paid": future ? null : true,
-    "price": Random().nextInt(100),
-    "lab": lab,
-    "phoneNumber": _labs[lab],
-    "note": _labworkNotes[Random().nextInt(_labworkNotes.length)],
+RecordModel _demoAccount() {
+  final name = _generateName();
+  return RecordModel.fromJson({
+    "id": uuid(),
+    "email": _generateEmail(name),
+    "name": name,
+    "operate": 1,
+    "permissions": fullPermissions,
+    "type": "admin"
   });
 }
 
@@ -369,23 +440,20 @@ Expense _demoExpense() {
       .subtract(Duration(hours: Random().nextInt(24 * 200)));
   final future = date.isAfter(DateTime.now());
   final price = Random().nextInt(700);
-  final receiptIssuer = _receiptIssuers.keys.toList()[Random().nextInt(_receiptIssuers.length)];
   return Expense.fromJson({
+    "supplierId": _savedSuppliers[Random().nextInt(_savedSuppliers.length)].id,
     "date": (date.millisecondsSinceEpoch / (60 * 60 * 1000)).toInt(),
-    "paid": future ? null : true,
-    "amount": price,
-    "issuer": receiptIssuer,
-    "phoneNumber": _receiptIssuers[receiptIssuer],
-    "items": List.generate(Random().nextInt(5).isEven ? 0 : Random().nextInt(5),
+    "items": List.generate(Random().nextInt(12) + 1,
         (_) => _receiptItems[Random().nextInt(_receiptItems.length)]),
-    "tags": List.generate(Random().nextInt(5).isEven ? 0 : Random().nextInt(2),
-        (_) => _receiptTags[Random().nextInt(_receiptTags.length)]),
+    "cost": price,
+    "paidAmount": future ? 0 : price,
+    "processed": future ? false : true
   });
 }
 
-List<Doctor> demoDoctors(int length) {
-  _savedDoctors = List.generate(length, (_) => _demoDoctor());
-  return _savedDoctors;
+List<RecordModel> demoAccounts(int length) {
+  _savedAccounts = List.generate(length, (_) => _demoAccount());
+  return _savedAccounts;
 }
 
 List<Patient> demoPatients(int length) {
@@ -397,10 +465,14 @@ List<Appointment> demoAppointments(int length) {
   return List.generate(length, (_) => _demoAppointment());
 }
 
-List<Labwork> demoLabworks(int length) {
-  return List.generate(length, (_) => _demoLabwork());
+List<Expense> _demoSuppliers() {
+  return _suppliersNames
+      .map((name) =>
+          Expense.fromJson({"isSupplier": true, "supplierName": name}))
+      .toList();
 }
 
 List<Expense> demoExpenses(int length) {
-  return List.generate(length, (_) => _demoExpense());
+  _savedSuppliers = _demoSuppliers();
+  return [..._savedSuppliers, ...List.generate(length, (_) => _demoExpense())];
 }

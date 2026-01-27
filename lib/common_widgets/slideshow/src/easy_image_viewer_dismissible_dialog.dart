@@ -14,6 +14,7 @@ class EasyImageViewerDismissibleDialog extends StatefulWidget {
   final EasyImageProvider imageProvider;
   final bool immersive;
   final void Function(int) onPressDelete;
+  final bool canDelete;
   final void Function(int)? onPageChanged;
   final void Function(int)? onViewerDismissed;
   final bool swipeDismissible;
@@ -33,6 +34,7 @@ class EasyImageViewerDismissibleDialog extends StatefulWidget {
       this.swipeDismissible = false,
       this.doubleTapZoomable = false,
       this.infinitelyScrollable = false,
+      required this.canDelete,
       required this.onPressDelete,
       required this.backgroundColor,
       required this.closeButtonTooltip,
@@ -108,7 +110,7 @@ class _EasyImageViewerDismissibleDialogState
                       });
                     }),
               ),
-              Positioned(
+              if(widget.canDelete) Positioned(
                 bottom: 5,
                 right: 5,
                 child: FlyoutTarget(

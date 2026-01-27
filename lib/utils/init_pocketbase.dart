@@ -9,3 +9,7 @@ initializePocketbase(PocketBase pb) async {
     "batch": {"enabled": true, "maxRequests": 101, "timeout": 3, "maxBodySize": 0}
   });
 }
+
+initializeProfiles(PocketBase pb) async {
+  await pb.collections.import([profilesCollectionImport, profilesViewCollectionImport]);
+}

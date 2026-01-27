@@ -1,7 +1,14 @@
 import 'package:apexo/core/model.dart';
 import 'package:apexo/features/expenses/expenses_store.dart';
+import 'package:apexo/services/login.dart';
+import 'package:apexo/utils/constants.dart';
 
 class Expense extends Model {
+
+  @override
+  bool get locked {
+    return login.permissions[PInt.expenses] == 0;
+  }
 
   bool get isOrder {
     return !isSupplier;

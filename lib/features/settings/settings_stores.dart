@@ -1,15 +1,13 @@
 import 'dart:convert';
 
 import 'package:apexo/core/observable.dart';
+import 'package:apexo/features/accounts/accounts_controller.dart';
 import 'package:apexo/features/login/login_controller.dart';
 import 'package:apexo/services/archived.dart';
 import 'package:apexo/services/launch.dart';
 import 'package:apexo/services/network.dart';
 import 'package:apexo/utils/hash.dart';
-import 'package:apexo/services/admins.dart';
 import 'package:apexo/services/backups.dart';
-import 'package:apexo/services/permissions.dart';
-import 'package:apexo/services/users.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import '../../core/save_local.dart';
 import '../../core/save_remote.dart';
@@ -79,10 +77,8 @@ class GlobalSettings extends Store<Setting> {
         networkActions.syncCallbacks[_storeNameGlobal] = () async {
           await Future.wait([
             synchronize(),
-            admins.reloadFromRemote(),
+            accounts.reloadFromRemote(),
             backups.reloadFromRemote(),
-            users.reloadFromRemote(),
-            permissions.reloadFromRemote()
           ]);
         };
         networkActions.reconnectCallbacks[_storeNameGlobal] = remote!.checkOnline;
@@ -92,10 +88,8 @@ class GlobalSettings extends Store<Setting> {
 
         // setting services
         await Future.wait([
-          admins.reloadFromRemote(),
           backups.reloadFromRemote(),
-          users.reloadFromRemote(),
-          permissions.reloadFromRemote()
+          accounts.reloadFromRemote(),
         ]);
       };
     };

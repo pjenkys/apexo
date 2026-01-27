@@ -15,16 +15,16 @@ class BottomNavBar extends StatelessWidget {
       width: MediaQuery.of(context).size.width,
       child: Container(
         decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            offset: const Offset(0.0, 3.0),
-            blurRadius: 30.0,
-            spreadRadius: 5.0,
-            color: Colors.grey.withAlpha(50),
-          )
-        ],
-        color: FluentTheme.of(context).menuColor,
-      ),
+          boxShadow: [
+            BoxShadow(
+              offset: const Offset(0.0, 3.0),
+              blurRadius: 30.0,
+              spreadRadius: 5.0,
+              color: Colors.grey.withAlpha(50),
+            )
+          ],
+          color: FluentTheme.of(context).menuColor,
+        ),
         child: Container(
           padding: const EdgeInsets.all(1),
           child: StreamBuilder(
@@ -56,8 +56,8 @@ class BottomNavBar extends StatelessWidget {
                               MenuFlyoutItem(
                                 leading: Icon(route.icon),
                                 text: Txt(route.title),
-                                onPressed: () => routes.navigate(
-                                    routes.getByIdentifier(route.identifier)!),
+                                onPressed: () =>
+                                    routes.navigate(route.identifier),
                                 closeAfterClick: true,
                               )
                           ]),
@@ -113,7 +113,7 @@ class BottomNavBarButton extends StatelessWidget {
           ),
         ],
       ),
-      onPressed: () => routes.navigate(routes.getByIdentifier(identifier)!),
+      onPressed: () => routes.navigate(identifier),
     );
   }
 }

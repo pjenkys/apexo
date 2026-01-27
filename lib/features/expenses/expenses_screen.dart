@@ -8,6 +8,8 @@ import 'package:apexo/services/archived.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:apexo/common_widgets/archive_toggle.dart';
 import 'package:apexo/features/expenses/expenses_store.dart';
+import 'package:apexo/services/login.dart';
+import 'package:apexo/utils/constants.dart';
 import 'package:apexo/widget_keys.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 
@@ -151,9 +153,11 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          selectedSupplier == null
-              ? _buildAddSupplierButton()
-              : _buildAddOrderButton(),
+          login.permissions[PInt.expenses] == 1
+              ? const SizedBox()
+              : selectedSupplier == null
+                  ? _buildAddSupplierButton()
+                  : _buildAddOrderButton(),
           const ArchiveToggle(),
         ],
       ),

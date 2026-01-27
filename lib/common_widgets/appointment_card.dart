@@ -1,5 +1,8 @@
 import 'dart:math';
 
+import 'package:apexo/core/model.dart';
+import 'package:apexo/features/accounts/accounts_controller.dart';
+import 'package:apexo/services/login.dart';
 import 'package:apexo/utils/color_based_on_payment.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:apexo/features/appointments/open_appointment_panel.dart';
@@ -8,6 +11,7 @@ import 'package:apexo/common_widgets/grid_gallery.dart';
 import 'package:apexo/features/appointments/appointment_model.dart';
 import 'package:apexo/features/appointments/appointments_store.dart';
 import 'package:apexo/features/settings/settings_stores.dart';
+import 'package:apexo/utils/constants.dart';
 import 'package:apexo/utils/logger.dart';
 import 'package:apexo/widget_keys.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -111,7 +115,7 @@ class AppointmentCard extends StatelessWidget {
                               color,
                               context),
                         ],
-                        if (appointment.operators.isNotEmpty &&
+                        if (appointment.operatorsIDs.isNotEmpty &&
                             !hide.contains(AppointmentSections.doctors)) ...[
                           const SizedBox(height: 12.5),
                           const Divider(
@@ -120,9 +124,9 @@ class AppointmentCard extends StatelessWidget {
                           _buildSection(
                               txt("doctors"),
                               Column(
-                                children: appointment.operators
-                                    .map((e) =>
-                                        ItemTitle(item: e, maxWidth: 115))
+                                children: appointment.operatorsIDs
+                                    .map((id) =>
+                                        ItemTitle(item: Model.fromJson({"title": accounts.nameOrEmailFromID(id)}), maxWidth: 115))
                                     .toList(),
                               ),
                               FluentIcons.medical,
@@ -138,6 +142,7 @@ class AppointmentCard extends StatelessWidget {
                           _buildSection(
                               txt("photos"),
                               GridGallery(
+                                canDelete: login.permissions[PInt.photos] == 1,
                                 rowId: appointment.id,
                                 imgs: appointment.imgs,
                                 countPerLine: 4,

@@ -1,6 +1,7 @@
 import 'package:apexo/core/model.dart';
 import 'package:apexo/services/archived.dart';
 import 'package:apexo/services/launch.dart';
+import 'package:apexo/utils/constants.dart';
 import 'package:apexo/utils/encode.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:apexo/services/login.dart';
@@ -11,29 +12,30 @@ class Patient extends Model {
   List<Appointment>? _allAppointmentsCached;
   List<Appointment> get allAppointments {
     return _allAppointmentsCached ??= (appointments.byPatient[id]?["all"] ?? [])
-        .where((appointment) => appointment.archived != true || showArchived())
+        .where((appointment) => (appointment.archived != true || showArchived()) && appointment.locked == false)
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
   }
 
   List<Appointment>? _doneAppointmentsCached;
   List<Appointment> get doneAppointments {
-    return _doneAppointmentsCached ??= (appointments.byPatient[id]?["done"] ?? [])
-        .where((appointment) => appointment.archived != true || showArchived())
+    return _doneAppointmentsCached ??= (appointments.byPatient[id]?["done"] ??
+            [])
+        .where((appointment) => (appointment.archived != true || showArchived()) && appointment.locked == false)
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
   }
 
   List<Appointment> get upcomingAppointments {
     return (appointments.byPatient[id]?["upcoming"] ?? [])
-        .where((appointment) => appointment.archived != true || showArchived())
+        .where((appointment) => (appointment.archived != true || showArchived()) && appointment.locked == false)
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
   }
 
   List<Appointment> get pastAppointments {
     return (appointments.byPatient[id]?["past"] ?? [])
-        .where((appointment) => appointment.archived != true || showArchived())
+        .where((appointment) => (appointment.archived != true || showArchived()) && appointment.locked == false)
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
   }
@@ -47,7 +49,8 @@ class Patient extends Model {
   }
 
   double get pricesGiven {
-    return doneAppointments.fold(0.0, (value, element) => value + element.price);
+    return doneAppointments.fold(
+        0.0, (value, element) => value + element.price);
   }
 
   bool get overPaid {
@@ -69,20 +72,35 @@ class Patient extends Model {
   int? _daysSinceLastAppointmentCached;
   int? get daysSinceLastAppointment {
     if (doneAppointments.isEmpty) return null;
-    return _daysSinceLastAppointmentCached ??= DateTime.now().difference(doneAppointments.last.date).inDays;
+    return _daysSinceLastAppointmentCached ??=
+        DateTime.now().difference(doneAppointments.last.date).inDays;
+  }
+
+  @override
+  bool get locked {
+    // lock if only personal patients are permissible
+    // and the patient DO have appointments
+    // but those appointments doesn't have the current user as operator
+    return login.permissions[PInt.patients] != 2 &&
+        (allAppointments.isNotEmpty && allAppointments
+            .where((appointment) =>
+                appointment.operatorsIDs.contains(login.currentAccountID))
+            .isEmpty);
   }
 
   @override
   get avatar {
     if (launch.isDemo) return "https://person.alisaleem.workers.dev/";
-    final appointmentsWithImages = allAppointments.where((a) => a.imgs.isNotEmpty);
+    final appointmentsWithImages =
+        allAppointments.where((a) => a.imgs.isNotEmpty);
     if (appointmentsWithImages.isEmpty) return null;
     return appointmentsWithImages.first.imgs.first;
   }
 
   @override
   get imageRowId {
-    final appointmentsWithImages = allAppointments.where((a) => a.imgs.isNotEmpty);
+    final appointmentsWithImages =
+        allAppointments.where((a) => a.imgs.isNotEmpty);
     if (appointmentsWithImages.isEmpty) return null;
     return appointmentsWithImages.first.id;
   }
@@ -91,19 +109,19 @@ class Patient extends Model {
     return "https://patient.apexo.app/${encode("$id|$title|${login.url}")}";
   }
 
-
   Map<String, String> _labelsCached = {};
 
   @override
   Map<String, String> get labels {
-    if(_labelsCached.isNotEmpty) return _labelsCached;
+    if (_labelsCached.isNotEmpty) return _labelsCached;
 
     _labelsCached["Age"] = (DateTime.now().year - birth).toString();
 
     if (daysSinceLastAppointment == null) {
       _labelsCached["Last visit"] = txt("noVisits");
     } else {
-      _labelsCached["Last visit"] = "$daysSinceLastAppointment ${txt("daysAgo")}";
+      _labelsCached["Last visit"] =
+          "$daysSinceLastAppointment ${txt("daysAgo")}";
     }
 
     if (gender == 0) {

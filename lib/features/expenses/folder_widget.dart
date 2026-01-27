@@ -1,5 +1,7 @@
 import 'package:apexo/common_widgets/dialogs/dialog_with_text_box.dart';
 import 'package:apexo/services/localization/locale.dart';
+import 'package:apexo/services/login.dart';
+import 'package:apexo/utils/constants.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 
 class Folder extends StatefulWidget {
@@ -71,42 +73,44 @@ class _FolderState extends State<Folder> {
                       leading: const Icon(FluentIcons.open_folder_horizontal),
                       onPressed: widget.onOpen,
                     ),
-                    MenuFlyoutItem(
-                      text: Txt(txt("rename")),
-                      leading: const Icon(FluentIcons.rename),
-                      onPressed: () async {
-                        Navigator.of(context).pop();
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: true,
-                            dismissWithEsc: true,
-                            useRootNavigator: true,
-                            builder: (context) {
-                              return DialogWithTextBox(
-                                title: txt("rename"),
-                                onSave: (newName) {
-                                  if (widget.onRename != null) {
-                                    widget.onRename!(newName);
-                                  }
-                                },
-                                icon: FluentIcons.rename,
-                                initialValue: widget.title,
-                              );
-                            },
-                          );
-                        });
-                      },
-                    ),
-                    MenuFlyoutItem(
-                      text: widget.isArchived == true
-                          ? Txt(txt("restore"))
-                          : Txt(txt("archive")),
-                      leading: widget.isArchived == true
-                          ? const Icon(FluentIcons.archive_undo)
-                          : const Icon(FluentIcons.archive),
-                      onPressed: widget.onArchive,
-                    ),
+                    if (login.permissions[PInt.expenses] == 2) ...[
+                      MenuFlyoutItem(
+                        text: Txt(txt("rename")),
+                        leading: const Icon(FluentIcons.rename),
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: true,
+                              dismissWithEsc: true,
+                              useRootNavigator: true,
+                              builder: (context) {
+                                return DialogWithTextBox(
+                                  title: txt("rename"),
+                                  onSave: (newName) {
+                                    if (widget.onRename != null) {
+                                      widget.onRename!(newName);
+                                    }
+                                  },
+                                  icon: FluentIcons.rename,
+                                  initialValue: widget.title,
+                                );
+                              },
+                            );
+                          });
+                        },
+                      ),
+                      MenuFlyoutItem(
+                        text: widget.isArchived == true
+                            ? Txt(txt("restore"))
+                            : Txt(txt("archive")),
+                        leading: widget.isArchived == true
+                            ? const Icon(FluentIcons.archive_undo)
+                            : const Icon(FluentIcons.archive),
+                        onPressed: widget.onArchive,
+                      ),
+                    ]
                   ],
                 );
               });

@@ -1,10 +1,10 @@
 import 'package:apexo/core/model.dart';
+import 'package:apexo/features/accounts/accounts_controller.dart';
 import 'package:apexo/services/launch.dart';
-import 'package:apexo/services/login.dart';
 import 'package:apexo/features/patients/patient_model.dart';
 import 'package:apexo/features/patients/patients_store.dart';
-import 'package:apexo/features/doctors/doctor_model.dart';
-import 'package:apexo/features/doctors/doctors_store.dart';
+import 'package:apexo/services/login.dart';
+import 'package:apexo/utils/constants.dart';
 
 class Appointment extends Model {
   @override
@@ -25,34 +25,16 @@ class Appointment extends Model {
     }
   }
 
-  Patient? get patient {
-    return patients.get(patientID ?? "return null when null");
-  }
-
   @override
   bool get locked {
-    if (operators.isEmpty) return false;
-    if (login.isAdmin) return false;
-    return operators.every((element) => element.locked);
+    // lock if only personal appointments are permissible
+    // and the appointment doesn't have the current account id as an operator
+    return login.permissions[PInt.appointments] != 2 &&
+        !operatorsIDs.contains(login.currentAccountID);
   }
 
-  List<Doctor> get operators {
-    List<Doctor> foundOperators = [];
-    for (var id in operatorsIDs) {
-      var found = doctors.get(id);
-      if (found != null) {
-        foundOperators.add(found);
-      }
-    }
-    return foundOperators;
-  }
-
-  Set<int> get availableWeekDays {
-    return operators
-        .expand((element) => element.dutyDays)
-        .toSet()
-        .map((day) => allDays.indexOf(day) + 1)
-        .toSet();
+  Patient? get patient {
+    return patients.get(patientID ?? "return null when null");
   }
 
   String get subtitleLine1 {
@@ -61,7 +43,7 @@ class Appointment extends Model {
 
   String get subtitleLine2 {
     if (operatorsIDs.isEmpty) return "";
-    return "👨‍⚕️ ${operatorsIDs.map((id) => doctors.get(id)?.title).join(", ")}";
+    return "👨‍⚕️ ${operatorsIDs.map((id) => accounts.nameOrEmailFromID(id)).join(", ")}";
   }
 
   bool get fullPaid {
@@ -81,7 +63,9 @@ class Appointment extends Model {
   }
 
   bool get isMissed {
-    return date.isBefore(DateTime.now()) && date.difference(DateTime.now()).inDays.abs() > 0 && !isDone;
+    return date.isBefore(DateTime.now()) &&
+        date.difference(DateTime.now()).inDays.abs() > 0 &&
+        !isDone;
   }
 
   bool get firstAppointmentForThisPatient {
@@ -108,15 +92,19 @@ class Appointment extends Model {
   /* 15 */ bool labworkReceived = false;
 
   Appointment.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
-    /* 1 */ operatorsIDs = List<String>.from(json["operatorsIDs"] ?? operatorsIDs);
-    /* 2 */ prescriptions = List<String>.from(json["prescriptions"] ?? prescriptions);
+    /* 1 */ operatorsIDs =
+        List<String>.from(json["operatorsIDs"] ?? operatorsIDs);
+    /* 2 */ prescriptions =
+        List<String>.from(json["prescriptions"] ?? prescriptions);
     /* 3 */ patientID = json["patientID"] ?? patientID;
     /* 4 */ preOpNotes = json["preOpNotes"] ?? preOpNotes;
     /* 5 */ postOpNotes = json["postOpNotes"] ?? postOpNotes;
     /* 6 */ price = double.parse((json["price"] ?? price).toString());
     /* 7 */ paid = double.parse((json["paid"] ?? paid).toString());
     /* 8 */ imgs = List<String>.from(json["imgs"] ?? imgs);
-    /* 9 */ date = (json["date"] != null ? DateTime.fromMillisecondsSinceEpoch((json["date"] * 60000).toInt()) : date);
+    /* 9 */ date = (json["date"] != null
+        ? DateTime.fromMillisecondsSinceEpoch((json["date"] * 60000).toInt())
+        : date);
     /* 10 */ isDone = (json["isDone"] ?? isDone);
     /* 11 */ teeth = Map<String, String>.from(json['teeth'] ?? teeth);
     /* 12 */ hasLabwork = json["hasLabwork"] ?? hasLabwork;

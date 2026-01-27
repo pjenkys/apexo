@@ -5,6 +5,8 @@ import 'package:apexo/common_widgets/button_styles.dart';
 import 'package:apexo/common_widgets/dental_chart.dart';
 import 'package:apexo/common_widgets/dialogs/import_photos_dialog.dart';
 import 'package:apexo/features/patients/patient_model.dart';
+import 'package:apexo/services/login.dart';
+import 'package:apexo/utils/constants.dart';
 import 'package:apexo/utils/imgs.dart';
 import 'package:apexo/utils/logger.dart';
 import 'package:apexo/services/localization/locale.dart';
@@ -43,17 +45,22 @@ void openAppointment([Appointment? appointment]) {
       icon: FluentIcons.calendar,
       body: _AppointmentDetails(editingCopy),
     ),
-    PanelTab(
-      title: txt("operativeDetails"),
-      icon: FluentIcons.medical_care,
-      body: _OperativeDetails(editingCopy),
-    ),
+    if (login.permissions[PInt.postOp] == 2 ||
+        (login.permissions[PInt.postOp] == 1 &&
+            appointment?.operatorsIDs.contains(login.currentAccountID) == true))
+      PanelTab(
+        title: txt("operativeDetails"),
+        icon: FluentIcons.medical_care,
+        body: _OperativeDetails(editingCopy),
+      ),
     PanelTab(
       title: txt("gallery"),
       icon: FluentIcons.camera,
       body: _AppointmentGallery(panel),
       onlyIfSaved: true,
-      footer: _AppointmentGalleryFooter(panel),
+      footer: login.permissions[PInt.photos] == 1
+          ? _AppointmentGalleryFooter(panel)
+          : null,
       padding: 0,
     ),
   ];
@@ -192,6 +199,7 @@ class _AppointmentGalleryState extends State<_AppointmentGallery> {
                   stream: widget.panel.inProgress.stream,
                   builder: (context, snapshot) {
                     return GridGallery(
+                      canDelete: login.permissions[PInt.photos] == 1,
                       rowId: widget.panel.item.id,
                       imgs: widget.panel.item.imgs,
                       progress: widget.panel.inProgress(),
@@ -253,7 +261,8 @@ class _AppointmentDetailsState extends State<_AppointmentDetails> {
                   Button(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 6.0),
-                        child: ButtonContent(FluentIcons.add_friend, txt("newPatient")),
+                        child: ButtonContent(
+                            FluentIcons.add_friend, txt("newPatient")),
                       ),
                       onPressed: () async {
                         final newPatientId = uuid();
@@ -294,14 +303,6 @@ class _AppointmentDetailsState extends State<_AppointmentDetails> {
               ),
             ),
             const SizedBox(height: 5),
-            if (widget.appointment.operators.isNotEmpty &&
-                !widget.appointment.availableWeekDays
-                    .contains(widget.appointment.date.weekday))
-              InfoBar(
-                title: Txt(txt("attention")),
-                content: Txt(txt("doctorNotAvailable")),
-                severity: InfoBarSeverity.warning,
-              )
           ],
         ),
         InfoLabel(
