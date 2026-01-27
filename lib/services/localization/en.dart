@@ -330,6 +330,16 @@ class En {
     "usersCanAccess": "Users can access",
     "permissionsNotice":
         "The following permissions apply to the users listed above and offline access. However, administrators like you, have unrestricted access in the application, unless you're offline.",
+    "restricted": "Restricted",
+    "personal": "Personal",
+    "full": "Full",
+    "view": "View",
+    "local": "local",
+    "canUpload": "Can upload",
+    "cantUpload": "Can not upload",
+    "accounts": "ِAccounts",
+    "operatesOnPatients": "Operates on patients",
+    "undelivered": "undelivered",
 
     // advanced settings: prod tests
     "prodTests": "Production tests",

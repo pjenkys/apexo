@@ -113,8 +113,8 @@ class Ar implements En {
     "appointment": "موعد",
     "patient": "مريض",
     "photos": "صور",
-    "pre-opNotes": "ملاحظات ما قبل العملية",
-    "post-opNotes": "ملاحظات ما بعد العملية",
+    "pre-opNotes": "م. قبل العمل",
+    "post-opNotes": "م. بعد العمل",
     "prescription": "وصفة طبية",
     "pay": "دفع",
     "paid": "مدفوع",
@@ -341,6 +341,16 @@ class Ar implements En {
     "usersCanAccess": "يمكن للمستخدمين الوصول إلى",
     "permissionsNotice":
         "تنطبق الأذونات التالية على المستخدمين المدرجين أعلاه والوصول غير المتصل. ومع ذلك، يتمتع المسؤولون مثلك بوصول غير مقيد في التطبيق، ما لم يكن غير متصل.",
+    "restricted": "مقيد",
+    "view": "عرض",
+    "personal": "شخصي",
+    "full": "وصول كامل",
+    "local": "محلي فقط",
+    "canUpload": "يمكنه الرفع",
+    "cantUpload": "لا يمكنه الرفع",
+    "accounts": "المستخدمين",
+    "operatesOnPatients": "يعمل على المرضى",
+    "undelivered": "مستحق التسليم",
 
     // advanced settings: prod tests
     "prodTests": "اختبارات الإنتاج",

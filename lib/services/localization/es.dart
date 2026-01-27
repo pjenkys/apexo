@@ -334,6 +334,16 @@ class Es implements En {
     "usersCanAccess": "Los usuarios pueden acceder a",
     "permissionsNotice":
         "Los siguientes permisos se aplican a los usuarios listados arriba y al acceso fuera de línea. Sin embargo, los administradores como tú, tienen acceso sin restricciones en la aplicación, a menos que estén fuera de línea.",
+    "restricted": "Restringido",
+    "view": "Ver",
+    "personal": "Personal",
+    "full": "Completo",
+    "local": "Local",
+    "canUpload": "Puede subir",
+    "cantUpload": "No puede subir",
+    "accounts": "Cuentas",
+    "operatesOnPatients": "Opera a pacientes",
+    "undelivered": "no entregado",
 
     // advanced settings: prod tests
     "prodTests": "Pruebas de producción",
