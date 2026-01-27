@@ -60,6 +60,16 @@ class Expenses extends Store<Expense> {
     };
   }
 
+  double get amountDue {
+    double total = 0;
+    for (var doc in present.values) {
+      if (doc.isOrder && !doc.processed) {
+        total += doc.cost;
+      }
+    }
+    return total;
+  }
+
   List<String> get allItems {
     Set<String> items = {};
     for (var doc in docs.values) {
@@ -69,6 +79,9 @@ class Expenses extends Store<Expense> {
     }
     return items.toList();
   }
+
+  List<Expense> get suppliers =>
+      expenses.present.values.where((e) => e.isSupplier).toList();
 }
 
 final expenses = Expenses();

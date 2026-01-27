@@ -25,9 +25,8 @@ class ExpensesScreen extends StatelessWidget {
           Expanded(
             child: MStreamBuilder(
                 streams: [expenses.observableMap.stream, showArchived.stream],
-                builder: (context, snapshot) {
-                  return SuppliersAndOrders();
-                }),
+                // ignore: prefer_const_constructors
+                builder: (context, snapshot) => SuppliersAndOrders()),
           ),
         ],
       ),
@@ -48,14 +47,24 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
 
   @override
   Widget build(BuildContext context) {
-    final suppliers =
-        expenses.present.values.where((e) => e.isSupplier).toList();
+
+    final due = expenses.amountDue;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildCommandBar(),
-        _buildSuppliersFolders(context, suppliers),
-        if (selectedSupplier != null) _buildInvoicesWindow(),
+        if (selectedSupplier != null)
+          _buildInvoicesWindow()
+        else ...[
+          _buildSuppliersFolders(context, expenses.suppliers),
+          InfoBar(
+            title: Txt("${txt("due")}:"),
+            content: Text(
+                "$due ${globalSettings.get("currency_______").value}"),
+            severity: due == 0 ? InfoBarSeverity.info : InfoBarSeverity.warning,
+          ),
+        ]
       ],
     );
   }
@@ -81,12 +90,8 @@ class _SuppliersAndOrdersState extends State<SuppliersAndOrders> {
     );
   }
 
-  SizedBox _buildSuppliersFolders(
-      BuildContext context, List<Expense> suppliers) {
-    return SizedBox(
-      height: selectedSupplier == null
-          ? MediaQuery.of(context).size.height - 200
-          : 1,
+  Widget _buildSuppliersFolders(BuildContext context, List<Expense> suppliers) {
+    return Expanded(
       child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: 85,
