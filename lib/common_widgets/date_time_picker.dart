@@ -46,7 +46,7 @@ class DateTimePickerState extends State<DateTimePicker> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5),
         decoration: BoxDecoration(
-            color: widget.enabled ? color : color.toAccentColor().darkest,
+            color: widget.enabled ? color : color.toAccentColor().dark,
             border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
             borderRadius: BorderRadius.circular(5)),
         child: Row(
