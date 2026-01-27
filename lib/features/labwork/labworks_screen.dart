@@ -4,6 +4,7 @@ import 'package:apexo/common_widgets/no_items_found.dart';
 import 'package:apexo/core/multi_stream_builder.dart';
 import 'package:apexo/features/appointments/appointments_store.dart';
 import 'package:apexo/features/appointments/open_appointment_panel.dart';
+import 'package:apexo/features/labwork/labworks_ctrl.dart';
 import 'package:apexo/services/archived.dart';
 import 'package:apexo/services/localization/locale.dart';
 import 'package:apexo/common_widgets/archive_toggle.dart';
@@ -29,19 +30,18 @@ class LabworksScreen extends StatelessWidget {
                 ],
                 builder: (context, snapshot) {
                   return LabworksTable(
-                      labworks:
-                          appointments.present.values.where((appointment) {
-                    return appointment.hasLabwork;
-                  }).map((appointment) {
-                    return LabworkItem(
-                      appointmentId: appointment.id,
-                      patient: appointment.patient,
-                      date: appointment.date,
-                      laboratory: appointment.labName,
-                      notes: appointment.labworkNotes,
-                      status: appointment.labworkReceived,
-                    );
-                  }).toList());
+                      labworks: labworks.appointmentsWithLabworks
+                          .map(
+                            (appointment) => LabworkItem(
+                                appointmentId: appointment.id,
+                                patient: appointment.patient,
+                                date: appointment.date,
+                                laboratory: appointment.labName,
+                                notes: appointment.labworkNotes,
+                                status: appointment.labworkReceived,
+                                operators: appointment.subtitleLine2),
+                          )
+                          .toList());
                 }),
           ),
         ],
@@ -100,6 +100,8 @@ class _LabworksTableState extends State<LabworksTable> {
           compare =
               a.date.toIso8601String().compareTo(b.date.toIso8601String());
           break;
+        case 'operators':
+          compare = a.operators.compareTo(b.operators);
         case 'laboratory':
           compare =
               a.laboratory.toLowerCase().compareTo(b.laboratory.toLowerCase());
@@ -279,6 +281,7 @@ class _LabworksTableState extends State<LabworksTable> {
                   children: [
                     _buildDataCell(lab.patient?.title ?? ""),
                     _buildDataCell(lab.date.toString().split(" ").first),
+                    _buildDataCell(lab.operators),
                     _buildDataCell(lab.laboratory),
                     _buildDataCell(lab.notes),
                     lab.status == true
@@ -311,6 +314,7 @@ class _LabworksTableState extends State<LabworksTable> {
         children: [
           _buildHeaderCell(txt("patient"), 'patient'),
           _buildHeaderCell(txt("date"), 'date'),
+          _buildHeaderCell(txt("doctors"), 'operators'),
           _buildHeaderCell(txt("laboratory"), 'laboratory'),
           _buildHeaderCell(txt("notes"), 'notes'),
           _buildHeaderCell(txt("status"), "status")
