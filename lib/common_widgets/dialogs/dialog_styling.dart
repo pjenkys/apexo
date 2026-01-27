@@ -1,6 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
-ContentDialogThemeData dialogStyling(BuildContext context, bool danger) {
+ContentDialogThemeData dialogStyling(BuildContext context, bool danger, [bool withLowerPadding = false]) {
   return ContentDialogThemeData(
     actionsDecoration: BoxDecoration(
         color: FluentTheme.of(context).menuColor,
@@ -18,5 +18,6 @@ ContentDialogThemeData dialogStyling(BuildContext context, bool danger) {
       color: FluentTheme.of(context).micaBackgroundColor,
     ),
     titleStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+    padding: EdgeInsets.fromLTRB(20, 20, 20, withLowerPadding ? 20 : 0)
   );
 }
