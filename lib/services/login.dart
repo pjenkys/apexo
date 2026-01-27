@@ -233,7 +233,6 @@ class _LoginService extends ObservablePersistingObject {
       }
     }
 
-    routes.reset();
     launch.open(true);
     return loginCtrl.finishedLoginProcess();
   }

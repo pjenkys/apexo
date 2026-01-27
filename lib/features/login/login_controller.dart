@@ -1,3 +1,4 @@
+import 'package:apexo/app/routes.dart';
 import 'package:apexo/core/observable.dart';
 import 'package:apexo/services/launch.dart';
 import 'package:apexo/services/login.dart';
@@ -43,6 +44,7 @@ class _LoginScreenState {
     String email = emailField.text;
     String password = passwordField.text;
     login.activate(url, [email, password], online);
+    routes.reset();
   }
 
   _LoginScreenState() {
