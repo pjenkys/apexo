@@ -313,7 +313,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
       nameController.text = "";
       operate = false;
       passwordController.text = "";
-      permissions = zeroPermissions;
+      permissions = [...zeroPermissions];
     }
 
     return ContentDialog(
