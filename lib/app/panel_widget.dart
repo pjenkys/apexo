@@ -480,9 +480,9 @@ class _PanelScreenState extends State<PanelScreen> {
 
   Widget _buildPanelHeaderItemName() {
     return SizedBox(
-      width: 154.5,
+      width: 134,
       child: ItemTitle(
-        maxWidth: 141,
+        maxWidth: 129,
         radius: 0,
         fontSize: 13,
         item: widget.panel.title != null
