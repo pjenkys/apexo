@@ -125,8 +125,12 @@ class AppointmentCard extends StatelessWidget {
                               txt("doctors"),
                               Column(
                                 children: appointment.operatorsIDs
-                                    .map((id) =>
-                                        ItemTitle(item: Model.fromJson({"title": accounts.nameOrEmailFromID(id)}), maxWidth: 115))
+                                    .map((id) => ItemTitle(
+                                        item: Model.fromJson({
+                                          "title":
+                                              accounts.nameOrEmailFromID(id)
+                                        }),
+                                        maxWidth: 115))
                                     .toList(),
                               ),
                               FluentIcons.medical,
@@ -553,9 +557,10 @@ class TimeDifference extends StatelessWidget {
     return Txt(
       difference!,
       style: TextStyle(
-          fontSize: 12,
-          color: Colors.grey.withValues(alpha: 0.5),
-          fontWeight: FontWeight.bold),
+        fontSize: 12,
+        color: FluentTheme.of(context).inactiveColor.withAlpha(100),
+        fontWeight: FontWeight.bold,
+      ),
     );
   }
 }
@@ -574,7 +579,7 @@ class SpacerIcon extends StatelessWidget {
         child: Transform.rotate(
           angle: (pi / (flip == 1 ? 2 : 1)) * flip,
           child: Icon(
-            color: Colors.grey.withValues(alpha: 0.3),
+            color: FluentTheme.of(context).inactiveColor.withAlpha(100),
             FluentIcons.turn_right,
             size: 14,
           ),
