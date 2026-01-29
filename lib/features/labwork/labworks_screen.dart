@@ -230,7 +230,7 @@ class _LabworksTableState extends State<LabworksTable> {
           scrollDirection: Axis.horizontal,
           child: Container(
             constraints:
-                BoxConstraints(maxWidth: max(constraints.maxWidth, 800)),
+                BoxConstraints(maxWidth: max(constraints.maxWidth, 950)),
             child: Column(
               children: [
                 _buildTableHeader(context),
