@@ -228,7 +228,7 @@ class _Routes {
             icon: FluentIcons.people,
             screen: AccountsScreen.new,
             accessible: login.isAdmin,
-            navbarTitle: txt("accounts"),
+            navbarTitle: "",
             onSelect: () {},
           ),
         Route(
