@@ -1,4 +1,11 @@
 
+### ____0.8.2____
+
+-   fixed: labworks screen overflowing
+-   fixed: accounts route shouldn't be on bottom navabr
+-   fixed: color of time difference in appointments list in darkmode
+
+
 ### ____0.8.1____
 
 -   fixed a bug where when resyncing the routes are reset
