@@ -1,0 +1,398 @@
+import 'en.dart';
+
+class Cs implements En {
+  @override
+  Direction $direction = Direction.ltr;
+  @override
+  String $name = "Čeština";
+  @override
+  String $code = "cs";
+
+  @override
+  Map<String, String> dictionary = {
+    // common
+    "cancel": "Zrušit",
+    "close": "Zavřít",
+    "save": "Uložit",
+    "reset": "Resetovat",
+    "continue": "Pokračovat",
+    "add": "Přidat",
+    "edit": "Upravit",
+    "delete": "Smazat",
+    "archive": "Archivovat",
+    "restore": "Obnovit",
+    "logout": "Odhlásit se",
+    "noResultsFound": "Žádné výsledky",
+    "startTyping": "Začněte psát",
+    "home": "Domů",
+    "calendar": "Kalendář",
+    "gettingImages": "Načítání obrázků",
+
+    // call
+    "callLaboratory": "Volat laboratoř",
+    "callPatient": "Volat pacienta",
+    "emailDoctor": "E-mail lékaři",
+    "callIssuer": "Volat vystavitele",
+
+    // screens
+    "settings": "Nastavení",
+    "dashboard": "Přehled",
+    "appointments": "Návštěvy",
+    "patients": "Pacienti",
+    "doctors": "Lékaři",
+    "labworks": "Laboratorní práce",
+    "statistics": "Statistiky",
+
+    // dashboard
+    "admin": "Administrátor",
+    "fullStats": "Úplné statistiky",
+    "payments": "Platby",
+    "appointmentsToday": "Dnešní návštěvy",
+    "patientsToday": "Dnešní pacienti",
+    "newPatientsToday": "Dnešní noví pacienti",
+    "paymentsMadeToday": "Dnešní platby",
+    "modeAdmin": "ADMINISTRÁTOR",
+    "modeUser": "UŽIVATEL",
+    "modeOffline": "OFFLINE",
+    "onceConnectionIsStable":
+        "Jakmile bude vaše připojení stabilní, můžete se znovu připojit pomocí tlačítka v pravém horním rohu.",
+    "unRestrictedAccess": "neomezený přístup v aplikaci",
+    "restrictedAccess":
+        "omezený přístup k některým obrazovkám dle nastavení administrátora",
+    "youAreCurrentlyIn": "Právě jste v režimu",
+    "mode": "režim",
+    "youHave": "Máte",
+    "hello": "Dobrý den",
+
+    // datatable
+    "archiveSelected": "Archivovat vybrané",
+    "searchPlaceholder": "Hledat...",
+    "showHideArchived": "Zobrazit/Skrýt archivované",
+    "showing": "Zobrazeno",
+    "showMore": "Zobrazit více",
+    "by": "Dle",
+    "byTitle": "Dle názvu",
+    "byDate": "Dle data",
+    "noItemsFound": "Nebyly nalezeny žádné položky",
+    "filter": "Filtr",
+
+    // doctors
+    "doctor": "Lékař",
+    "newDoctor": "Nový lékař",
+    "doctorDetails": "Detail lékaře",
+    "pastAppointments": "Minulé návštěvy",
+    "upcomingAppointments": "Nadcházející návštěvy",
+    "doctorName": "Jméno lékaře",
+    "doctorEmail": "E-mail lékaře",
+    "dutyDays": "Služební dny",
+    "addAppointment": "Přidat návštěvu",
+    "lockToUsers":
+        "Pouze následující uživatelé mohou zobrazit/upravit data a návštěvy tohoto lékaře",
+    "noUpcomingAppointmentsForThisDoctor":
+        "Žádné nadcházející návštěvy. Použijte tlačítko níže pro přidání nové",
+
+    // days and months
+    "monday": "Pondělí",
+    "tuesday": "Úterý",
+    "wednesday": "Středa",
+    "thursday": "Čtvrtek",
+    "friday": "Pátek",
+    "saturday": "Sobota",
+    "sunday": "Neděle",
+    "january": "Leden",
+    "february": "Únor",
+    "march": "Březen",
+    "april": "Duben",
+    "may": "Květen",
+    "june": "Červen",
+    "july": "Červenec",
+    "august": "Srpen",
+    "september": "Září",
+    "october": "Říjen",
+    "november": "Listopad",
+    "december": "Prosinec",
+
+    // appointment card
+    "appointment": "Návštěva",
+    "patient": "Pacient",
+    "photos": "Fotografie",
+    "pre-opNotes": "Předoperační poznámky",
+    "post-opNotes": "Pooperační poznámky",
+    "prescription": "Recept",
+    "pay": "Zaplatit",
+    "paid": "Zaplaceno",
+    "price": "Cena",
+    "underpaid": "Nedoplatek",
+    "overpaid": "Přeplatek",
+    "fullyPaid": "Plně zaplaceno",
+    "includesOtherAppointments":
+        "Tento součet odráží i platby z jiných návštěv.",
+    "paymentSummary": "Souhrn plateb",
+    "editingAppointment": "Úprava návštěvy",
+    "after": "Po",
+    "days": "dnech",
+    "day": "dni",
+    "isDone": "Návštěva dokončena",
+    "addLabwork": "Přidat laboratorní práci pro tuto návštěvu",
+    "labworksForThisAppointment": "Laboratorní práce pro tuto návštěvu",
+
+    // patients
+    "patientDetails": "Detail pacienta",
+    "age": "Věk",
+    "gender": "Pohlaví",
+    "last visit": "Poslední návštěva",
+    "total payments": "Celkové platby",
+    "daysAgo": "dnů zpět",
+    "noVisits": "Žádné návštěvy",
+    "addNewPatient": "Přidat nového pacienta",
+    "name": "Jméno",
+    "birthYear": "Rok narození",
+    "phone": "Telefon",
+    "email": "E-mail",
+    "address": "Adresa",
+    "notes": "Poznámky",
+    "patientTags": "Štítky pacienta",
+    "male": "Muž",
+    "female": "Žena",
+    "noAppointmentsFound":
+        "Nebyly nalezeny žádné návštěvy pro tohoto pacienta, použijte tlačítko níže pro přidání nové.",
+    "editPatient": "Upravit pacienta",
+    "editAppointment": "Upravit návštěvu",
+    "patientPage": "Webová stránka pacienta",
+    "patientCanUseTheFollowing":
+        "Pacient může použít následující odkaz pro přístup ke svým návštěvám, platbám a fotografiím.",
+    "printQR": "Tisk QR kódu",
+    "dentalNotes": "Zubní záznamy",
+    "showPrimary": "Zobrazit dočasný chrup",
+    "showPermanent": "Zobrazit stálý chrup",
+    "primary": "Dočasný",
+    "permanent": "Stálý",
+    "lower": "Dolní",
+    "upper": "Horní",
+    "left": "Levý",
+    "right": "Pravý",
+    "centralIncisor": "Velký řezák",
+    "lateralIncisor": "Malý řezák",
+    "canine": "Špičák",
+    "firstPremolar": "První třenový",
+    "secondPremolar": "Druhý třenový",
+    "firstMolar": "První stolička",
+    "secondMolar": "Druhá stolička",
+    "thirdMolar": "Třetí stolička",
+    "exportSelected": "Exportovat vybrané",
+    "noPatientsSelected": "Žádní pacienti nevybráni",
+
+    // calendar (appointments)
+    "allDoctors": "Všichni lékaři",
+    "noAppointmentsForThisDay": "Žádné návštěvy pro tento den",
+    "weekAbbr": "T",
+    "twoWeeksAbbr": "2T",
+    "monthAbbr": "M",
+    "today": "Dnes",
+    "newPatient": "Nový pacient",
+    "date": "Datum",
+    "changeDate": "Změnit datum",
+    "changeTime": "Změnit čas",
+    "attention": "Pozor",
+    "doctorNotAvailable":
+        "Jeden z vybraných lékařů nemusí být ve zvoleném termínu dostupný.",
+    "time": "Čas",
+    "preOperativeNotes": "Předoperační poznámky",
+    "selectDoctors": "Vybrat lékaře",
+    "selectPatient": "Vybrat pacienta",
+    "operativeDetails": "Detaily zákroku",
+    "postOperativeNotes": "Pooperační poznámky",
+    "printPrescription": "Tisk receptu",
+    "priceIn": "Cena v",
+    "paidIn": "Zaplaceno v",
+    "gallery": "Galerie",
+    "link": "Odkaz",
+    "upload": "Nahrát",
+    "camera": "Fotoaparát",
+    "emptyGallery": "Prázdná galerie",
+    "noPhotos": "Zatím nebyly nahrány žádné fotografie.",
+    "importingPhotosFromLink": "Import fotografií z odkazu",
+    "useThisForm":
+        "Použijte tento formulář pro import fotografií ze sdílených odkazů (např. Google Photos) nebo jakékoli webové stránky obsahující fotografie.",
+    "error": "Chyba",
+    "enterLink": "Zadejte URL s fotografiemi",
+    "import": "Importovat",
+
+    // labworks
+    "laboratory": "Laboratoř",
+    "month": "měsíc",
+    "newLabwork": "Nová laboratorní práce",
+    "labwork": "laboratorní práce",
+    "labworkTitle": "Název práce",
+    "orderNotes": "Poznámky k objednávce",
+    "unpaid": "Nezaplaceno",
+    "noSuggestions": "Žádné návrhy",
+    "received": "Práce přijata",
+    "showReceived": "Zobrazit přijaté",
+
+    // expenses
+    "expense": "Výdaj",
+    "expenses": "Výdaje",
+    "receipt": "Účtenka",
+    "title": "Název",
+    "cost": "Cena",
+    "issuer": "Vystavitel",
+    "amount": "Částka",
+    "amountIn": "Částka v",
+    "status": "Stav",
+    "due": "Splatné",
+    "open": "Otevřené",
+    "rename": "Přejmenovat",
+    "addSupplier": "Přidat dodavatele",
+    "archiveSupplier": "Archivovat dodavatele",
+    "items": "Položky",
+    "markAsPaid": "Označit jako zaplacené",
+    "markAsDue": "Označit jako splatné",
+    "unpaidOrders": "Nezaplacené objednávky",
+    "paymentHistory": "Historie plateb",
+    "addOrder": "Přidat objednávku",
+    "filterByItems": "Filtrovat dle položek",
+
+    // stats
+    "pickRange": "Vybrat rozsah",
+    "start": "Od",
+    "end": "Do",
+    "weeks": "Týdny",
+    "months": "Měsíce",
+    "quarters": "Čtvrtletí",
+    "years": "Roky",
+    "appointmentsPer": "Návštěv za",
+    "paymentsAndExpensesPer": "Platby a výdaje za",
+    "newPatientsPer": "Noví pacienti za",
+    "doneMissedPer": "Dokončené a zmeškané za",
+    "timeOfDay": "Denní doba",
+    "dayOfWeek": "Den v týdnu",
+    "dayOfMonth": "Den v měsíci",
+    "monthOfYear": "Měsíc v roce",
+    "patientsGender": "Pohlaví pacientů",
+    "total": "Celkem",
+    "in_Duration_": "v",
+    "acquiredPatientsIn": "Získaní pacienti v",
+    "doneAndMissedAppointmentsIn": "Dokončené a zmeškané návštěvy v",
+    "distributionOfAppointments": "Rozložení návštěv",
+    "maleAndFemalePatients": "Mužští a ženští pacienti",
+    "done": "dokončeno",
+    "missed": "zmeškáno",
+
+    // settings
+    "currency": "Měna",
+    "currency_desc": "Kód měny používaný v aplikaci (např. USD, EUR, CZK).",
+    "phone_desc":
+        "Telefonní číslo se bude zobrazovat na tiscích a webové stránce pacienta.",
+    "prescriptionFooter": "Patička receptu",
+    "prescriptionFooter_desc": "Tento text se zobrazí ve spodní části receptu.",
+    "language": "Jazyk",
+    "language_desc":
+        "Jazyk rozhraní pro menu, tlačítka a informace v aplikaci.",
+    "startingDayOfWeek": "První den týdne",
+    "startingDayOfWeek_desc": "Den, kterým začíná týden.",
+    "dateFormat": "Formát data",
+    "dateFormat_desc": "Tento formát bude použit pro zobrazení dat.",
+    "cacheReset": "Reset mezipaměti",
+    "cacheReset_desc":
+        "Pomocí tlačítka níže můžete smazat lokálně uložená data (kromě obrázků). To může vyřešit problémy se synchronizací.",
+    "month/day/year": "Měsíc/Den/Rok",
+    "day/month/year": "Den/Měsíc/Rok",
+    "appliesTo": "Platí pro",
+    "all": "Vše",
+    "you": "vy",
+    "initialSynchronization": "Počáteční synchronizace",
+    "synchronizing": "Synchronizuji",
+    "clearingLocalData": "Mazání lokálních dat",
+
+    // advanced settings: Backups
+    "backups": "Zálohy",
+    "refresh": "Obnovit",
+    "download": "Stáhnout",
+    "createNew": "Vytvořit novou",
+    "restoreBackup": "Obnovit ze zálohy",
+    "restoreBackupWarning1":
+        "Obnovení této zálohy přepíše všechna data v aplikaci. Jakékoli změny provedené po datu této zálohy",
+    "restoreBackupWarning2":
+        "budou ztraceny.\n\nOpravdu chcete tuto zálohu obnovit?",
+    "sureDeleteBackup": "Opravdu chcete smazat tuto zálohu",
+    "backupDate": "Datum zálohy",
+    "useTheFollowingLinkToDownloadTheBackup":
+        "Použijte následující odkaz ke stažení zálohy",
+
+    // advanced settings: Admins
+    "admins": "Administrátoři",
+    "accountCreated": "Účet vytvořen",
+    "editAdmin": "Upravit administrátora",
+    "validEmailMustBeProvided": "Musí být zadán platný e-mail",
+    "password": "Heslo",
+    "leaveBlankToKeepUnchanged": "Ponechte prázdné pro zachování",
+    "updatingPassword": "Aktualizace hesla",
+    "leaveItEmpty": "Ponechte pole hesla prázdné, pokud jej nechcete měnit.",
+    "newAdmin": "Nový administrátor",
+    "minimumPasswordLength": "Heslo minimálně 10 znaků",
+
+    // advanced settings: Users
+    "users": "Uživatelé",
+    "editUser": "Upravit uživatele",
+    "newUser": "Nový uživatel",
+
+    // advanced settings: Permissions
+    "permissions": "Uživatelská oprávnění",
+    "usersCanAccess": "Uživatelé mají přístup",
+    "permissionsNotice":
+        "Následující oprávnění platí pro výše uvedené uživatele a offline přístup. Administrátoři (jako vy) mají neomezený přístup, pokud nejsou offline.",
+    "restricted": "Omezeno",
+    "view": "Zobrazení",
+    "personal": "Osobní",
+    "full": "Plné",
+    "local": "lokální",
+    "canUpload": "Může nahrávat",
+    "cantUpload": "Nemůže nahrávat",
+    "accounts": "Účty",
+    "operatesOnPatients": "Pracuje s pacienty",
+    "undelivered": "nedoručeno",
+
+    // advanced settings: prod tests
+    "prodTests": "Produkční testy",
+    "fileStorageTest": "Test úložiště souborů",
+    "fileStorageTestDesc":
+        "Použijte tlačítko níže pro test, zda úložiště S3 funguje správně.",
+    "fileStorageButton": "Testovat nastavení S3",
+    "fileStorageFail": "Nastavení S3 selhalo",
+    "fileStorageSuccess": "Nastavení S3 funguje správně",
+    "emailTest": "Test e-mailu",
+    "emailTestDesc":
+        "Použijte tlačítko pro test serveru pro odesílání e-mailů. Na cílovou adresu by měl dorazit e-mail pro obnovu hesla.",
+    "targetEmail": "Cílový e-mail",
+    "emailTestButton": "Odeslat testovací e-mail",
+    "emailTestFail": "Test e-mailu selhal",
+    "emailTestSuccess": "E-mail úspěšně odeslán, zkontrolujte doručenou poštu.",
+    "fail": "Selhání",
+    "success": "Úspěch",
+
+    // login
+    "login": "Přihlásit se",
+    "resetPassword": "Obnovit heslo",
+    "serverUrl": "URL serveru",
+    "proceedOffline": "Pokračovat offline",
+    "youLLGet": "Získat odkaz pro obnovu e-mailem",
+    "beenSent":
+        "Instrukce pro obnovu hesla byly odeslány, zkontrolujte doručenou poštu.",
+
+    // other
+    "otherNotesPerAppointment":
+        "V panelu návštěv jsou další poznámky, které se zde nezobrazují.",
+    "sureArchiveSelected": "Opravdu chcete archivovat vybrané položky?",
+    "sureClosePanel":
+        "Opravdu chcete zavřít tento panel? Neuložené změny budou ztraceny.",
+    "sure": "Jistě",
+    "back": "Zpět",
+    "firstLaunchDialogTitle": "Vítejte v Apexo",
+    "firstLaunchDialogContent":
+        "Úspěšně jste nainstalovali Apexo. Pro lepší zážitek a reálné použití je však třeba provést několik nastavení. Naskenujte QR kód níže a začněte.",
+    "newVersionDialogTitle": "K dispozici nová verze",
+    "newVersionDialogContent":
+        "Je k dispozici nová verze Apexo. Prosím aktualizujte na nejnovější verzi. Naskenujte QR kód níže a začněte.",
+  };
+}
